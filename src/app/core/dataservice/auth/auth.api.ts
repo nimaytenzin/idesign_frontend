@@ -12,7 +12,6 @@ import {
 	User,
 } from './auth.interface';
 import { BASEAPI_URL } from '../../constants/constants';
-import { ApiResponse } from '../genre/genre.interface';
 
 @Injectable({
 	providedIn: 'root',
