@@ -24,13 +24,23 @@ export class NavbarComponent implements OnInit, OnDestroy {
 			icon: 'pi-home',
 		},
 		{
-			label: 'Movies',
-			route: '/movies',
-			icon: 'pi-video',
+			label: 'Products',
+			route: '/products',
+			icon: 'pi-box',
 		},
 		{
-			label: 'How to Book',
-			route: '/guide',
+			label: 'Custom Orders',
+			route: '/custom',
+			icon: 'pi-cog',
+		},
+		{
+			label: 'Gallery',
+			route: '/gallery',
+			icon: 'pi-images',
+		},
+		{
+			label: 'About',
+			route: '/about',
 			icon: 'pi-info-circle',
 		},
 	];

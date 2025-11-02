@@ -1,0 +1,541 @@
+<!-- Product Catalog Component -->
+<div class="min-h-screen bg-gray-50">
+	<!-- Page Header -->
+	<div class="bg-white shadow-sm border-b border-gray-200">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+				<div>
+					<h1 class="text-3xl font-bold text-gray-900 font-['Poppins']">
+						Our Products
+					</h1>
+					<p class="mt-2 text-gray-600 font-['Roboto']">
+						Discover our collection of premium 3D printed Bhutanese artifacts
+						and custom designs
+					</p>
+				</div>
+
+				<!-- Quick Stats -->
+				<div
+					class="mt-4 lg:mt-0 flex items-center space-x-6 text-sm text-gray-500"
+				>
+					<span class="font-['Roboto']"
+						>{{ filteredProducts.length }} products</span
+					>
+					<span class="font-['Roboto']">{{ availableCount }} in stock</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div class="flex flex-col lg:flex-row gap-8">
+			<!-- Filters Sidebar -->
+			<div class="lg:w-64 flex-shrink-0">
+				<div
+					class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24"
+				>
+					<h2 class="text-lg font-semibold text-gray-900 mb-6 font-['Poppins']">
+						Filters
+					</h2>
+
+					<!-- Search Filter -->
+					<div class="mb-6">
+						<label
+							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
+						>
+							Search Products
+						</label>
+						<div class="relative">
+							<input
+								type="text"
+								[(ngModel)]="searchTerm"
+								(ngModelChange)="applyFilters()"
+								placeholder="Search by title or description..."
+								class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto'] text-sm"
+							/>
+							<i
+								class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+							></i>
+						</div>
+					</div>
+
+					<!-- Category Filter -->
+					<div class="mb-6">
+						<label
+							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
+						>
+							Category
+						</label>
+						<select
+							[(ngModel)]="selectedCategory"
+							(ngModelChange)="applyFilters()"
+							class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto'] text-sm"
+						>
+							<option value="">All Categories</option>
+							<option
+								*ngFor="let category of categories"
+								[value]="category.value"
+							>
+								{{ category.label }}
+							</option>
+						</select>
+					</div>
+
+					<!-- Material Filter -->
+					<div class="mb-6">
+						<label
+							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
+						>
+							Material
+						</label>
+						<div class="space-y-2">
+							<label
+								*ngFor="let material of materials"
+								class="flex items-center"
+							>
+								<input
+									type="checkbox"
+									[value]="material"
+									[checked]="selectedMaterials.includes(material)"
+									(change)="toggleMaterial(material)"
+									class="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+								/>
+								<span class="ml-2 text-sm text-gray-700 font-['Roboto']">{{
+									material
+								}}</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Price Range Filter -->
+					<div class="mb-6">
+						<label
+							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
+						>
+							Price Range (Nu.)
+						</label>
+						<div class="flex space-x-2">
+							<input
+								type="number"
+								[(ngModel)]="priceRange.min"
+								(ngModelChange)="applyFilters()"
+								placeholder="Min"
+								class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto'] text-sm"
+							/>
+							<input
+								type="number"
+								[(ngModel)]="priceRange.max"
+								(ngModelChange)="applyFilters()"
+								placeholder="Max"
+								class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto'] text-sm"
+							/>
+						</div>
+					</div>
+
+					<!-- Availability Filter -->
+					<div class="mb-6">
+						<label
+							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
+						>
+							Availability
+						</label>
+						<div class="space-y-2">
+							<label class="flex items-center">
+								<input
+									type="radio"
+									name="availability"
+									value=""
+									[checked]="selectedAvailability === ''"
+									(change)="setAvailability('')"
+									class="border-gray-300 text-teal-600 focus:ring-teal-500"
+								/>
+								<span class="ml-2 text-sm text-gray-700 font-['Roboto']"
+									>All Products</span
+								>
+							</label>
+							<label class="flex items-center">
+								<input
+									type="radio"
+									name="availability"
+									value="in-stock"
+									[checked]="selectedAvailability === 'in-stock'"
+									(change)="setAvailability('in-stock')"
+									class="border-gray-300 text-teal-600 focus:ring-teal-500"
+								/>
+								<span class="ml-2 text-sm text-gray-700 font-['Roboto']"
+									>In Stock</span
+								>
+							</label>
+							<label class="flex items-center">
+								<input
+									type="radio"
+									name="availability"
+									value="made-to-order"
+									[checked]="selectedAvailability === 'made-to-order'"
+									(change)="setAvailability('made-to-order')"
+									class="border-gray-300 text-teal-600 focus:ring-teal-500"
+								/>
+								<span class="ml-2 text-sm text-gray-700 font-['Roboto']"
+									>Made to Order</span
+								>
+							</label>
+						</div>
+					</div>
+
+					<!-- Clear Filters Button -->
+					<button
+						(click)="clearFilters()"
+						class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors duration-200 font-['Roboto']"
+					>
+						Clear All Filters
+					</button>
+				</div>
+			</div>
+
+			<!-- Products Grid -->
+			<div class="flex-1">
+				<!-- Sort Controls -->
+				<div
+					class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6"
+				>
+					<div
+						class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+					>
+						<div class="flex items-center space-x-4 mb-4 sm:mb-0">
+							<label class="text-sm font-medium text-gray-700 font-['Roboto']">
+								Sort by:
+							</label>
+							<select
+								[(ngModel)]="sortBy"
+								(ngModelChange)="applySorting()"
+								class="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto'] text-sm"
+							>
+								<option value="featured">Featured</option>
+								<option value="newest">Newest Arrivals</option>
+								<option value="best-selling">Best Selling</option>
+								<option value="price-low">Price: Low to High</option>
+								<option value="price-high">Price: High to Low</option>
+								<option value="rating">Customer Rating</option>
+								<option value="name">Name (A-Z)</option>
+							</select>
+						</div>
+
+						<!-- View Toggle -->
+						<div class="flex items-center space-x-2">
+							<span class="text-sm text-gray-500 font-['Roboto']">View:</span>
+							<button
+								(click)="setViewMode('grid')"
+								[class]="
+									viewMode === 'grid'
+										? 'bg-teal-100 text-teal-700'
+										: 'bg-gray-100 text-gray-700'
+								"
+								class="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+							>
+								<i class="pi pi-th-large"></i>
+							</button>
+							<button
+								(click)="setViewMode('list')"
+								[class]="
+									viewMode === 'list'
+										? 'bg-teal-100 text-teal-700'
+										: 'bg-gray-100 text-gray-700'
+								"
+								class="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+							>
+								<i class="pi pi-list"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Loading State -->
+				<div *ngIf="loading" class="flex justify-center items-center py-12">
+					<div
+						class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"
+					></div>
+				</div>
+
+				<!-- No Results -->
+				<div
+					*ngIf="!loading && filteredProducts.length === 0"
+					class="text-center py-12"
+				>
+					<div class="max-w-md mx-auto">
+						<i class="pi pi-search text-4xl text-gray-400 mb-4"></i>
+						<h3 class="text-lg font-medium text-gray-900 mb-2 font-['Poppins']">
+							No products found
+						</h3>
+						<p class="text-gray-600 mb-4 font-['Roboto']">
+							Try adjusting your filters or search terms to find what you're
+							looking for.
+						</p>
+						<button
+							(click)="clearFilters()"
+							class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium"
+						>
+							Clear Filters
+						</button>
+					</div>
+				</div>
+
+				<!-- Products Grid View -->
+				<div
+					*ngIf="!loading && filteredProducts.length > 0 && viewMode === 'grid'"
+					class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+				>
+					<div
+						*ngFor="let product of paginatedProducts"
+						class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group cursor-pointer"
+						(click)="viewProduct(product.id)"
+					>
+						<!-- Product Image -->
+						<div class="relative overflow-hidden rounded-t-lg bg-gray-100">
+							<img
+								[src]="product.image"
+								[alt]="product.title"
+								class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+								(error)="onImageError($event)"
+							/>
+
+							<!-- Status Badge -->
+							<div class="absolute top-3 left-3">
+								<span
+									class="px-2 py-1 text-xs font-medium rounded-full"
+									[ngClass]="{
+										'bg-teal-100 text-teal-800': product.status === 'in-stock',
+										'bg-orange-100 text-orange-800':
+											product.status === 'made-to-order',
+										'bg-red-100 text-red-800': product.status === 'out-of-stock'
+									}"
+								>
+									{{ getStatusLabel(product.status) }}
+								</span>
+							</div>
+
+							<!-- Quick Action Buttons -->
+							<div
+								class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-y-2"
+							>
+								<button
+									class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200"
+								>
+									<i
+										class="pi pi-heart text-gray-400 hover:text-red-500 text-sm transition-colors duration-200"
+									></i>
+								</button>
+								<button
+									class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200"
+								>
+									<i
+										class="pi pi-eye text-gray-400 hover:text-teal-500 text-sm transition-colors duration-200"
+									></i>
+								</button>
+							</div>
+						</div>
+
+						<!-- Product Info -->
+						<div class="p-4">
+							<h3
+								class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 font-['Poppins']"
+							>
+								{{ product.title }}
+							</h3>
+
+							<p
+								class="text-gray-600 text-sm mb-3 line-clamp-2 font-['Roboto']"
+							>
+								{{ product.shortDescription }}
+							</p>
+
+							<!-- Product Specs -->
+							<div class="flex flex-wrap gap-1 mb-3">
+								<span
+									class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+								>
+									{{ product.dimensions }}
+								</span>
+								<span
+									class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+								>
+									{{ product.material }}
+								</span>
+							</div>
+
+							<!-- Price and Rating -->
+							<div class="flex items-center justify-between mb-3">
+								<div class="flex flex-col">
+									<span
+										class="text-lg font-bold text-gray-900 font-['Poppins']"
+									>
+										Nu. {{ product.price | number : "1.0-0" }}
+									</span>
+									<span
+										class="text-xs text-gray-500 font-['Roboto']"
+										*ngIf="
+											product.originalPrice &&
+											product.originalPrice > product.price
+										"
+									>
+										<s>Nu. {{ product.originalPrice | number : "1.0-0" }}</s>
+									</span>
+								</div>
+
+								<div class="flex items-center" *ngIf="product.rating">
+									<span class="text-yellow-400 text-sm mr-1">
+										<i class="pi pi-star-fill"></i>
+									</span>
+									<span class="text-sm text-gray-600 font-['Roboto']">
+										{{ product.rating }}
+									</span>
+								</div>
+							</div>
+
+							<!-- Add to Cart Button -->
+							<button
+								class="w-full px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium text-sm"
+								(click)="addToCart(product); $event.stopPropagation()"
+							>
+								Add to Cart
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Products List View -->
+				<div
+					*ngIf="!loading && filteredProducts.length > 0 && viewMode === 'list'"
+					class="space-y-4"
+				>
+					<div
+						*ngFor="let product of paginatedProducts"
+						class="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-6 cursor-pointer"
+						(click)="viewProduct(product.id)"
+					>
+						<div class="flex flex-col md:flex-row gap-6">
+							<!-- Product Image -->
+							<div
+								class="md:w-48 md:h-32 w-full h-48 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0"
+							>
+								<img
+									[src]="product.image"
+									[alt]="product.title"
+									class="w-full h-full object-cover"
+									(error)="onImageError($event)"
+								/>
+							</div>
+
+							<!-- Product Details -->
+							<div class="flex-1">
+								<div class="flex flex-col md:flex-row md:justify-between">
+									<div class="flex-1">
+										<h3
+											class="text-xl font-semibold text-gray-900 mb-2 font-['Poppins']"
+										>
+											{{ product.title }}
+										</h3>
+
+										<p class="text-gray-600 mb-3 font-['Roboto']">
+											{{ product.shortDescription }}
+										</p>
+
+										<!-- Specs and Status -->
+										<div class="flex flex-wrap gap-2 mb-3">
+											<span
+												class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+											>
+												{{ product.dimensions }}
+											</span>
+											<span
+												class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+											>
+												{{ product.material }}
+											</span>
+											<span
+												class="px-2 py-1 text-xs font-medium rounded-full"
+												[ngClass]="{
+													'bg-teal-100 text-teal-800':
+														product.status === 'in-stock',
+													'bg-orange-100 text-orange-800':
+														product.status === 'made-to-order',
+													'bg-red-100 text-red-800':
+														product.status === 'out-of-stock'
+												}"
+											>
+												{{ getStatusLabel(product.status) }}
+											</span>
+										</div>
+
+										<!-- Rating -->
+										<div class="flex items-center" *ngIf="product.rating">
+											<div class="flex items-center mr-2">
+												<span
+													class="text-yellow-400 text-sm"
+													*ngFor="let star of [1, 2, 3, 4, 5]"
+												>
+													<i
+														class="pi"
+														[ngClass]="
+															star <= product.rating
+																? 'pi-star-fill'
+																: 'pi-star'
+														"
+													></i>
+												</span>
+											</div>
+											<span class="text-sm text-gray-500 font-['Roboto']">
+												({{ product.reviewCount || 0 }} reviews)
+											</span>
+										</div>
+									</div>
+
+									<!-- Price and Actions -->
+									<div
+										class="md:text-right mt-4 md:mt-0 flex flex-col justify-between"
+									>
+										<div class="mb-4">
+											<div
+												class="text-2xl font-bold text-gray-900 font-['Poppins']"
+											>
+												Nu. {{ product.price | number : "1.0-0" }}
+											</div>
+											<div
+												class="text-sm text-gray-500 font-['Roboto']"
+												*ngIf="
+													product.originalPrice &&
+													product.originalPrice > product.price
+												"
+											>
+												<s
+													>Nu. {{ product.originalPrice | number : "1.0-0" }}</s
+												>
+											</div>
+										</div>
+
+										<button
+											class="px-6 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium"
+											(click)="addToCart(product); $event.stopPropagation()"
+										>
+											Add to Cart
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pagination -->
+				<div *ngIf="!loading && filteredProducts.length > 0" class="mt-8">
+					<p-paginator
+						[rows]="itemsPerPage"
+						[totalRecords]="filteredProducts.length"
+						[first]="(currentPage - 1) * itemsPerPage"
+						(onPageChange)="onPageChange($event)"
+						styleClass="custom-paginator"
+					></p-paginator>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

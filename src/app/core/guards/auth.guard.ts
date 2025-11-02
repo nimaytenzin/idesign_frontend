@@ -6,62 +6,38 @@ import {
 	ActivatedRouteSnapshot,
 	RouterStateSnapshot,
 } from '@angular/router';
-import { Observable, map, take } from 'rxjs';
-import { AuthService } from '../dataservice/auth/auth.service';
-import { UserRole } from '../dataservice/auth/auth.interface';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class AuthGuard implements CanActivate, CanActivateChild {
-	constructor(private authService: AuthService, private router: Router) {}
+	constructor(private router: Router) {}
 
 	canActivate(
 		route: ActivatedRouteSnapshot,
 		state: RouterStateSnapshot
-	): Observable<boolean> | Promise<boolean> | boolean {
-		return this.checkAuth(route, state);
+	): boolean {
+		return this.checkAuth(state);
 	}
 
 	canActivateChild(
 		route: ActivatedRouteSnapshot,
 		state: RouterStateSnapshot
-	): Observable<boolean> | Promise<boolean> | boolean {
-		return this.checkAuth(route, state);
+	): boolean {
+		return this.checkAuth(state);
 	}
 
-	private checkAuth(
-		route: ActivatedRouteSnapshot,
-		state: RouterStateSnapshot
-	): Observable<boolean> {
-		return this.authService.authState$.pipe(
-			take(1),
-			map((authState) => {
-				if (!authState.isAuthenticated) {
-					this.router.navigate(['/auth/login'], {
-						queryParams: { returnUrl: state.url },
-					});
-					return false;
-				}
+	private checkAuth(state: RouterStateSnapshot): boolean {
+		const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
-				const requiredRoles = route.data['roles'] as UserRole[];
-				if (requiredRoles && requiredRoles.length > 0) {
-					const hasRequiredRole = this.authService.hasAnyRole(requiredRoles);
+		if (!isAuthenticated) {
+			this.router.navigate(['/auth/login'], {
+				queryParams: { returnUrl: state.url },
+			});
+			return false;
+		}
 
-					if (!hasRequiredRole) {
-						// Redirect to appropriate dashboard or show access denied
-						if (this.authService.isCustomer()) {
-							this.router.navigate(['/']);
-						} else {
-							this.router.navigate(['/access-denied']);
-						}
-						return false;
-					}
-				}
-
-				return true;
-			})
-		);
+		return true;
 	}
 }
 
@@ -69,24 +45,22 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 	providedIn: 'root',
 })
 export class AdminGuard implements CanActivate {
-	constructor(private authService: AuthService, private router: Router) {}
+	constructor(private router: Router) {}
 
-	canActivate(): Observable<boolean> {
-		return this.authService.authState$.pipe(
-			take(1),
-			map((authState) => {
-				if (!authState.isAuthenticated) {
-					this.router.navigate(['/auth/login']);
-					return false;
-				}
+	canActivate(): boolean {
+		const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+		const userRole = localStorage.getItem('userRole');
 
-				if (!this.authService.hasAnyRole([UserRole.ADMIN])) {
-					this.router.navigate(['/']);
-					return false;
-				}
+		if (!isAuthenticated) {
+			this.router.navigate(['/auth/login']);
+			return false;
+		}
 
-				return true;
-			})
-		);
+		if (userRole !== 'admin') {
+			this.router.navigate(['/']);
+			return false;
+		}
+
+		return true;
 	}
 }

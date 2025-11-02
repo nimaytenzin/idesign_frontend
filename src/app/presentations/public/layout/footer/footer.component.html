@@ -1,79 +1,222 @@
-<footer class="bg-gray-900 text-gray-300 py-12 mt-16">
-	<div class="max-w-screen-xl mx-auto px-4">
+<!-- iDesign 3D Printing Shop Footer -->
+<footer class="bg-gray-900 text-gray-300 py-16 mt-24">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<!-- Main Grid -->
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+			<!-- Company Info -->
+			<div class="lg:col-span-2">
+				<!-- Logo and Brand -->
+				<div class="flex items-center space-x-3 mb-6">
+					<div class="relative">
+						<div
+							class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-300 transform rotate-12"
+						></div>
+						<div
+							class="absolute -top-1 -right-1 w-4 h-4 bg-teal-500 rounded-sm"
+						></div>
+					</div>
+					<div class="flex flex-col">
+						<span
+							class="text-white font-bold text-2xl tracking-tight font-['Poppins']"
+						>
+							iDesign
+						</span>
+						<span class="text-teal-400 text-sm font-medium">
+							3D Printing Excellence
+						</span>
+					</div>
+				</div>
+
+				<p class="text-gray-400 mb-4 leading-relaxed font-['Roboto']">
+					Specializing in premium 3D printed Bhutanese stupas and custom
+					designs. We bring traditional craftsmanship into the digital age with
+					precision 3D printing technology.
+				</p>
+
+				<div class="space-y-2 text-sm">
+					<p class="flex items-center">
+						<i class="pi pi-map-marker text-teal-400 mr-3"></i>
+						<span>Thimphu, Bhutan</span>
+					</p>
+					<p class="flex items-center">
+						<i class="pi pi-phone text-teal-400 mr-3"></i>
+						<span>+975 17123456</span>
+					</p>
+					<p class="flex items-center">
+						<i class="pi pi-envelope text-teal-400 mr-3"></i>
+						<span>helloidesign.bt</span>
+					</p>
+				</div>
+			</div>
+
 			<!-- Quick Links -->
 			<div>
-				<h3 class="text-white font-semibold mb-4">Quick Links</h3>
-				<ul class="space-y-2">
+				<h3 class="text-white font-semibold mb-6 font-['Poppins']">
+					Quick Links
+				</h3>
+				<ul class="space-y-3">
 					<li>
-						<a href="#" class="hover:text-white transition-colors">Movies</a>
+						<a
+							href="/products"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							All Products
+						</a>
 					</li>
 					<li>
-						<a href="#" class="hover:text-white transition-colors"
-							>Promotions</a
+						<a
+							href="/products?category=stupas"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
 						>
+							Bhutanese Stupas
+						</a>
 					</li>
 					<li>
-						<a href="#" class="hover:text-white transition-colors"
-							>Book A Hall</a
+						<a
+							href="/custom"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
 						>
+							Custom Orders
+						</a>
 					</li>
 					<li>
-						<a href="#" class="hover:text-white transition-colors"
-							>Druk Cinemas</a
+						<a
+							href="/gallery"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
 						>
+							Gallery
+						</a>
 					</li>
-
 					<li>
-						<a href="#" class="hover:text-white transition-colors"
-							>Experiences</a
+						<a
+							href="/about"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
 						>
+							About Us
+						</a>
 					</li>
 				</ul>
 			</div>
 
-			<!-- Company Info -->
+			<!-- Services -->
 			<div>
-				<h3 class="text-white font-semibold mb-4">Company</h3>
-				<p class="mb-4">Druk Cinema Pvt LTD<br />+975234482 (1559-Hotline)</p>
-				<p class="mb-4">
-					323, Norzin Lam SE 22/19, Norzin Wog,<br />47400 Thimphu Thromde,
-					Bhutan
-				</p>
+				<h3 class="text-white font-semibold mb-6 font-['Poppins']">Services</h3>
+				<ul class="space-y-3">
+					<li>
+						<a
+							href="/services/3d-printing"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							3D Printing
+						</a>
+					</li>
+					<li>
+						<a
+							href="/services/design"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Custom Design
+						</a>
+					</li>
+					<li>
+						<a
+							href="/services/restoration"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Digital Restoration
+						</a>
+					</li>
+					<li>
+						<a
+							href="/services/consultation"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Consultation
+						</a>
+					</li>
+					<li>
+						<a
+							href="/contact"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Contact Us
+						</a>
+					</li>
+				</ul>
 			</div>
+		</div>
 
-			<!-- Download App -->
-
-			<!-- Social Media -->
-			<div>
-				<h3 class="text-white font-semibold mb-4">Follow Us On</h3>
-				<div class="flex gap-4 flex-wrap">
-					<a
-						*ngFor="let social of socialLinks"
-						href="#"
-						class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors"
+		<!-- Newsletter Signup -->
+		<div class="border-t border-gray-800 pt-8 mb-8">
+			<div class="max-w-md">
+				<h3 class="text-white font-semibold mb-4 font-['Poppins']">
+					Stay Updated
+				</h3>
+				<p class="text-gray-400 text-sm mb-4 font-['Roboto']">
+					Subscribe to receive updates on new products and special offers.
+				</p>
+				<div class="flex">
+					<input
+						type="email"
+						placeholder="Enter your email"
+						class="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto']"
+					/>
+					<button
+						class="px-6 py-2 bg-teal-600 text-white rounded-r-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium"
 					>
-						<i [class]="social.icon"></i>
-					</a>
+						Subscribe
+					</button>
 				</div>
 			</div>
 		</div>
 
-		<!-- Bottom Bar -->
-		<div class="border-t border-gray-800 pt-8 mt-8">
-			<div class="flex flex-col md:flex-row justify-between items-center gap-4">
-				<div class="flex gap-4 flex-wrap">
-					<a href="#" class="hover:text-white transition-colors"
-						>Terms & Conditions</a
-					>
-					<a href="#" class="hover:text-white transition-colors"
-						>Personal Data Notice</a
-					>
+		<!-- Social Media and Bottom Bar -->
+		<div class="border-t border-gray-800 pt-8">
+			<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+				<!-- Social Media -->
+				<div class="flex items-center space-x-4">
+					<span class="text-sm text-gray-400 font-['Roboto']">Follow us:</span>
+					<div class="flex space-x-3">
+						<a
+							*ngFor="let social of socialLinks"
+							[href]="social.url"
+							target="_blank"
+							class="w-10 h-10 rounded-md bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-all duration-200 transform hover:scale-110"
+							[title]="social.name"
+						>
+							<i [class]="social.icon" class="text-sm"></i>
+						</a>
+					</div>
 				</div>
-				<p class="text-sm">
-					© Copyright {{ currentYear }} . All Rights Reserved.
-				</p>
+
+				<!-- Legal Links and Copyright -->
+				<div
+					class="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-sm"
+				>
+					<div class="flex gap-4">
+						<a
+							href="/privacy"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Privacy Policy
+						</a>
+						<a
+							href="/terms"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Terms of Service
+						</a>
+						<a
+							href="/shipping"
+							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+						>
+							Shipping Info
+						</a>
+					</div>
+					<p class="text-gray-500 font-['Roboto']">
+						© {{ currentYear }} iDesign. All rights reserved.
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,7 +1,7 @@
-# Movie Booking System - Self Booking Implementation
+# iDesign Frontend - Self Booking Implementation
 
 ## Overview
-This document outlines the complete self-booking user story implementation for the movie booking system.
+This document outlines the complete self-booking user story implementation for the iDesign system.
 
 ## User Journey Flow
 1. **Homepage** - User sees list of movies (screening/coming soon)

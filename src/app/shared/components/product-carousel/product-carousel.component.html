@@ -1,0 +1,171 @@
+<!-- Product Carousel Component -->
+<section class="py-16 bg-gray-50">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<!-- Section Header -->
+		<div class="text-center mb-12">
+			<h2 class="text-3xl font-bold text-gray-900 mb-4 font-['Poppins']">
+				Featured Products
+			</h2>
+			<p class="text-gray-600 max-w-2xl mx-auto font-['Roboto']">
+				Discover our premium collection of 3D printed Bhutanese stupas and
+				custom designs, crafted with precision and attention to detail.
+			</p>
+		</div>
+
+		<!-- Carousel Container -->
+		<div class="relative">
+			<p-carousel
+				[value]="featuredProducts"
+				[numVisible]="numVisible"
+				[numScroll]="1"
+				[circular]="true"
+				[autoplayInterval]="5000"
+				[showIndicators]="true"
+				[showNavigators]="true"
+				styleClass="custom-carousel"
+				[responsiveOptions]="responsiveOptions"
+			>
+				<!-- Product Card Template -->
+				<ng-template let-product pTemplate="item">
+					<div class="p-4">
+						<div
+							class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group cursor-pointer"
+							(click)="viewProduct(product.id)"
+						>
+							<!-- Product Image -->
+							<div class="relative overflow-hidden rounded-t-lg bg-gray-100">
+								<img
+									[src]="product.image"
+									[alt]="product.title"
+									class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+									[style.background-color]="'#f3f4f6'"
+									(error)="onImageError($event)"
+								/>
+
+								<!-- Product Badge -->
+								<div class="absolute top-3 left-3">
+									<span
+										class="px-2 py-1 text-xs font-medium rounded-full"
+										[ngClass]="{
+											'bg-teal-100 text-teal-800':
+												product.status === 'in-stock',
+											'bg-orange-100 text-orange-800':
+												product.status === 'made-to-order',
+											'bg-red-100 text-red-800':
+												product.status === 'out-of-stock'
+										}"
+									>
+										{{ getStatusLabel(product.status) }}
+									</span>
+								</div>
+
+								<!-- Favorite Button -->
+								<button
+									class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+								>
+									<i
+										class="pi pi-heart text-gray-400 hover:text-red-500 text-sm transition-colors duration-200"
+									></i>
+								</button>
+							</div>
+
+							<!-- Product Info -->
+							<div class="p-6">
+								<!-- Product Title -->
+								<h3
+									class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 font-['Poppins']"
+								>
+									{{ product.title }}
+								</h3>
+
+								<!-- Product Description -->
+								<p
+									class="text-gray-600 text-sm mb-3 line-clamp-2 font-['Roboto']"
+								>
+									{{ product.shortDescription }}
+								</p>
+
+								<!-- Product Specs -->
+								<div class="flex flex-wrap gap-2 mb-4">
+									<span
+										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+									>
+										<i class="pi pi-box mr-1 text-xs"></i>
+										{{ product.dimensions }}
+									</span>
+									<span
+										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
+									>
+										<i class="pi pi-palette mr-1 text-xs"></i>
+										{{ product.material }}
+									</span>
+								</div>
+
+								<!-- Price and Action -->
+								<div class="flex items-center justify-between">
+									<div class="flex flex-col">
+										<span
+											class="text-lg font-bold text-gray-900 font-['Poppins']"
+										>
+											Nu. {{ product.price | number : "1.0-0" }}
+										</span>
+										<span
+											class="text-xs text-gray-500 font-['Roboto']"
+											*ngIf="
+												product.originalPrice &&
+												product.originalPrice > product.price
+											"
+										>
+											<s>Nu. {{ product.originalPrice | number : "1.0-0" }}</s>
+										</span>
+									</div>
+
+									<button
+										class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium text-sm"
+										(click)="addToCart(product); $event.stopPropagation()"
+									>
+										Add to Cart
+									</button>
+								</div>
+
+								<!-- Rating -->
+								<div
+									class="flex items-center mt-3 pt-3 border-t border-gray-100"
+									*ngIf="product.rating"
+								>
+									<div class="flex items-center">
+										<span
+											class="text-yellow-400 text-sm"
+											*ngFor="let star of [1, 2, 3, 4, 5]"
+										>
+											<i
+												class="pi"
+												[ngClass]="
+													star <= product.rating ? 'pi-star-fill' : 'pi-star'
+												"
+											></i>
+										</span>
+									</div>
+									<span class="text-sm text-gray-500 ml-2 font-['Roboto']">
+										({{ product.reviewCount || 0 }} reviews)
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</ng-template>
+			</p-carousel>
+		</div>
+
+		<!-- View All Button -->
+		<div class="text-center mt-12">
+			<button
+				class="px-8 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors duration-200 font-['Poppins'] font-medium"
+				(click)="viewAllProducts()"
+			>
+				View All Products
+				<i class="pi pi-arrow-right ml-2"></i>
+			</button>
+		</div>
+	</div>
+</section>

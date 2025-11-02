@@ -1,123 +1,461 @@
-<!-- Loading State -->
-<div *ngIf="isLoading" class="flex justify-center items-center h-64">
-	<div
-		class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"
-	></div>
-	<span class="ml-3 text-white text-lg">Loading movies...</span>
-</div>
-
-<!-- Error State -->
-<div *ngIf="error && !isLoading" class="text-center p-8">
-	<div class="text-red-400 text-lg mb-4">
-		<i class="pi pi-exclamation-triangle mr-2"></i>
-		{{ error }}
-	</div>
-	<button
-		class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 hover:scale-105 shadow-lg"
-		(click)="loadMovies()"
+<!-- iDesign 3D Printing Shop Homepage -->
+<div class="min-h-screen bg-white">
+	<!-- Hero Section -->
+	<section
+		class="relative bg-gradient-to-br from-gray-50 to-white py-20 lg:py-32"
 	>
-		Retry
-	</button>
-</div>
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+				<!-- Hero Content -->
+				<div>
+					<h1
+						class="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 font-['Poppins'] leading-tight"
+					>
+						Crafting Sacred Art with
+						<span class="text-teal-600">3D Precision</span>
+					</h1>
 
-<!-- Hero Carousel Component -->
-<app-hero-carousel
-	[movies]="movies"
-	[isLoading]="isLoading"
-	(buyTicketsClicked)="buyTickets($event)"
-	(watchTrailerClicked)="watchTrailer($event)"
->
-</app-hero-carousel>
+					<p class="text-xl text-gray-600 mb-8 font-['Roboto'] leading-relaxed">
+						Discover our exclusive collection of 3D printed Bhutanese stupas,
+						Buddha statues, and spiritual artifacts. Where traditional
+						craftsmanship meets modern technology.
+					</p>
 
-<!-- Movie List Section -->
-<div class="mobile-container w-full sm:max-w-[80vw] mx-auto mt-20 px-0 sm:px-6">
-	<!-- Enhanced Section Header -->
-	<div class="mobile-section-header mb-12 px-4 sm:px-0 relative">
-		<div class="flex items-center gap-4 mb-6">
-			<div
-				class="h-1 w-16 bg-gradient-to-r from-red-600 to-red-400 rounded-full"
-			></div>
-			<h2
-				class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight"
-			>
-				All Movies
-			</h2>
-			<div
-				class="h-1 flex-1 bg-gradient-to-r from-red-400 to-transparent rounded-full"
-			></div>
+					<div class="flex flex-col sm:flex-row gap-4 mb-8">
+						<button
+							class="px-8 py-4 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all duration-200 font-['Poppins'] font-semibold transform hover:-translate-y-1 hover:shadow-lg"
+							(click)="exploreProducts()"
+						>
+							Explore Collection
+							<i class="pi pi-arrow-right ml-2"></i>
+						</button>
+
+						<button
+							class="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 font-['Poppins'] font-semibold"
+							(click)="getCustomQuote()"
+						>
+							Custom Design
+							<i class="pi pi-cog ml-2"></i>
+						</button>
+					</div>
+
+					<!-- Trust Indicators -->
+					<div class="flex flex-wrap items-center gap-6 text-sm text-gray-500">
+						<div class="flex items-center">
+							<i class="pi pi-verified text-teal-600 mr-2"></i>
+							<span class="font-['Roboto']">Authentic Designs</span>
+						</div>
+						<div class="flex items-center">
+							<i class="pi pi-shield text-teal-600 mr-2"></i>
+							<span class="font-['Roboto']">Quality Guaranteed</span>
+						</div>
+						<div class="flex items-center">
+							<i class="pi pi-heart text-teal-600 mr-2"></i>
+							<span class="font-['Roboto']">Handcrafted with Care</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Hero Image -->
+				<div class="relative">
+					<div class="relative z-10">
+						<img
+							src="products/memorial-chorten.png"
+							alt="Traditional Bhutanese Stupa"
+							class="w-full rounded-lg shadow-2xl"
+							(error)="onImageError($event, 'products/jangchub chorten.png')"
+						/>
+					</div>
+
+					<!-- Floating Elements -->
+					<div
+						class="absolute -top-4 -right-4 w-24 h-24 bg-teal-100 rounded-full opacity-60 animate-pulse"
+					></div>
+					<div
+						class="absolute -bottom-6 -left-6 w-32 h-32 bg-gray-100 rounded-full opacity-40"
+					></div>
+				</div>
+			</div>
 		</div>
-		<p class="text-gray-400 text-lg ml-20">
-			Discover and book tickets for the latest movies
-		</p>
-		<!-- Decorative accent -->
-		<div
-			class="absolute -top-2 left-4 w-2 h-2 bg-red-600 rounded-full animate-pulse"
-		></div>
-		<div
-			class="absolute -top-1 left-8 w-1 h-1 bg-red-400 rounded-full animate-pulse"
-			style="animation-delay: 0.5s"
-		></div>
-	</div>
+	</section>
 
-	<!-- Enhanced Status Filter Tabs -->
-	<div
-		class="mobile-filter-tabs flex gap-2 sm:gap-4 mb-12 px-4 sm:px-0 overflow-x-auto"
-	>
-		<button
-			*ngFor="let status of movieStatuses"
-			(click)="filterByStatus(status)"
-			[class]="
-				selectedStatus === status
-					? 'px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold shadow-lg border-2 border-red-500/50 transform scale-105 whitespace-nowrap'
-					: 'px-6 py-3 rounded-xl bg-gray-800/80 backdrop-blur-sm text-gray-300 hover:bg-gray-700/80 hover:text-white border-2 border-gray-700/50 hover:border-gray-600/50 font-medium transition-all duration-300 hover:scale-105 whitespace-nowrap'
-			"
-		>
-			<span class="flex items-center gap-2">
-				<i
-					class="text-sm"
-					[ngClass]="
-						status === 'Screening' ? 'pi pi-play-circle' : 'pi pi-clock'
-					"
-				></i>
-				{{ status }}
-			</span>
-		</button>
-	</div>
+	<!-- Featured Products Carousel -->
+	<app-product-carousel></app-product-carousel>
 
-	<!-- Enhanced Mobile-Optimized Movie Grid -->
-	<div
-		class="enhanced-movie-grid movie-grid-container grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 px-4 sm:px-0"
-	>
-		<app-movie-card
-			*ngFor="let movie of filteredMovies"
-			[movie]="movie"
-			(buyTicketsClicked)="buyTickets($event)"
-			(watchTrailerClicked)="watchTrailer($event)"
-		></app-movie-card>
-	</div>
+	<!-- Services Section -->
+	<section class="py-20 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<!-- Section Header -->
+			<div class="text-center mb-16">
+				<h2
+					class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 font-['Poppins']"
+				>
+					Our 3D Printing Services
+				</h2>
+				<p class="text-xl text-gray-600 max-w-3xl mx-auto font-['Roboto']">
+					From traditional Buddhist artifacts to custom spiritual designs, we
+					bring sacred art to life with precision 3D printing technology.
+				</p>
+			</div>
+
+			<!-- Services Grid -->
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+				<!-- Service 1 -->
+				<div
+					class="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 group"
+				>
+					<div
+						class="w-16 h-16 bg-teal-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<i class="pi pi-box text-2xl text-teal-600"></i>
+					</div>
+
+					<h3 class="text-xl font-semibold text-gray-900 mb-4 font-['Poppins']">
+						Traditional Stupas
+					</h3>
+
+					<p class="text-gray-600 mb-6 font-['Roboto']">
+						Authentic Bhutanese stupas crafted with traditional proportions and
+						intricate details preserved through digital archiving.
+					</p>
+
+					<ul class="space-y-2 text-sm text-gray-500 font-['Roboto']">
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Multiple sizes available
+						</li>
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Premium materials
+						</li>
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Traditional accuracy
+						</li>
+					</ul>
+				</div>
+
+				<!-- Service 2 -->
+				<div
+					class="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 group"
+				>
+					<div
+						class="w-16 h-16 bg-teal-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<i class="pi pi-cog text-2xl text-teal-600"></i>
+					</div>
+
+					<h3 class="text-xl font-semibold text-gray-900 mb-4 font-['Poppins']">
+						Custom Designs
+					</h3>
+
+					<p class="text-gray-600 mb-6 font-['Roboto']">
+						Personalized spiritual artifacts designed according to your specific
+						requirements and traditional iconography.
+					</p>
+
+					<ul class="space-y-2 text-sm text-gray-500 font-['Roboto']">
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Personal consultation
+						</li>
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							3D modeling service
+						</li>
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Unique creations
+						</li>
+					</ul>
+				</div>
+
+				<!-- Service 3 -->
+				<div
+					class="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2 group"
+				>
+					<div
+						class="w-16 h-16 bg-teal-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<i class="pi pi-refresh text-2xl text-teal-600"></i>
+					</div>
+
+					<h3 class="text-xl font-semibold text-gray-900 mb-4 font-['Poppins']">
+						Digital Restoration
+					</h3>
+
+					<p class="text-gray-600 mb-6 font-['Roboto']">
+						Preserve and restore damaged or ancient artifacts through 3D
+						scanning and precision reconstruction.
+					</p>
+
+					<ul class="space-y-2 text-sm text-gray-500 font-['Roboto']">
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							3D scanning technology
+						</li>
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Historical accuracy
+						</li>
+						<li class="flex items-center">
+							<i class="pi pi-check text-teal-600 mr-2"></i>
+							Cultural preservation
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Why Choose Us Section -->
+	<section class="py-20 bg-gray-50">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+				<!-- Content -->
+				<div>
+					<h2
+						class="text-3xl lg:text-4xl font-bold text-gray-900 mb-6 font-['Poppins']"
+					>
+						Why Choose iDesign?
+					</h2>
+
+					<p class="text-lg text-gray-600 mb-8 font-['Roboto']">
+						We combine traditional Bhutanese craftsmanship with cutting-edge 3D
+						printing technology to create sacred art that honors both heritage
+						and innovation.
+					</p>
+
+					<div class="space-y-6">
+						<div class="flex items-start">
+							<div
+								class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0 mr-4"
+							>
+								<i class="pi pi-star text-teal-600"></i>
+							</div>
+							<div>
+								<h3
+									class="text-lg font-semibold text-gray-900 mb-2 font-['Poppins']"
+								>
+									Authentic Designs
+								</h3>
+								<p class="text-gray-600 font-['Roboto']">
+									Every piece is based on traditional Bhutanese and Tibetan
+									iconography, ensuring cultural authenticity and spiritual
+									significance.
+								</p>
+							</div>
+						</div>
+
+						<div class="flex items-start">
+							<div
+								class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0 mr-4"
+							>
+								<i class="pi pi-cog text-teal-600"></i>
+							</div>
+							<div>
+								<h3
+									class="text-lg font-semibold text-gray-900 mb-2 font-['Poppins']"
+								>
+									Precision Technology
+								</h3>
+								<p class="text-gray-600 font-['Roboto']">
+									State-of-the-art 3D printing technology ensures every detail
+									is perfectly reproduced with consistency and quality.
+								</p>
+							</div>
+						</div>
+
+						<div class="flex items-start">
+							<div
+								class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0 mr-4"
+							>
+								<i class="pi pi-users text-teal-600"></i>
+							</div>
+							<div>
+								<h3
+									class="text-lg font-semibold text-gray-900 mb-2 font-['Poppins']"
+								>
+									Expert Craftsmanship
+								</h3>
+								<p class="text-gray-600 font-['Roboto']">
+									Our team combines traditional knowledge with modern expertise
+									to deliver exceptional spiritual artifacts.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Image -->
+				<div class="relative">
+					<img
+						src="products/all products.png"
+						alt="3D Printing Process"
+						class="w-full rounded-lg shadow-xl"
+						(error)="onImageError($event, 'products/size.png')"
+					/>
+
+					<!-- Stats Overlay -->
+					<div
+						class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm rounded-lg p-4"
+					>
+						<div class="grid grid-cols-3 gap-4 text-center">
+							<div>
+								<div class="text-2xl font-bold text-gray-900 font-['Poppins']">
+									500+
+								</div>
+								<div class="text-sm text-gray-600 font-['Roboto']">
+									Products Created
+								</div>
+							</div>
+							<div>
+								<div class="text-2xl font-bold text-gray-900 font-['Poppins']">
+									98%
+								</div>
+								<div class="text-sm text-gray-600 font-['Roboto']">
+									Customer Satisfaction
+								</div>
+							</div>
+							<div>
+								<div class="text-2xl font-bold text-gray-900 font-['Poppins']">
+									5★
+								</div>
+								<div class="text-sm text-gray-600 font-['Roboto']">
+									Average Rating
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Process Section -->
+	<section class="py-20 bg-white">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<!-- Section Header -->
+			<div class="text-center mb-16">
+				<h2
+					class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 font-['Poppins']"
+				>
+					Our Process
+				</h2>
+				<p class="text-xl text-gray-600 max-w-3xl mx-auto font-['Roboto']">
+					From concept to creation, every step is carefully crafted to ensure
+					the highest quality and authenticity.
+				</p>
+			</div>
+
+			<!-- Process Steps -->
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+				<!-- Step 1 -->
+				<div class="text-center group">
+					<div
+						class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<span class="text-2xl font-bold text-teal-600 font-['Poppins']"
+							>1</span
+						>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 mb-3 font-['Poppins']">
+						Design & Model
+					</h3>
+					<p class="text-gray-600 font-['Roboto']">
+						Create or select authentic designs based on traditional iconography
+						and specifications.
+					</p>
+				</div>
+
+				<!-- Step 2 -->
+				<div class="text-center group">
+					<div
+						class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<span class="text-2xl font-bold text-teal-600 font-['Poppins']"
+							>2</span
+						>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 mb-3 font-['Poppins']">
+						Material Selection
+					</h3>
+					<p class="text-gray-600 font-['Roboto']">
+						Choose from premium materials including PLA+, PETG, and specialty
+						filaments.
+					</p>
+				</div>
+
+				<!-- Step 3 -->
+				<div class="text-center group">
+					<div
+						class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<span class="text-2xl font-bold text-teal-600 font-['Poppins']"
+							>3</span
+						>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 mb-3 font-['Poppins']">
+						Precision Printing
+					</h3>
+					<p class="text-gray-600 font-['Roboto']">
+						Advanced 3D printing technology ensures every detail is captured
+						with precision.
+					</p>
+				</div>
+
+				<!-- Step 4 -->
+				<div class="text-center group">
+					<div
+						class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-teal-200 transition-colors duration-300"
+					>
+						<span class="text-2xl font-bold text-teal-600 font-['Poppins']"
+							>4</span
+						>
+					</div>
+					<h3 class="text-lg font-semibold text-gray-900 mb-3 font-['Poppins']">
+						Finishing & Quality
+					</h3>
+					<p class="text-gray-600 font-['Roboto']">
+						Hand-finishing and quality inspection ensure every piece meets our
+						standards.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- CTA Section -->
+	<section class="py-20 bg-gradient-to-r from-teal-600 to-teal-700">
+		<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+			<h2
+				class="text-3xl lg:text-4xl font-bold text-white mb-6 font-['Poppins']"
+			>
+				Ready to Create Something Sacred?
+			</h2>
+
+			<p class="text-xl text-teal-100 mb-8 font-['Roboto']">
+				Whether you're looking for traditional designs or custom creations,
+				we're here to bring your vision to life.
+			</p>
+
+			<div class="flex flex-col sm:flex-row gap-4 justify-center">
+				<button
+					class="px-8 py-4 bg-white text-teal-600 rounded-md hover:bg-gray-50 transition-all duration-200 font-['Poppins'] font-semibold transform hover:-translate-y-1 hover:shadow-lg"
+					(click)="exploreProducts()"
+				>
+					Browse Collection
+					<i class="pi pi-arrow-right ml-2"></i>
+				</button>
+
+				<button
+					class="px-8 py-4 border-2 border-white text-white rounded-md hover:bg-white hover:text-teal-600 transition-all duration-200 font-['Poppins'] font-semibold"
+					(click)="getCustomQuote()"
+				>
+					Get Custom Quote
+					<i class="pi pi-phone ml-2"></i>
+				</button>
+			</div>
+		</div>
+	</section>
 </div>
-
-<!-- YouTube Trailer Modal -->
-<p-dialog
-	[(visible)]="showTrailerModal"
-	[modal]="true"
-	[draggable]="false"
-	[resizable]="false"
-	[style]="{ width: '90vw', maxWidth: '1200px' }"
-	styleClass="trailer-dialog"
-	[dismissableMask]="true"
-	(onHide)="closeTrailerModal()"
->
-	<div class="relative w-full rounded-xl" style="padding-top: 56.25%">
-		<iframe
-			*ngIf="currentTrailerUrl"
-			[src]="currentTrailerUrl"
-			class="absolute top-0 left-0 w-full h-full rounded-xl"
-			frameborder="0"
-			allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-			allowfullscreen
-			autoplay
-		>
-		</iframe>
-	</div>
-</p-dialog>

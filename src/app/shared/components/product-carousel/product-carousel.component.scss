@@ -1,0 +1,186 @@
+/* Product Carousel Custom Styles */
+
+/* Carousel container styling */
+:host ::ng-deep .custom-carousel {
+    .p-carousel-content {
+        padding: 0;
+    }
+
+    .p-carousel-container {
+        position: relative;
+    }
+
+    /* Navigation buttons */
+    .p-carousel-prev,
+    .p-carousel-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        z-index: 10;
+
+        &:hover {
+            background: #f9fafb;
+            border-color: #00796b;
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+        }
+
+        &:focus {
+            outline: 2px solid #00796b;
+            outline-offset: 2px;
+        }
+
+        .p-carousel-prev-icon,
+        .p-carousel-next-icon {
+            color: #374151;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        &:hover .p-carousel-prev-icon,
+        &:hover .p-carousel-next-icon {
+            color: #00796b;
+        }
+    }
+
+    .p-carousel-prev {
+        left: -24px;
+    }
+
+    .p-carousel-next {
+        right: -24px;
+    }
+
+    /* Indicators */
+    .p-carousel-indicators {
+        display: flex;
+        justify-content: center;
+        margin-top: 24px;
+        gap: 8px;
+
+        .p-carousel-indicator {
+            button {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                border: none;
+                background: #d1d5db;
+                transition: all 0.2s ease;
+                cursor: pointer;
+
+                &:hover {
+                    background: #9ca3af;
+                }
+
+                &:focus {
+                    outline: 2px solid #00796b;
+                    outline-offset: 2px;
+                }
+            }
+
+            &.p-highlight button {
+                background: #00796b;
+                transform: scale(1.2);
+            }
+        }
+    }
+}
+
+/* Product card enhancements */
+.product-card {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 20px 25px -5px rgba(0, 0, 0, 0.1),
+            0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+}
+
+/* Text truncation utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Rating stars */
+.rating-stars {
+    .pi-star-fill {
+        color: #fbbf24;
+    }
+
+    .pi-star {
+        color: #d1d5db;
+    }
+}
+
+/* Status badges */
+.status-badge {
+    &.in-stock {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    &.made-to-order {
+        background-color: #fed7aa;
+        color: #9a3412;
+    }
+
+    &.out-of-stock {
+        background-color: #fecaca;
+        color: #991b1b;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    :host ::ng-deep .custom-carousel {
+        .p-carousel-prev {
+            left: -16px;
+        }
+
+        .p-carousel-next {
+            right: -16px;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    :host ::ng-deep .custom-carousel {
+        .p-carousel-prev,
+        .p-carousel-next {
+            width: 40px;
+            height: 40px;
+        }
+
+        .p-carousel-prev {
+            left: -8px;
+        }
+
+        .p-carousel-next {
+            right: -8px;
+        }
+    }
+}
+
+@media (max-width: 560px) {
+    :host ::ng-deep .custom-carousel {
+        .p-carousel-prev,
+        .p-carousel-next {
+            display: none; /* Hide navigation buttons on very small screens */
+        }
+    }
+}

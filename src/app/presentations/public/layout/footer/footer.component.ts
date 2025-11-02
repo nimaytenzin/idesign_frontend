@@ -8,17 +8,27 @@ import { Component } from '@angular/core';
 })
 export class FooterComponent {
 	currentYear = new Date().getFullYear();
-	socialLinks = [
-		{ name: 'Facebook', icon: 'pi pi-facebook' },
-		{ name: 'Instagram', icon: 'pi pi-instagram' },
-		{ name: 'Twitter', icon: 'pi pi-twitter' },
-		{ name: 'TikTok', icon: 'pi pi-clock' },
-		{ name: 'YouTube', icon: 'pi pi-youtube' },
-	];
 
-	downloadLinks = [
-		{ platform: 'Apple', icon: 'pi pi-apple' },
-		{ platform: 'Android', icon: 'pi pi-android' },
-		{ platform: 'Huawei', icon: 'pi pi-mobile' },
+	socialLinks = [
+		{
+			name: 'Facebook',
+			icon: 'pi pi-facebook',
+			url: 'https://facebook.com/idesignbt',
+		},
+		{
+			name: 'Instagram',
+			icon: 'pi pi-instagram',
+			url: 'https://instagram.com/idesignbt',
+		},
+		{
+			name: 'WhatsApp',
+			icon: 'pi pi-whatsapp',
+			url: 'https://wa.me/97517123456',
+		},
+		{
+			name: 'LinkedIn',
+			icon: 'pi pi-linkedin',
+			url: 'https://linkedin.com/company/idesignbt',
+		},
 	];
 }
