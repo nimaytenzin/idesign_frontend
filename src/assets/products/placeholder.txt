@@ -1,0 +1,12 @@
+This folder contains product images for the iDesign 3D printing catalog.
+
+Available images:
+- jangchub chorten.png - Traditional Jangchub Chorten design
+- memorial-chorten.png - Memorial chorten architecture  
+- chorten2.png - Alternative chorten design
+- dochula chorten.png - Dochula Pass victory monument
+- dechenphug lhakhang.png - Temple/Lhakhang architecture
+- chorten22.png - Compact traditional chorten
+- image.png - Fallback/placeholder image
+
+All images are referenced without the 'assets/' prefix in the application.
