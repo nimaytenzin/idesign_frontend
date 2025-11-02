@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import {
+	Component,
+	OnInit,
+	ViewChild,
+	ElementRef,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -28,6 +35,7 @@ import { ImageUtilityService } from '../../../../core/utility/image-utility.serv
 	providers: [ConfirmationService, MessageService],
 	templateUrl: './admin-master-products.component.html',
 	styleUrls: ['./admin-master-products.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminMasterProductsComponent implements OnInit {
 	@ViewChild('fileUpload') fileUpload!: ElementRef;
@@ -71,7 +79,8 @@ export class AdminMasterProductsComponent implements OnInit {
 		private subCategoryService: ProductSubCategoryService,
 		private messageService: MessageService,
 		private confirmationService: ConfirmationService,
-		private imageUtilityService: ImageUtilityService
+		private imageUtilityService: ImageUtilityService,
+		private cdr: ChangeDetectorRef
 	) {}
 
 	ngOnInit() {
@@ -83,10 +92,12 @@ export class AdminMasterProductsComponent implements OnInit {
 	// Load Data Methods
 	loadProducts() {
 		this.loading = true;
+		this.cdr.markForCheck();
 		this.productService.getAllProductsAdmin().subscribe({
 			next: (data) => {
 				this.products = data;
 				this.loading = false;
+				this.cdr.markForCheck();
 			},
 			error: (error) => {
 				this.messageService.add({
@@ -95,6 +106,7 @@ export class AdminMasterProductsComponent implements OnInit {
 					detail: 'Failed to load products',
 				});
 				this.loading = false;
+				this.cdr.markForCheck();
 			},
 		});
 	}
@@ -423,17 +435,15 @@ export class AdminMasterProductsComponent implements OnInit {
 
 	// Utility Methods
 	getPrimaryImage(product: Product): string {
-		console.log('product', product);
 		const primaryImage = product.images?.find((img) => img.isPrimary);
-		console.log('primaryImage', primaryImage);
-
+		console.log('Primary Image:', primaryImage);
 		return primaryImage
-			? `${environment.BASEAPI_URL}/${primaryImage.imagePath}`
-			: '/assets/images/no-image.png';
+			? `${environment.BASEAPI_URL}${primaryImage.imagePath}`
+			: '';
 	}
 
 	getImageUrl(imagePath: string): string {
-		return `${environment.BASEAPI_URL}/${imagePath}`;
+		return `${environment.BASEAPI_URL}${imagePath}`;
 	}
 
 	getSubCategoryName(subCategoryId: number): string {
@@ -456,24 +466,20 @@ export class AdminMasterProductsComponent implements OnInit {
 		return '';
 	}
 
-	getStatusSeverity(isAvailable: boolean): string {
-		return isAvailable ? 'success' : 'danger';
+	// TrackBy functions for performance
+	trackByProductId(index: number, product: Product): number {
+		return product.id || index;
 	}
 
-	getStatusText(isAvailable: boolean): string {
-		return isAvailable ? 'Available' : 'Out of Stock';
+	trackByImageId(index: number, image: ProductImage): number {
+		return image.id || index;
 	}
 
-	getStockSeverity(stockQuantity: number): string {
-		if (stockQuantity > 10) return 'success';
-		if (stockQuantity > 0) return 'warning';
-		return 'danger';
+	trackByCategoryId(index: number, category: ProductCategory): number {
+		return category.id || index;
 	}
 
-	formatCurrency(value: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-		}).format(value);
+	trackBySubCategoryId(index: number, subCategory: ProductSubCategory): number {
+		return subCategory.id || index;
 	}
 }

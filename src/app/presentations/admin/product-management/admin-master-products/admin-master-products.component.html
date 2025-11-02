@@ -147,50 +147,58 @@
 							[src]="getPrimaryImage(product)"
 							[alt]="product.title"
 							class="w-12 h-12 object-cover rounded-lg border border-gray-200"
-							(error)="$any($event.target).src = '/assets/images/no-image.png'"
+							loading="lazy"
 						/>
 					</td>
 					<td class="py-3 px-4">
-						<div class="flex flex-column">
-							<span class="font-medium text-gray-900">{{ product.title }}</span>
-							<span class="text-sm text-gray-500">{{
-								product.shortDescription
-							}}</span>
-						</div>
+						<p class="font-medium text-gray-900">{{ product.title }}</p>
+						<p class="text-sm text-gray-500">{{ product.shortDescription }}</p>
 					</td>
 					<td class="py-3 px-4">
-						<div class="flex flex-column">
-							<span class="text-teal-600 font-medium text-sm">{{
-								getCategoryFromSubCategory(product.productSubCategoryId)
-							}}</span>
-							<span class="text-gray-600 text-xs">{{
-								getSubCategoryName(product.productSubCategoryId)
-							}}</span>
-						</div>
+						<p class="text-teal-600 font-medium">
+							Category:
+							{{ getCategoryFromSubCategory(product.productSubCategoryId) }}
+						</p>
+						<p class="text-gray-600">
+							Sub Category:
+							{{ getSubCategoryName(product.productSubCategoryId) }}
+						</p>
 					</td>
 					<td class="py-3 px-4 text-right">
-						<span class="font-semibold text-gray-900">{{
-							formatCurrency(product.price)
-						}}</span>
-					</td>
-					<td class="py-3 px-4 text-center">
-						<p-tag
-							[value]="product.stockQuantity.toString()"
-							[severity]="getStockSeverity(product.stockQuantity)"
-							styleClass="text-xs px-2 py-1"
+						<span class="font-semibold text-gray-900"
+							>Nu.{{ product.price }}</span
 						>
-						</p-tag>
 					</td>
 					<td class="py-3 px-4 text-center">
-						<p-chip [label]="product.material" styleClass="text-xs"></p-chip>
-					</td>
-					<td class="py-3 px-4 text-center">
-						<p-tag
-							[value]="getStatusText(product.isAvailable)"
-							[severity]="getStatusSeverity(product.isAvailable)"
-							styleClass="text-xs px-2 py-1"
+						<span
+							class="px-2 py-1 text-xs rounded-full font-medium"
+							[ngClass]="{
+								'bg-green-100 text-green-800': product.stockQuantity > 10,
+								'bg-yellow-100 text-yellow-800':
+									product.stockQuantity > 0 && product.stockQuantity <= 10,
+								'bg-red-100 text-red-800': product.stockQuantity === 0
+							}"
 						>
-						</p-tag>
+							{{ product.stockQuantity }}
+						</span>
+					</td>
+					<td class="py-3 px-4 text-center">
+						<span
+							class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"
+						>
+							{{ product.material }}
+						</span>
+					</td>
+					<td class="py-3 px-4 text-center">
+						<span
+							class="px-2 py-1 text-xs rounded-full font-medium"
+							[ngClass]="{
+								'bg-green-100 text-green-800': product.isAvailable,
+								'bg-red-100 text-red-800': !product.isAvailable
+							}"
+						>
+							{{ product.isAvailable ? "Available" : "Out of Stock" }}
+						</span>
 					</td>
 					<td class="py-3 px-4">
 						<div class="flex justify-center gap-1">
@@ -234,7 +242,7 @@
 		class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
 	>
 		<div
-			*ngFor="let product of products"
+			*ngFor="let product of products; trackBy: trackByProductId"
 			class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
 		>
 			<div class="relative">
@@ -242,15 +250,18 @@
 					[src]="getPrimaryImage(product)"
 					[alt]="product.title"
 					class="w-full h-48 object-cover"
-					(error)="$any($event.target).src = '/assets/images/no-image.png'"
+					loading="lazy"
 				/>
 				<div class="absolute top-2 right-2">
-					<p-tag
-						[value]="getStatusText(product.isAvailable)"
-						[severity]="getStatusSeverity(product.isAvailable)"
-						styleClass="text-xs"
+					<span
+						class="px-2 py-1 text-xs rounded-full font-medium"
+						[ngClass]="{
+							'bg-green-100 text-green-800': product.isAvailable,
+							'bg-red-100 text-red-800': !product.isAvailable
+						}"
 					>
-					</p-tag>
+						{{ product.isAvailable ? "Available" : "Out of Stock" }}
+					</span>
 				</div>
 			</div>
 			<div class="p-4">
@@ -262,25 +273,24 @@
 				</p>
 
 				<div class="flex justify-between items-center mb-3">
-					<span class="text-xl font-bold text-teal-600">{{
-						formatCurrency(product.price)
-					}}</span>
+					<span class="text-xl font-bold text-teal-600"
+						>Nu.{{ product.price }}</span
+					>
 					<div class="flex items-center gap-1">
-						<p-rating
-							[ngModel]="product.rating"
-							[disabled]="true"
-							styleClass="text-sm"
-						>
-						</p-rating>
-						<span class="text-xs text-gray-500">({{ product.rating }})</span>
+						<span class="text-yellow-500">★</span>
+						<span class="text-xs text-gray-500">{{ product.rating || 0 }}</span>
 					</div>
 				</div>
 
 				<div class="flex justify-between items-center mb-4">
-					<p-chip [label]="product.material" styleClass="text-xs"></p-chip>
-					<span class="text-sm text-gray-500"
-						>Stock: {{ product.stockQuantity }}</span
+					<span
+						class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"
 					>
+						{{ product.material }}
+					</span>
+					<span class="text-sm text-gray-500">
+						Stock: {{ product.stockQuantity }}
+					</span>
 				</div>
 
 				<div class="flex gap-2">
@@ -540,11 +550,15 @@
 			</div>
 
 			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-				<div *ngFor="let image of productImages" class="relative group">
+				<div
+					*ngFor="let image of productImages; trackBy: trackByImageId"
+					class="relative group"
+				>
 					<img
 						[src]="getImageUrl(image.imagePath)"
 						[alt]="image.altText"
 						class="w-full h-32 object-cover rounded-lg border border-gray-200"
+						loading="lazy"
 					/>
 
 					<div
@@ -572,11 +586,11 @@
 					</div>
 
 					<div *ngIf="image.isPrimary" class="absolute top-1 left-1">
-						<p-tag
-							value="Primary"
-							severity="success"
-							styleClass="text-xs"
-						></p-tag>
+						<span
+							class="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium"
+						>
+							Primary
+						</span>
 					</div>
 				</div>
 			</div>
