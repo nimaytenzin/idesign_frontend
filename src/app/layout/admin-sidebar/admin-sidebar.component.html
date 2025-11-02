@@ -1,16 +1,17 @@
 <!-- Sidebar Header with Logo -->
-<div class="sidebar-header mb-6">
-	<div class="flex items-center gap-3 p-3">
-		<img src="logowhite.png" class="h-8" alt="Logo" />
-		<div class="text-white font-bold text-2xl">
+<div class="sidebar-header mb-6 bg-black p-6 border-b border-gray-700">
+	<div class="flex items-center gap-3 mb-4">
+		<img src="logowhite.png" class="h-10 rounded-lg" alt="Logo" />
+		<!-- <div class="text-white font-semibold text-xl tracking-tight">
 			{{ appName }}
-		</div>
+		</div> -->
 	</div>
-	<p class="text-xs">
+	<p class="text-gray-300 text-sm font-medium tracking-wide">
 		{{ appSlogan }}
 	</p>
-	<p-divider></p-divider>
 </div>
 
 <!-- Navigation Menu -->
-<app-admin-menu></app-admin-menu>
+<div class="nav-menu-container px-4 py-2">
+	<app-admin-menu></app-admin-menu>
+</div>

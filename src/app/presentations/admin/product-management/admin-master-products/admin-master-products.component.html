@@ -1,3 +1,602 @@
-<p>
-  admin-master-products works!
-</p>
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+	<!-- Page Header -->
+	<div class="mb-6">
+		<h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+			Product Management
+		</h1>
+		<p class="text-gray-600">
+			Manage your 3D printing product catalog and inventory
+		</p>
+	</div>
+
+	<!-- Toolbar -->
+	<p-toolbar styleClass="mb-4 gap-2 border-0 bg-white rounded-lg p-4 shadow-sm">
+		<ng-template pTemplate="left">
+			<p-button
+				severity="success"
+				label="New Product"
+				icon="pi pi-plus"
+				class="mr-2"
+				(onClick)="openNew()"
+			>
+			</p-button>
+			<p-button
+				severity="danger"
+				label="Delete Selected"
+				icon="pi pi-trash"
+				(onClick)="deleteSelectedProducts()"
+				[disabled]="!selectedProducts || !selectedProducts.length"
+			>
+			</p-button>
+		</ng-template>
+
+		<ng-template pTemplate="right">
+			<div class="flex gap-2">
+				<p-button
+					[icon]="viewMode === 'table' ? 'pi pi-table' : 'pi pi-th-large'"
+					[severity]="viewMode === 'table' ? 'info' : 'secondary'"
+					[outlined]="viewMode !== 'table'"
+					(onClick)="viewMode = 'table'"
+					size="small"
+				>
+				</p-button>
+				<p-button
+					[icon]="viewMode === 'grid' ? 'pi pi-th-large' : 'pi pi-table'"
+					[severity]="viewMode === 'grid' ? 'info' : 'secondary'"
+					[outlined]="viewMode !== 'grid'"
+					(onClick)="viewMode = 'grid'"
+					size="small"
+				>
+				</p-button>
+			</div>
+		</ng-template>
+	</p-toolbar>
+
+	<!-- Table View -->
+	<div
+		*ngIf="viewMode === 'table'"
+		class="bg-white rounded-lg shadow-sm border border-gray-200"
+	>
+		<p-table
+			#dt
+			[value]="products"
+			[rows]="10"
+			[paginator]="true"
+			[globalFilterFields]="['title', 'material', 'productSubCategory.name']"
+			[tableStyle]="{ 'min-width': '75rem' }"
+			[(selection)]="selectedProducts"
+			[rowHover]="true"
+			dataKey="id"
+			currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+			[showCurrentPageReport]="true"
+			[loading]="loading"
+			styleClass="border-0"
+		>
+			<ng-template pTemplate="caption">
+				<div
+					class="flex flex-column md:flex-row md:justify-content-between md:align-items-center bg-gray-50 p-4"
+				>
+					<h5 class="m-0 text-lg font-semibold text-gray-900">
+						Products Catalog
+					</h5>
+					<span class="block mt-2 md:mt-0 p-input-icon-left">
+						<i class="pi pi-search"></i>
+						<input
+							pInputText
+							type="text"
+							(input)="dt.filterGlobal($any($event.target).value, 'contains')"
+							placeholder="Search products..."
+							class="border border-gray-300 rounded-md px-3 py-2 pl-10 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+						/>
+					</span>
+				</div>
+			</ng-template>
+
+			<ng-template pTemplate="header">
+				<tr class="bg-gray-100">
+					<th style="width: 3rem">
+						<p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+					</th>
+					<th class="text-left text-gray-700 font-semibold py-3 px-4">Image</th>
+					<th
+						pSortableColumn="title"
+						class="text-left text-gray-700 font-semibold py-3 px-4"
+					>
+						Product <p-sortIcon field="title"></p-sortIcon>
+					</th>
+					<th class="text-left text-gray-700 font-semibold py-3 px-4">
+						Category
+					</th>
+					<th
+						pSortableColumn="price"
+						class="text-right text-gray-700 font-semibold py-3 px-4"
+					>
+						Price <p-sortIcon field="price"></p-sortIcon>
+					</th>
+					<th
+						pSortableColumn="stockQuantity"
+						class="text-center text-gray-700 font-semibold py-3 px-4"
+					>
+						Stock <p-sortIcon field="stockQuantity"></p-sortIcon>
+					</th>
+					<th
+						pSortableColumn="material"
+						class="text-center text-gray-700 font-semibold py-3 px-4"
+					>
+						Material <p-sortIcon field="material"></p-sortIcon>
+					</th>
+					<th
+						pSortableColumn="isAvailable"
+						class="text-center text-gray-700 font-semibold py-3 px-4"
+					>
+						Status <p-sortIcon field="isAvailable"></p-sortIcon>
+					</th>
+					<th class="text-center text-gray-700 font-semibold py-3 px-4">
+						Actions
+					</th>
+				</tr>
+			</ng-template>
+
+			<ng-template pTemplate="body" let-product>
+				<tr class="border-b border-gray-100 hover:bg-gray-50">
+					<td>
+						<p-tableCheckbox [value]="product"></p-tableCheckbox>
+					</td>
+					<td class="py-3 px-4">
+						<img
+							[src]="getPrimaryImage(product)"
+							[alt]="product.title"
+							class="w-12 h-12 object-cover rounded-lg border border-gray-200"
+							(error)="$any($event.target).src = '/assets/images/no-image.png'"
+						/>
+					</td>
+					<td class="py-3 px-4">
+						<div class="flex flex-column">
+							<span class="font-medium text-gray-900">{{ product.title }}</span>
+							<span class="text-sm text-gray-500">{{
+								product.shortDescription
+							}}</span>
+						</div>
+					</td>
+					<td class="py-3 px-4">
+						<div class="flex flex-column">
+							<span class="text-teal-600 font-medium text-sm">{{
+								getCategoryFromSubCategory(product.productSubCategoryId)
+							}}</span>
+							<span class="text-gray-600 text-xs">{{
+								getSubCategoryName(product.productSubCategoryId)
+							}}</span>
+						</div>
+					</td>
+					<td class="py-3 px-4 text-right">
+						<span class="font-semibold text-gray-900">{{
+							formatCurrency(product.price)
+						}}</span>
+					</td>
+					<td class="py-3 px-4 text-center">
+						<p-tag
+							[value]="product.stockQuantity.toString()"
+							[severity]="getStockSeverity(product.stockQuantity)"
+							styleClass="text-xs px-2 py-1"
+						>
+						</p-tag>
+					</td>
+					<td class="py-3 px-4 text-center">
+						<p-chip [label]="product.material" styleClass="text-xs"></p-chip>
+					</td>
+					<td class="py-3 px-4 text-center">
+						<p-tag
+							[value]="getStatusText(product.isAvailable)"
+							[severity]="getStatusSeverity(product.isAvailable)"
+							styleClass="text-xs px-2 py-1"
+						>
+						</p-tag>
+					</td>
+					<td class="py-3 px-4">
+						<div class="flex justify-center gap-1">
+							<p-button
+								icon="pi pi-image"
+								severity="info"
+								[outlined]="true"
+								(onClick)="openImageDialog(product)"
+								size="small"
+								pTooltip="Manage Images"
+							>
+							</p-button>
+							<p-button
+								icon="pi pi-pencil"
+								severity="secondary"
+								[outlined]="true"
+								(onClick)="editProduct(product)"
+								size="small"
+								pTooltip="Edit Product"
+							>
+							</p-button>
+							<p-button
+								icon="pi pi-trash"
+								severity="danger"
+								[outlined]="true"
+								(onClick)="deleteProduct(product)"
+								size="small"
+								pTooltip="Delete Product"
+							>
+							</p-button>
+						</div>
+					</td>
+				</tr>
+			</ng-template>
+		</p-table>
+	</div>
+
+	<!-- Grid View -->
+	<div
+		*ngIf="viewMode === 'grid'"
+		class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+	>
+		<div
+			*ngFor="let product of products"
+			class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+		>
+			<div class="relative">
+				<img
+					[src]="getPrimaryImage(product)"
+					[alt]="product.title"
+					class="w-full h-48 object-cover"
+					(error)="$any($event.target).src = '/assets/images/no-image.png'"
+				/>
+				<div class="absolute top-2 right-2">
+					<p-tag
+						[value]="getStatusText(product.isAvailable)"
+						[severity]="getStatusSeverity(product.isAvailable)"
+						styleClass="text-xs"
+					>
+					</p-tag>
+				</div>
+			</div>
+			<div class="p-4">
+				<h4 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+					{{ product.title }}
+				</h4>
+				<p class="text-sm text-gray-600 mb-3 line-clamp-2">
+					{{ product.shortDescription }}
+				</p>
+
+				<div class="flex justify-between items-center mb-3">
+					<span class="text-xl font-bold text-teal-600">{{
+						formatCurrency(product.price)
+					}}</span>
+					<div class="flex items-center gap-1">
+						<p-rating
+							[ngModel]="product.rating"
+							[disabled]="true"
+							styleClass="text-sm"
+						>
+						</p-rating>
+						<span class="text-xs text-gray-500">({{ product.rating }})</span>
+					</div>
+				</div>
+
+				<div class="flex justify-between items-center mb-4">
+					<p-chip [label]="product.material" styleClass="text-xs"></p-chip>
+					<span class="text-sm text-gray-500"
+						>Stock: {{ product.stockQuantity }}</span
+					>
+				</div>
+
+				<div class="flex gap-2">
+					<p-button
+						icon="pi pi-image"
+						severity="info"
+						[outlined]="true"
+						(onClick)="openImageDialog(product)"
+						size="small"
+						class="flex-1"
+					>
+					</p-button>
+					<p-button
+						icon="pi pi-pencil"
+						severity="secondary"
+						[outlined]="true"
+						(onClick)="editProduct(product)"
+						size="small"
+						class="flex-1"
+					>
+					</p-button>
+					<p-button
+						icon="pi pi-trash"
+						severity="danger"
+						[outlined]="true"
+						(onClick)="deleteProduct(product)"
+						size="small"
+						class="flex-1"
+					>
+					</p-button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Product Dialog -->
+	<p-dialog
+		[(visible)]="productDialog"
+		[style]="{ width: '600px' }"
+		header="Product Details"
+		[modal]="true"
+		class="p-fluid"
+		styleClass="custom-dialog"
+	>
+		<ng-template pTemplate="content">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<!-- Left Column -->
+				<div>
+					<div class="field">
+						<label for="title">Product Name *</label>
+						<input
+							type="text"
+							pInputText
+							id="title"
+							[(ngModel)]="product.title"
+							required
+							autofocus
+							[ngClass]="{ 'ng-invalid ng-dirty': submitted && !product.title }"
+						/>
+						<small
+							class="ng-dirty ng-invalid text-red-500"
+							*ngIf="submitted && !product.title"
+							>Product name is required.</small
+						>
+					</div>
+
+					<div class="field">
+						<label for="shortDescription">Short Description</label>
+						<textarea
+							id="shortDescription"
+							pInputTextarea
+							[(ngModel)]="product.shortDescription"
+							rows="2"
+						>
+						</textarea>
+					</div>
+
+					<div class="field">
+						<label for="price">Price *</label>
+						<p-inputNumber
+							id="price"
+							[(ngModel)]="product.price"
+							mode="currency"
+							currency="USD"
+							locale="en-US"
+							[required]="true"
+						>
+						</p-inputNumber>
+					</div>
+
+					<div class="field">
+						<label for="material">Material</label>
+						<p-dropdown
+							id="material"
+							[options]="materialOptions"
+							[(ngModel)]="product.material"
+							optionLabel="label"
+							optionValue="value"
+							placeholder="Select Material"
+						>
+						</p-dropdown>
+					</div>
+				</div>
+
+				<!-- Right Column -->
+				<div>
+					<div class="field">
+						<label for="category">Category *</label>
+						<p-dropdown
+							id="category"
+							[options]="categories"
+							[(ngModel)]="selectedCategoryId"
+							optionLabel="name"
+							optionValue="id"
+							placeholder="Select Category"
+							(onChange)="onCategoryChange($event.value)"
+							[ngClass]="{
+								'ng-invalid ng-dirty':
+									submitted && !product.productSubCategoryId
+							}"
+						>
+						</p-dropdown>
+					</div>
+
+					<div class="field">
+						<label for="subCategory">Sub-Category *</label>
+						<p-dropdown
+							id="subCategory"
+							[options]="filteredSubCategories"
+							[(ngModel)]="product.productSubCategoryId"
+							optionLabel="name"
+							optionValue="id"
+							placeholder="Select Sub-Category"
+							[ngClass]="{
+								'ng-invalid ng-dirty':
+									submitted && !product.productSubCategoryId
+							}"
+						>
+						</p-dropdown>
+						<small
+							class="ng-dirty ng-invalid text-red-500"
+							*ngIf="submitted && !product.productSubCategoryId"
+							>Sub-category is required.</small
+						>
+					</div>
+
+					<div class="field">
+						<label for="stockQuantity">Stock Quantity</label>
+						<p-inputNumber
+							id="stockQuantity"
+							[(ngModel)]="product.stockQuantity"
+							[showButtons]="true"
+							[min]="0"
+						>
+						</p-inputNumber>
+					</div>
+
+					<div class="field">
+						<label for="weight">Weight (kg)</label>
+						<p-inputNumber
+							id="weight"
+							[(ngModel)]="product.weight"
+							[showButtons]="true"
+							[min]="0"
+							[step]="0.1"
+						>
+						</p-inputNumber>
+					</div>
+				</div>
+			</div>
+
+			<!-- Full Width Fields -->
+			<div class="field">
+				<label for="dimensions">Dimensions</label>
+				<input
+					type="text"
+					pInputText
+					id="dimensions"
+					[(ngModel)]="product.dimensions"
+					placeholder="L x W x H (cm)"
+				/>
+			</div>
+
+			<div class="field">
+				<label for="detailedDescription">Detailed Description</label>
+				<textarea
+					id="detailedDescription"
+					pInputTextarea
+					[(ngModel)]="product.detailedDescription"
+					rows="4"
+				>
+				</textarea>
+			</div>
+
+			<div class="field-checkbox">
+				<p-checkbox
+					id="isAvailable"
+					name="isAvailable"
+					[(ngModel)]="product.isAvailable"
+					binary="true"
+				>
+				</p-checkbox>
+				<label for="isAvailable">Available for Sale</label>
+			</div>
+		</ng-template>
+
+		<ng-template pTemplate="footer">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="hideDialog()"
+			>
+			</p-button>
+			<p-button
+				label="Save"
+				icon="pi pi-check"
+				severity="success"
+				(onClick)="saveProduct()"
+			>
+			</p-button>
+		</ng-template>
+	</p-dialog>
+
+	<!-- Image Management Dialog -->
+	<p-dialog
+		[(visible)]="imageDialog"
+		[style]="{ width: '800px' }"
+		header="Manage Product Images"
+		[modal]="true"
+		styleClass="custom-dialog"
+	>
+		<ng-template pTemplate="content">
+			<div class="mb-4">
+				<p-fileUpload
+					#fileUpload
+					mode="basic"
+					name="images[]"
+					accept="image/*"
+					[multiple]="true"
+					[auto]="false"
+					chooseLabel="Select Images"
+					(onSelect)="onFileSelect($event)"
+				>
+				</p-fileUpload>
+
+				<p-button
+					*ngIf="selectedFiles.length > 0"
+					label="Upload Images"
+					icon="pi pi-upload"
+					severity="success"
+					class="ml-2"
+					(onClick)="uploadImages()"
+				>
+				</p-button>
+			</div>
+
+			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+				<div *ngFor="let image of productImages" class="relative group">
+					<img
+						[src]="getImageUrl(image.imagePath)"
+						[alt]="image.altText"
+						class="w-full h-32 object-cover rounded-lg border border-gray-200"
+					/>
+
+					<div
+						class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2"
+					>
+						<p-button
+							*ngIf="!image.isPrimary"
+							icon="pi pi-star"
+							severity="secondary"
+							size="small"
+							[rounded]="true"
+							(onClick)="setPrimaryImage(image.id)"
+							pTooltip="Set as Primary"
+						>
+						</p-button>
+						<p-button
+							icon="pi pi-trash"
+							severity="danger"
+							size="small"
+							[rounded]="true"
+							(onClick)="deleteImage(image.id)"
+							pTooltip="Delete Image"
+						>
+						</p-button>
+					</div>
+
+					<div *ngIf="image.isPrimary" class="absolute top-1 left-1">
+						<p-tag
+							value="Primary"
+							severity="success"
+							styleClass="text-xs"
+						></p-tag>
+					</div>
+				</div>
+			</div>
+
+			<div
+				*ngIf="productImages.length === 0"
+				class="text-center py-8 text-gray-500"
+			>
+				<i class="pi pi-image text-4xl mb-2 block"></i>
+				<p>No images uploaded yet</p>
+			</div>
+		</ng-template>
+	</p-dialog>
+
+	<!-- Confirm Dialogs -->
+	<p-confirmDialog
+		[style]="{ width: '450px' }"
+		styleClass="custom-confirm-dialog"
+	>
+	</p-confirmDialog>
+
+	<p-toast position="top-right"></p-toast>
+</div>

@@ -43,6 +43,8 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { StepsModule } from 'primeng/steps';
 import { DataViewModule } from 'primeng/dataview';
 import { PaginatorModule } from 'primeng/paginator';
+import { ToolbarModule } from 'primeng/toolbar';
+
 const PRIME_NG_MODULES = [
 	CardModule,
 	InputTextModule,
@@ -88,6 +90,7 @@ const PRIME_NG_MODULES = [
 	StepsModule,
 	DataViewModule,
 	PaginatorModule,
+	ToolbarModule,
 ];
 
 @NgModule({

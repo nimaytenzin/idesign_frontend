@@ -11,6 +11,7 @@ import {
 	Product,
 	ProductQueryDto,
 } from '../core/dataservice/product/product.interface';
+import { environment } from '../../environments/environment';
 
 @Component({
 	selector: 'app-product-management-example',
@@ -212,7 +213,7 @@ export class ProductManagementExampleComponent implements OnInit {
 	getPrimaryImage(product: Product): string {
 		const primaryImage = product.images?.find((img) => img.isPrimary);
 		return primaryImage
-			? primaryImage.imagePath
+			? `${environment.BASEAPI_URL}/${primaryImage.imagePath}`
 			: '/assets/images/no-image.png';
 	}
 
