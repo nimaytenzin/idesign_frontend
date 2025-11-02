@@ -103,28 +103,6 @@ export class AuthDataService {
 	}
 
 	/**
-	 * Toggle user login access
-	 */
-	adminToggleLoginAccess(userId: number): Observable<{
-		statusCode: number;
-		message: string;
-	}> {
-		return this.http
-			.patch<
-				ApiResponse<{
-					statusCode: number;
-					message: string;
-				}>
-			>(`${this.apiUrl}/admin/toggle-login-access/${userId}`, {})
-			.pipe(
-				catchError((error) => {
-					console.error('Error toggling login access:', error);
-					return throwError(() => error);
-				})
-			);
-	}
-
-	/**
 	 * Admin signup - Create new user with admin privileges
 	 * @param adminSignupDto - Admin signup data
 	 * @returns Observable<AdminSignupResponse>
