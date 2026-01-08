@@ -1,0 +1,152 @@
+<div class="hero-slide-form p-6">
+	<p-toast></p-toast>
+
+	<form #heroSlideForm="ngForm" (ngSubmit)="onSubmit()" class="space-y-6">
+		<!-- Title -->
+		<div class="field-group">
+			<label for="title" class="block font-medium text-gray-700 mb-2">
+				Title <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="title"
+				type="text"
+				pInputText
+				[(ngModel)]="title"
+				name="title"
+				placeholder="Enter slide title"
+				class="w-full"
+				[class.ng-invalid]="submitted && !title.trim()"
+				required
+			/>
+			<small class="p-error" *ngIf="submitted && !title.trim()">Title is required</small>
+		</div>
+
+		<!-- Description -->
+		<div class="field-group">
+			<label for="description" class="block font-medium text-gray-700 mb-2">Description</label>
+			<textarea
+				id="description"
+				pInputTextarea
+				[(ngModel)]="description"
+				name="description"
+				placeholder="Enter slide description"
+				rows="3"
+				class="w-full"
+			></textarea>
+		</div>
+
+		<!-- CTA Text and Link -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div class="field-group">
+				<label for="ctaText" class="block font-medium text-gray-700 mb-2">CTA Text</label>
+				<input
+					id="ctaText"
+					type="text"
+					pInputText
+					[(ngModel)]="ctaText"
+					name="ctaText"
+					placeholder="e.g., Shop Now"
+					class="w-full"
+				/>
+			</div>
+			<div class="field-group">
+				<label for="ctaLink" class="block font-medium text-gray-700 mb-2">CTA Link</label>
+				<input
+					id="ctaLink"
+					type="url"
+					pInputText
+					[(ngModel)]="ctaLink"
+					name="ctaLink"
+					placeholder="https://example.com"
+					class="w-full"
+				/>
+			</div>
+		</div>
+
+		<!-- Image Upload -->
+		<div class="field-group">
+			<label class="block font-medium text-gray-700 mb-2">
+				Image <span class="text-red-500" *ngIf="!isEditMode">*</span>
+			</label>
+			<p-fileUpload
+				mode="basic"
+				[accept]="'image/jpeg,image/jpg,image/png,image/gif,image/webp'"
+				[maxFileSize]="MAX_FILE_SIZE"
+				[auto]="false"
+				[showUploadButton]="false"
+				[showCancelButton]="false"
+				[multiple]="false"
+				chooseLabel="Choose Image"
+				(onSelect)="onFileSelect($event)"
+				(onRemove)="onFileRemove($event)"
+				[files]="uploadedFiles"
+				styleClass="w-full"
+			></p-fileUpload>
+			<small class="text-gray-500 mt-1 block">
+				Allowed formats: JPEG, PNG, GIF, WebP. Max size: 10MB
+			</small>
+			<div *ngIf="previewUrl" class="mt-4">
+				<div class="relative inline-block">
+					<img
+						[src]="previewUrl"
+						alt="Preview"
+						class="max-h-64 rounded-lg border border-gray-200"
+					/>
+					<button
+						type="button"
+						*ngIf="selectedFile || uploadedFiles.length > 0"
+						(click)="removeImage()"
+						class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
+						pButton
+						icon="pi pi-times"
+						[rounded]="true"
+						size="small"
+					></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Order and Active Status -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div class="field-group">
+				<label for="order" class="block font-medium text-gray-700 mb-2">Order</label>
+				<p-inputnumber
+					id="order"
+					[(ngModel)]="order"
+					name="order"
+					[showButtons]="true"
+					[step]="1"
+					[min]="0"
+					styleClass="w-full"
+				></p-inputnumber>
+			</div>
+			<div class="field-group">
+				<label class="block font-medium text-gray-700 mb-2">Status</label>
+				<div class="flex items-center gap-3">
+					<p-inputSwitch [(ngModel)]="isActive" name="isActive"></p-inputSwitch>
+					<span class="text-gray-700">{{ isActive ? 'Active' : 'Inactive' }}</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				[outlined]="true"
+				severity="secondary"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update Slide' : 'Create Slide'"
+				icon="pi pi-check"
+				severity="success"
+				(onClick)="onSubmit()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

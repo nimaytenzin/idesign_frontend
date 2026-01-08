@@ -27,6 +27,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ContextMenuModule } from 'primeng/contextmenu';
+import { MenuModule } from 'primeng/menu';
+import { TieredMenuModule } from 'primeng/tieredmenu';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { MessageModule } from 'primeng/message';
@@ -44,6 +46,10 @@ import { StepsModule } from 'primeng/steps';
 import { DataViewModule } from 'primeng/dataview';
 import { PaginatorModule } from 'primeng/paginator';
 import { ToolbarModule } from 'primeng/toolbar';
+import { SliderModule } from 'primeng/slider';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 
 const PRIME_NG_MODULES = [
 	CardModule,
@@ -74,6 +80,8 @@ const PRIME_NG_MODULES = [
 	CheckboxModule,
 	SelectButtonModule,
 	ContextMenuModule,
+	MenuModule,
+	TieredMenuModule,
 	InputGroupModule,
 	InputGroupAddonModule,
 	MessageModule,
@@ -91,6 +99,10 @@ const PRIME_NG_MODULES = [
 	DataViewModule,
 	PaginatorModule,
 	ToolbarModule,
+	SliderModule,
+	ConfirmPopupModule,
+	InputSwitchModule,
+	DynamicDialogModule,
 ];
 
 @NgModule({

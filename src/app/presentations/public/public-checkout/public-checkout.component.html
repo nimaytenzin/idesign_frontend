@@ -1,0 +1,398 @@
+<div class="min-h-screen bg-slate-50 py-6 sm:py-8 lg:py-12">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<!-- Header -->
+		<div class="mb-6 sm:mb-8 lg:mb-10">
+			<div class="flex items-center gap-3 mb-3">
+				<div class="w-10 h-10 sm:w-12 sm:h-12 bg-teal-500 rounded-lg flex items-center justify-center">
+					<i class="pi pi-shopping-cart text-white text-lg sm:text-xl"></i>
+				</div>
+				<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">Checkout</h1>
+			</div>
+			<p class="text-slate-600 text-sm sm:text-base ml-0 sm:ml-14 lg:ml-16">Review your order and complete your purchase</p>
+		</div>
+
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+			<!-- Main Content -->
+			<div class="lg:col-span-2 space-y-6">
+				<!-- Cart Items -->
+				<div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+					<div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+						<h2 class="text-xl font-semibold text-slate-900 flex items-center gap-2">
+							<i class="pi pi-shopping-bag text-slate-600"></i>
+							Order Items
+						</h2>
+					</div>
+					
+					<div *ngIf="cartItems.length === 0" class="text-center py-12 px-6">
+						<div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+							<i class="pi pi-shopping-cart text-2xl text-slate-400"></i>
+						</div>
+						<h3 class="text-lg font-semibold text-slate-900 mb-2">Your cart is empty</h3>
+						<p class="text-sm text-slate-600 mb-6">Add some products to get started</p>
+						<button
+							type="button"
+							class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+							(click)="goToProducts()"
+						>
+							Browse Products
+						</button>
+					</div>
+
+					<div class="p-6 space-y-4" *ngIf="cartItems.length > 0">
+						<div
+							*ngFor="let item of cartItems; let last = last"
+							class="flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-200"
+							[class.border-b-0]="!last"
+						>
+							<!-- Product Image -->
+							<div class="flex-shrink-0">
+								<div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-lg overflow-hidden border-2 border-slate-200">
+									<img
+										[src]="getPrimaryImage(item.product)"
+										[alt]="item.product.title"
+										class="w-full h-full object-cover"
+										onerror="this.src='products/image.png'"
+									/>
+								</div>
+							</div>
+
+							<!-- Product Details -->
+							<div class="flex-1 min-w-0">
+								<h3 class="text-base sm:text-lg font-semibold text-slate-900 mb-2 line-clamp-2">
+									{{ item.product.title }}
+								</h3>
+								
+								<!-- Product Dimensions and Material -->
+								<div class="flex flex-wrap gap-3 sm:gap-4 mb-4">
+									<div class="flex items-center gap-2 text-xs sm:text-sm text-slate-600 bg-slate-50 px-3 py-1.5 rounded-full" *ngIf="item.product.dimensions">
+										<i class="pi pi-ruler text-slate-500"></i>
+										<span class="font-medium">{{ item.product.dimensions }}</span>
+									</div>
+									<div class="flex items-center gap-2 text-xs sm:text-sm text-slate-600 bg-slate-50 px-3 py-1.5 rounded-full" *ngIf="item.product.material">
+										<i class="pi pi-box text-slate-500"></i>
+										<span class="font-medium">{{ item.product.material }}</span>
+									</div>
+								</div>
+								
+								<!-- Quantity Controls -->
+								<div class="flex items-center gap-3 flex-wrap">
+									<label class="text-sm font-medium text-slate-700">Quantity:</label>
+									<p-inputGroup class="w-auto">
+										<p-inputGroupAddon class="bg-slate-50 border-slate-200">
+											<p-button
+												icon="pi pi-minus"
+												[disabled]="item.quantity <= 1"
+												(click)="decreaseQuantity(item.product.id!)"
+												styleClass="p-button-sm p-button-text hover:bg-slate-100"
+											></p-button>
+										</p-inputGroupAddon>
+										<input
+											type="number"
+											pInputText
+											[(ngModel)]="item.quantity"
+											[min]="1"
+											class="text-center w-16 font-semibold border-slate-200"
+											readonly
+										/>
+										<p-inputGroupAddon class="bg-slate-50 border-slate-200">
+											<p-button
+												icon="pi pi-plus"
+												(click)="increaseQuantity(item.product.id!)"
+												styleClass="p-button-sm p-button-text hover:bg-slate-100"
+											></p-button>
+										</p-inputGroupAddon>
+									</p-inputGroup>
+								</div>
+							</div>
+
+							<!-- Price and Remove -->
+							<div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-between gap-3">
+								<div class="flex flex-col items-end">
+									<span 
+										class="text-lg sm:text-xl font-bold"
+										[ngClass]="{
+											'text-red-600': hasDiscount(item),
+											'text-slate-900': !hasDiscount(item)
+										}"
+									>
+										Nu {{ (getItemPrice(item) * item.quantity).toFixed(2) }}
+									</span>
+									<span 
+										*ngIf="hasDiscount(item)"
+										class="text-sm text-slate-500 line-through"
+									>
+										Nu {{ (getOriginalPrice(item) * item.quantity).toFixed(2) }}
+									</span>
+								</div>
+								<button
+									type="button"
+									class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+									(click)="removeItem(item.product.id!)"
+								>
+									Remove
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Customer Information Form -->
+				<div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+					<div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+						<h2 class="text-xl font-semibold text-slate-900 flex items-center gap-2">
+							<i class="pi pi-user text-slate-600"></i>
+							Customer Information
+						</h2>
+					</div>
+					
+					<form class="p-6 space-y-5">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+							<div>
+								<label class="block text-sm font-medium text-slate-700 mb-2">
+									<i class="pi pi-user text-slate-500 mr-2"></i>
+									Full Name <span class="text-red-500">*</span>
+								</label>
+								<input
+									type="text"
+									pInputText
+									[(ngModel)]="customerForm.name"
+									name="name"
+									required
+									class="w-full border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+									placeholder="Your Name"
+								/>
+							</div>
+
+							<div>
+								<label class="block text-sm font-medium text-slate-700 mb-2">
+									<i class="pi pi-envelope text-slate-500 mr-2"></i>
+									Email
+								</label>
+								<input
+									type="email"
+									pInputText
+									[(ngModel)]="customerForm.email"
+									name="email"
+									class="w-full border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+									placeholder="your@email.com"
+								/>
+							</div>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								<i class="pi pi-phone text-slate-500 mr-2"></i>
+								Phone Number <span class="text-red-500">*</span>
+							</label>
+							<p-inputGroup>
+								<p-inputGroupAddon class="bg-slate-50 border-slate-300 text-slate-700 font-semibold">+975</p-inputGroupAddon>
+								<input
+									type="tel"
+									pInputText
+									[(ngModel)]="customerForm.phoneNumber"
+									name="phoneNumber"
+									required
+									maxlength="8"
+									pattern="[0-9]{8}"
+									class="w-full border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+									placeholder="17123456"
+								/>
+							</p-inputGroup>
+							<p class="text-xs text-slate-500 mt-1">Enter 8-digit phone number</p>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								<i class="pi pi-map-marker text-slate-500 mr-2"></i>
+								Address
+							</label>
+							<textarea
+								pInputTextarea
+								[(ngModel)]="customerForm.address"
+								name="address"
+								rows="3"
+								class="w-full border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+								placeholder="Enter your complete address"
+							></textarea>
+						</div>
+
+						<!-- Voucher Code -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								<i class="pi pi-tag text-slate-500 mr-2"></i>
+								Voucher Code
+							</label>
+							<div class="flex gap-2">
+								<input
+									type="text"
+									pInputText
+									[(ngModel)]="customerForm.voucherCode"
+									name="voucherCode"
+									placeholder="Enter voucher code (e.g., SAVE10)"
+									class="flex-1 border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 uppercase"
+									style="text-transform: uppercase;"
+									[maxlength]="20"
+									[disabled]="validatingVoucher || placingOrder"
+								/>
+								<button
+									type="button"
+									*ngIf="!voucherCodeApplied"
+									class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
+									(click)="applyVoucherCode()"
+									[disabled]="validatingVoucher || placingOrder || !customerForm.voucherCode?.trim()"
+								>
+									<span *ngIf="!validatingVoucher">Apply</span>
+									<span *ngIf="validatingVoucher">Validating...</span>
+								</button>
+								<button
+									type="button"
+									*ngIf="voucherCodeApplied"
+									class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+									(click)="removeVoucherCode()"
+									[disabled]="validatingVoucher || placingOrder"
+								>
+									Remove
+								</button>
+							</div>
+							<small class="text-slate-500 text-xs mt-1 block" *ngIf="!voucherCodeError">
+								<i class="pi pi-info-circle mr-1"></i>
+								Enter a voucher code to apply discounts or link to an affiliate marketer. Codes are case-insensitive.
+							</small>
+							<small class="text-red-600 text-xs mt-1 block" *ngIf="voucherCodeError">
+								<i class="pi pi-exclamation-triangle mr-1"></i>
+								{{ voucherCodeError }}
+							</small>
+							<div *ngIf="voucherCodeApplied && customerForm.voucherCode" class="mt-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+								<div class="flex items-center gap-2 text-sm text-green-700 mb-1">
+									<i class="pi pi-check-circle"></i>
+									<span>Voucher code "<strong>{{ customerForm.voucherCode.toUpperCase() }}</strong>" applied</span>
+								</div>
+								<div *ngIf="voucherDiscountResult && voucherDiscountResult.orderDiscount > 0" class="text-sm font-semibold text-green-700">
+									Discount: Nu. {{ voucherDiscountResult.orderDiscount.toFixed(2) }}
+								</div>
+								<div *ngIf="voucherDiscountResult && voucherDiscountResult.orderDiscount === 0 && voucherDiscountResult.lineItemDiscounts.length === 0" class="text-xs text-green-600">
+									Code is valid. No discount applies, but it may be linked to an affiliate marketer.
+								</div>
+							</div>
+						</div>
+
+						<div class="space-y-4">
+							<!-- Payment Info -->
+							<div>
+								<label class="block text-sm font-medium text-slate-700 mb-2">
+									<i class="pi pi-credit-card text-slate-500 mr-2"></i>
+									Payment Method
+								</label>
+								<div class="px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg">
+									<span class="text-sm font-medium text-slate-700">RMA Payment Gateway</span>
+								</div>
+								<small class="text-slate-500 text-xs mt-1 block">
+									<i class="pi pi-info-circle mr-1"></i>
+									You will be redirected to RMA Payment Gateway after order placement.
+								</small>
+							</div>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								<i class="pi pi-comment text-slate-500 mr-2"></i>
+								Remarks
+							</label>
+							<textarea
+								pInputTextarea
+								[(ngModel)]="customerForm.remarks"
+								name="remarks"
+								rows="3"
+								class="w-full border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+								placeholder="Any additional notes or special instructions (optional)"
+							></textarea>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Order Summary Sidebar -->
+			<div class="lg:col-span-1">
+				<div class="bg-white rounded-lg border border-slate-200 overflow-hidden sticky top-6">
+					<div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+						<h2 class="text-xl font-semibold text-slate-900 flex items-center gap-2">
+							<i class="pi pi-wallet text-slate-600"></i>
+							Order Summary
+						</h2>
+					</div>
+					
+					<div class="p-6 space-y-6">
+						<!-- Order Details -->
+						<div class="space-y-4">
+							<div class="flex justify-between items-center py-3 border-b border-slate-200">
+								<span class="text-base font-medium text-slate-600">Items</span>
+								<span class="text-base font-semibold text-slate-900">{{ cartItems.length }}</span>
+							</div>
+							
+							<div class="flex justify-between items-center py-3 border-b border-slate-200">
+								<span class="text-base font-medium text-slate-600">Subtotal</span>
+								<span class="text-base font-semibold text-slate-900">Nu {{ getSubtotal().toFixed(2) }}</span>
+							</div>
+							
+							<div 
+								*ngIf="getTotalDiscount() > 0"
+								class="flex justify-between items-center py-3 border-b border-slate-200"
+							>
+								<span class="text-base font-medium text-green-600">
+									<i class="pi pi-tag mr-1"></i>
+									Product Discount
+								</span>
+								<span class="text-base font-semibold text-green-600">
+									-Nu {{ getTotalDiscount().toFixed(2) }}
+								</span>
+							</div>
+
+							<div 
+								*ngIf="getVoucherDiscount() > 0"
+								class="flex justify-between items-center py-3 border-b border-slate-200"
+							>
+								<span class="text-base font-medium text-teal-600">
+									<i class="pi pi-ticket mr-1"></i>
+									Voucher Discount
+								</span>
+								<span class="text-base font-semibold text-teal-600">
+									-Nu {{ getVoucherDiscount().toFixed(2) }}
+								</span>
+							</div>
+							
+							<div class="pt-4 border-t-2 border-slate-300">
+								<div class="flex justify-between items-center">
+									<span class="text-lg font-bold text-slate-900">Total</span>
+									<span class="text-2xl font-bold text-slate-900">Nu {{ getTotal().toFixed(2) }}</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Place Order Button -->
+						<button
+							type="button"
+							class="w-full px-4 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-base font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
+							[disabled]="placingOrder || cartItems.length === 0"
+							(click)="placeOrder()"
+						>
+							<span *ngIf="!placingOrder">Place Order</span>
+							<span *ngIf="placingOrder">Processing...</span>
+						</button>
+
+						<!-- Security Note -->
+						<div class="pt-4 border-t border-slate-200">
+							<div class="flex items-start gap-2 text-xs text-slate-500">
+								<i class="pi pi-shield text-slate-500 mt-0.5"></i>
+								<p>Your information is secure and will only be used to process your order.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>
+

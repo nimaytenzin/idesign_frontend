@@ -1,0 +1,56 @@
+/* Navbar Component Styles */
+
+/* Ensure navbar has exact height */
+nav {
+	height: 64px; /* 4rem / h-16 */
+	min-height: 64px;
+}
+
+/* Navbar spacer - must match navbar height exactly */
+#navbar-spacer {
+	height: 64px; /* 4rem / h-16 */
+	min-height: 64px;
+	width: 100%;
+	display: block;
+}
+
+/* Ensure no gap between navbar and content */
+nav + #navbar-spacer {
+	margin: 0;
+	padding: 0;
+}
+
+/* Cart Icon Animation - Subtle and smooth */
+@keyframes cartWobble {
+	0%, 100% {
+		transform: scale(1) rotate(0deg);
+	}
+	25% {
+		transform: scale(1.1) rotate(-2deg);
+	}
+	50% {
+		transform: scale(1.15) rotate(2deg);
+	}
+	75% {
+		transform: scale(1.1) rotate(-1deg);
+	}
+}
+
+.cart-icon-animated {
+	animation: cartWobble 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.cart-icon-animated i {
+	display: inline-block;
+	transform-origin: center;
+}
+
+/* Mobile menu adjustments */
+@media (max-width: 768px) {
+	/* Mobile menu doesn't affect navbar height */
+	nav {
+		height: 64px;
+		min-height: 64px;
+	}
+}
+

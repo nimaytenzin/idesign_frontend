@@ -1,0 +1,21 @@
+/* Public Layout Component Styles */
+
+/* Ensure main content starts right after navbar spacer */
+main {
+	margin-top: 0;
+	padding-top: 0;
+	width: 100%;
+}
+
+/* Remove any default margins that might create gaps */
+:host {
+	display: block;
+	width: 100%;
+}
+
+/* Ensure router outlet content flows properly */
+router-outlet + * {
+	display: block;
+	width: 100%;
+}
+

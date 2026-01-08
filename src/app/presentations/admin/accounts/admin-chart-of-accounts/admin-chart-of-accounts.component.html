@@ -1,0 +1,372 @@
+<div class="chart-of-accounts-container">
+	<p-toast></p-toast>
+
+	<div class="max-w-[70vw] mx-auto">
+		<!-- Loading State -->
+		<div *ngIf="loading && accounts.length === 0" class="flex justify-center items-center h-64">
+			<div class="relative w-16 h-16">
+				<div
+					class="absolute inset-0 border-4 rounded-full"
+					style="border-color: #e8f0ff"
+				></div>
+				<div
+					class="absolute inset-0 border-4 rounded-full border-t-transparent animate-spin"
+					style="border-color: #1a58af"
+				></div>
+			</div>
+		</div>
+
+		<!-- Main Content -->
+		<div *ngIf="!loading || accounts.length > 0" class="content-wrapper">
+		<!-- Title and Action Buttons -->
+		<div class="header-section">
+			<div>
+				<h3 class="page-title">Chart of Accounts</h3>
+				<p class="page-subtitle">
+					Manage your accounting accounts and categories
+				</p>
+			</div>
+			<div class="flex gap-2">
+				<p-button
+					label="New Account"
+					icon="pi pi-plus"
+					styleClass="p-button-primary p-button-sm"
+					(onClick)="openNewAccountDialog()"
+					pTooltip="Create a new account"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- Filters Section -->
+		<p-card class="filters-card">
+			<ng-template pTemplate="header">
+				<div class="filters-header">
+					<h4 class="filters-title">Filters</h4>
+					<div class="filters-grid">
+						<!-- Search -->
+						<div class="flex flex-col">
+							<label class="text-xs font-medium text-gray-600 mb-1">Search</label>
+							<p-inputgroup>
+								<input
+									pInputText
+									type="text"
+									[(ngModel)]="searchQuery"
+									(input)="onSearchChange()"
+									placeholder="Search by code or name..."
+									style="width: 100%"
+								/>
+								<p-inputgroup-addon>
+									<p-button
+										icon="pi pi-search"
+										severity="secondary"
+										variant="text"
+										(onClick)="onSearchChange()"
+									/>
+								</p-inputgroup-addon>
+							</p-inputgroup>
+						</div>
+
+						<!-- Account Type Filter -->
+						<div class="flex flex-col">
+							<label class="text-xs font-medium text-gray-600 mb-1">Account Type</label>
+							<p-dropdown
+								[options]="accountTypeOptions"
+								optionLabel="label"
+								optionValue="value"
+								[(ngModel)]="selectedAccountType"
+								(onChange)="onTypeFilterChange()"
+								placeholder="All Types"
+								styleClass="w-full p-inputtext-sm"
+							></p-dropdown>
+						</div>
+
+						<!-- Status Filter -->
+						<div class="flex flex-col">
+							<label class="text-xs font-medium text-gray-600 mb-1">Status</label>
+							<p-dropdown
+								[options]="statusOptions"
+								optionLabel="label"
+								optionValue="value"
+								[(ngModel)]="selectedStatus"
+								(onChange)="onStatusFilterChange()"
+								placeholder="All"
+								styleClass="w-full p-inputtext-sm"
+							></p-dropdown>
+						</div>
+
+						<!-- Clear Filters -->
+						<div class="flex flex-col justify-end">
+							<p-button
+								label="Clear Filters"
+								icon="pi pi-filter-slash"
+								styleClass="p-button-text p-button-sm"
+								(onClick)="clearFilters()"
+							></p-button>
+						</div>
+					</div>
+				</div>
+			</ng-template>
+
+			<!-- Accounts Table -->
+			<div class="table-container">
+				<p-table
+					#dt
+					[value]="filteredAccounts"
+					[loading]="loading"
+					[paginator]="true"
+					[rows]="20"
+					[showCurrentPageReport]="true"
+					currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+					[rowsPerPageOptions]="[10, 25, 50, 100]"
+					[globalFilterFields]="['accountCode', 'accountName', 'description']"
+					styleClass="p-datatable-sm p-datatable-striped"
+					responsiveLayout="scroll"
+					[scrollable]="true"
+					scrollHeight="500px"
+				>
+				<ng-template pTemplate="header">
+					<tr>
+						<th pSortableColumn="accountCode" style="width: 120px">
+							Account Code <p-sortIcon field="accountCode"></p-sortIcon>
+						</th>
+						<th pSortableColumn="accountName">
+							Account Name <p-sortIcon field="accountName"></p-sortIcon>
+						</th>
+						<th pSortableColumn="accountType" style="width: 150px">
+							Type <p-sortIcon field="accountType"></p-sortIcon>
+						</th>
+						<th pSortableColumn="normalBalance" style="width: 120px">
+							Normal Balance <p-sortIcon field="normalBalance"></p-sortIcon>
+						</th>
+						<th style="width: 100px">Status</th>
+						<th>Description</th>
+						<th style="width: 150px">Actions</th>
+					</tr>
+				</ng-template>
+
+				<ng-template pTemplate="body" let-account>
+					<tr>
+						<td class="font-mono text-xs font-semibold">{{ account.accountCode }}</td>
+						<td class="font-medium">{{ account.accountName }}</td>
+						<td>
+							<span
+								class="px-2 py-1 rounded text-xs font-medium"
+								[style.background-color]="getAccountTypeColor(account.accountType) + '20'"
+								[style.color]="getAccountTypeColor(account.accountType)"
+							>
+								{{ getAccountTypeLabel(account.accountType) }}
+							</span>
+						</td>
+						<td>
+							<span
+								class="px-2 py-1 rounded text-xs font-medium"
+								[class.bg-blue-100]="account.normalBalance === 'DEBIT'"
+								[class.text-blue-700]="account.normalBalance === 'DEBIT'"
+								[class.bg-green-100]="account.normalBalance === 'CREDIT'"
+								[class.text-green-700]="account.normalBalance === 'CREDIT'"
+							>
+								{{ account.normalBalance }}
+							</span>
+						</td>
+						<td>
+							<span
+								class="px-2 py-1 rounded-full text-xs font-medium"
+								[class.bg-green-100]="account.isActive"
+								[class.text-green-700]="account.isActive"
+								[class.bg-red-100]="!account.isActive"
+								[class.text-red-700]="!account.isActive"
+							>
+								{{ account.isActive ? 'Active' : 'Inactive' }}
+							</span>
+						</td>
+						<td class="text-xs text-gray-600">
+							{{ account.description || '-' }}
+						</td>
+						<td>
+							<div class="flex gap-2">
+								<p-button
+									icon="pi pi-pencil"
+									styleClass="p-button-text p-button-sm"
+									(onClick)="openEditAccountDialog(account)"
+									pTooltip="Edit account"
+								></p-button>
+								<p-button
+									icon="pi pi-trash"
+									styleClass="p-button-text p-button-sm p-button-danger"
+									(onClick)="deleteAccount(account)"
+									pTooltip="Delete account"
+								></p-button>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="7" class="text-center py-12">
+							<div class="flex flex-col items-center gap-3">
+								<i class="pi pi-inbox text-5xl text-gray-300"></i>
+								<div>
+									<p class="text-gray-600 font-medium">No accounts found</p>
+									<p class="text-sm text-gray-500 mt-1">
+										{{ searchQuery || selectedAccountType !== 'ALL' || selectedStatus !== 'ALL'
+											? 'Try adjusting your filters'
+											: 'Create your first account to get started' }}
+									</p>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				</p-table>
+			</div>
+		</p-card>
+		</div>
+	</div>
+</div>
+
+<!-- Create/Edit Account Dialog -->
+<p-dialog
+	[(visible)]="showAccountDialog"
+	[modal]="true"
+	[closable]="true"
+	[style]="{ width: '600px' }"
+	[header]="isEditMode ? 'Edit Account' : 'Create New Account'"
+>
+	<div class="dialog-content">
+		<!-- Account Code -->
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs font-medium text-gray-600"
+				>Account Code <span class="text-red-500">*</span></label
+			>
+			<input
+				type="text"
+				pInputText
+				[(ngModel)]="accountForm.accountCode"
+				placeholder="e.g., 1010, 4000"
+				class="w-full"
+				[disabled]="isEditMode"
+				[class.ng-invalid]="submitted && !accountForm.accountCode"
+			/>
+			<small class="text-xs text-gray-500"
+				>Unique numeric code (e.g., 1010, 4000). Cannot be changed after creation.</small
+			>
+			<small
+				class="text-xs text-red-600"
+				*ngIf="submitted && !accountForm.accountCode"
+				>Account code is required</small
+			>
+		</div>
+
+		<!-- Account Name -->
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs font-medium text-gray-600"
+				>Account Name <span class="text-red-500">*</span></label
+			>
+			<input
+				type="text"
+				pInputText
+				[(ngModel)]="accountForm.accountName"
+				placeholder="e.g., Cash, Sales Revenue"
+				class="w-full"
+				[class.ng-invalid]="submitted && !accountForm.accountName"
+			/>
+			<small
+				class="text-xs text-red-600"
+				*ngIf="submitted && !accountForm.accountName"
+				>Account name is required</small
+			>
+		</div>
+
+		<!-- Account Type -->
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs font-medium text-gray-600"
+				>Account Type <span class="text-red-500">*</span></label
+			>
+			<p-dropdown
+				[options]="accountTypeInfo"
+				optionLabel="label"
+				optionValue="value"
+				[(ngModel)]="accountForm.accountType"
+				(onChange)="onAccountTypeChange()"
+				placeholder="Select account type"
+				styleClass="w-full"
+			></p-dropdown>
+			<small class="text-xs text-gray-500" *ngIf="accountForm.accountType">
+				{{ AccountTypeHelper.getTypeInfo(accountForm.accountType).description }}
+			</small>
+		</div>
+
+		<!-- Normal Balance -->
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs font-medium text-gray-600"
+				>Normal Balance <span class="text-red-500">*</span></label
+			>
+			<p-dropdown
+				[options]="[
+					{ label: 'Debit', value: 'DEBIT' },
+					{ label: 'Credit', value: 'CREDIT' }
+				]"
+				optionLabel="label"
+				optionValue="value"
+				[(ngModel)]="accountForm.normalBalance"
+				placeholder="Select normal balance"
+				styleClass="w-full"
+			></p-dropdown>
+			<small class="text-xs text-gray-500">
+				{{ accountForm.accountType === AccountType.ASSET || accountForm.accountType === AccountType.EXPENSE
+					? 'Assets and Expenses typically have Debit normal balance'
+					: 'Liabilities, Equity, and Revenue typically have Credit normal balance' }}
+			</small>
+		</div>
+
+		<!-- Description -->
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs font-medium text-gray-600">Description</label>
+			<textarea
+				pInputTextarea
+				[(ngModel)]="accountForm.description"
+				placeholder="Optional description for this account"
+				[rows]="3"
+				class="w-full"
+			></textarea>
+		</div>
+
+		<!-- Is Active -->
+		<div class="flex flex-col gap-1.5">
+			<label class="text-xs font-medium text-gray-600">Status</label>
+			<div class="flex items-center gap-3">
+				<p-inputSwitch [(ngModel)]="accountForm.isActive"></p-inputSwitch>
+				<span class="text-sm text-gray-700">{{
+					accountForm.isActive ? 'Active' : 'Inactive'
+				}}</span>
+			</div>
+		</div>
+	</div>
+
+	<ng-template pTemplate="footer">
+		<div class="flex justify-end gap-2">
+			<button
+				pButton
+				type="button"
+				label="Cancel"
+				class="p-button-text"
+				[disabled]="loading"
+				(click)="showAccountDialog = false"
+			></button>
+			<button
+				pButton
+				type="button"
+				[label]="isEditMode ? 'Update' : 'Create'"
+				icon="pi pi-check"
+				class="p-button-primary"
+				[disabled]="loading"
+				[loading]="loading"
+				(click)="saveAccount()"
+			></button>
+		</div>
+	</ng-template>
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+

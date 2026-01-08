@@ -1,81 +1,118 @@
-/* Layout Design System - Black Primary Theme */
+/* Layout Component - Modern Design System */
+:host {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+/* Layout Wrapper */
 .layout-wrapper {
-    display: flex;
-    min-height: 100vh;
-    background-color: #fafafa; /* Gray 50 for page backgrounds */
-    font-family:
-        "Roboto",
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	min-height: 100vh;
 }
 
+/* Sidebar */
 .layout-sidebar {
-    width: 280px;
-    background-color: #1a1a1a; /* Primary Charcoal Black */
-    border-right: 1px solid #424242; /* Gray 800 for navigation borders */
-    position: fixed;
-    height: 100vh;
-    z-index: 999;
-    overflow-y: auto;
-    transition: all 0.2s ease;
+	width: 288px; /* 72 * 4px = 288px */
+	background: #FFFFFF;
+	border-right: 1px solid #E0E0E0;
+	box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
-.layout-main-container {
-    margin-left: 280px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.2s ease;
+/* Custom Scrollbar for Sidebar */
+.layout-sidebar::-webkit-scrollbar {
+	width: 6px;
 }
 
+.layout-sidebar::-webkit-scrollbar-track {
+	background: #F5F5F5;
+}
+
+.layout-sidebar::-webkit-scrollbar-thumb {
+	background: #BDBDBD;
+	border-radius: 3px;
+}
+
+.layout-sidebar::-webkit-scrollbar-thumb:hover {
+	background: #9E9E9E;
+}
+
+/* Main Content Area */
 .layout-main {
-    flex: 1;
-    padding: 24px; /* xl spacing */
-    background-color: #fafafa; /* Gray 50 */
-    min-height: calc(100vh - 80px); /* Account for topbar height */
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0; /* Prevents flex item overflow */
 }
 
-.layout-mask {
-    display: none;
+/* Topbar */
+.layout-topbar {
+	height: 64px;
+	background: #FFFFFF;
+	border-bottom: 1px solid #E0E0E0;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Mobile Responsive */
+/* Content Area */
+.layout-content {
+	flex: 1;
+	background: #FAFAFA;
+	padding: 24px;
+}
+
+/* Mobile Overlay */
+.layout-overlay {
+	backdrop-filter: blur(2px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+	.layout-sidebar {
+		width: 256px;
+	}
+
+	.layout-main {
+		margin-left: 0 !important;
+	}
+}
+
 @media (max-width: 768px) {
-    .layout-sidebar {
-        transform: translateX(-100%);
-    }
+	.layout-sidebar {
+		width: 280px;
+	}
 
-    .layout-main-container {
-        margin-left: 0;
-    }
-
-    .layout-wrapper.layout-mobile-sidebar-active {
-        .layout-sidebar {
-            transform: translateX(0);
-        }
-
-        .layout-mask {
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(26, 26, 26, 0.5); /* Primary black overlay */
-            z-index: 998;
-        }
-    }
+	.layout-content {
+		padding: 16px;
+	}
 }
 
-/* Tablet Responsive */
-@media (min-width: 768px) and (max-width: 1024px) {
-    .layout-sidebar {
-        width: 240px;
-    }
-
-    .layout-main-container {
-        margin-left: 240px;
-    }
+/* Smooth Transitions */
+.layout-sidebar,
+.layout-main,
+.layout-overlay {
+	transition-property: transform, margin-left, opacity;
+	transition-duration: 300ms;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Block body scroll when mobile menu is open */
+body.blocked-scroll {
+	overflow: hidden;
+}
+
+/* PrimeNG Component Overrides */
+:host ::ng-deep .p-component {
+	font-family: 'Roboto', sans-serif;
+}
+
+/* Focus States - Design System Colors */
+:host ::ng-deep *:focus-visible {
+	outline: 2px solid #017263;
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+

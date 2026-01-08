@@ -12,7 +12,7 @@ export class ImageUtilityService {
 	 */
 	getImageUrl(imagePath: string): string {
 		if (!imagePath) {
-			return '/assets/images/no-image.png';
+			return 'product-placeholder.png';
 		}
 
 		// Remove leading slash if present to avoid double slashes
@@ -32,7 +32,7 @@ export class ImageUtilityService {
 		images?: { imagePath: string; isPrimary: boolean }[]
 	): string {
 		if (!images || images.length === 0) {
-			return '/assets/images/no-image.png';
+			return 'product-placeholder.png';
 		}
 
 		const primaryImage = images.find((img) => img.isPrimary);
@@ -52,7 +52,7 @@ export class ImageUtilityService {
 	 */
 	getAllImageUrls(images?: { imagePath: string }[]): string[] {
 		if (!images || images.length === 0) {
-			return ['/assets/images/no-image.png'];
+			return ['product-placeholder.png'];
 		}
 
 		return images.map((img) => this.getImageUrl(img.imagePath));
@@ -64,7 +64,7 @@ export class ImageUtilityService {
 	 * @returns True if the image URL is valid, false otherwise
 	 */
 	isValidImageUrl(imageUrl: string): boolean {
-		return imageUrl !== '/assets/images/no-image.png' && imageUrl.trim() !== '';
+		return imageUrl !== 'product-placeholder.png' && imageUrl.trim() !== '';
 	}
 
 	/**
@@ -81,7 +81,7 @@ export class ImageUtilityService {
 	): string {
 		const baseUrl = this.getImageUrl(imagePath);
 
-		if (baseUrl === '/assets/images/no-image.png') {
+		if (baseUrl === 'product-placeholder.png') {
 			return baseUrl;
 		}
 

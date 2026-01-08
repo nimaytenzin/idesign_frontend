@@ -3,10 +3,10 @@
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<!-- Section Header -->
 		<div class="text-center mb-12">
-			<h2 class="text-3xl font-bold text-gray-900 mb-4 font-['Poppins']">
+			<h2 class="text-3xl font-bold text-gray-900 mb-4">
 				Featured Products
 			</h2>
-			<p class="text-gray-600 max-w-2xl mx-auto font-['Roboto']">
+			<p class="text-gray-600 max-w-2xl mx-auto">
 				Discover our premium collection of 3D printed Bhutanese stupas and
 				custom designs, crafted with precision and attention to detail.
 			</p>
@@ -14,7 +14,22 @@
 
 		<!-- Carousel Container -->
 		<div class="relative">
+			<!-- Loading State -->
+			<div *ngIf="loading" class="flex justify-center items-center py-12">
+				<div class="text-gray-500">Loading featured products...</div>
+			</div>
+
+			<!-- Empty State -->
+			<div
+				*ngIf="!loading && featuredProducts.length === 0"
+				class="text-center py-12"
+			>
+				<p class="text-gray-500">No featured products available at the moment.</p>
+			</div>
+
+			<!-- Carousel -->
 			<p-carousel
+				*ngIf="!loading && featuredProducts.length > 0"
 				[value]="featuredProducts"
 				[numVisible]="numVisible"
 				[numScroll]="1"
@@ -42,8 +57,24 @@
 									(error)="onImageError($event)"
 								/>
 
-								<!-- Product Badge -->
-								<div class="absolute top-3 left-3">
+								<!-- Product Badges -->
+								<div class="absolute top-3 left-3 flex flex-col gap-2">
+									<!-- Discount Badge -->
+									<span
+										*ngIf="product.originalPrice && product.originalPrice > product.price && product.discountPercentage > 0"
+										class="px-2 py-1 text-xs font-semibold rounded-full bg-red-500 text-white shadow-md"
+									>
+										<span *ngIf="product.discount && product.discount.valueType === 'PERCENTAGE'">
+											-{{ product.discount.discountValue }}%
+										</span>
+										<span *ngIf="product.discount && product.discount.valueType === 'FIXED_AMOUNT'">
+											-Nu. {{ product.discount.discountValue }}
+										</span>
+										<span *ngIf="!product.discount">
+											-{{ product.discountPercentage }}% OFF
+										</span>
+									</span>
+									<!-- Status Badge -->
 									<span
 										class="px-2 py-1 text-xs font-medium rounded-full"
 										[ngClass]="{
@@ -73,14 +104,14 @@
 							<div class="p-6">
 								<!-- Product Title -->
 								<h3
-									class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 font-['Poppins']"
+									class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2"
 								>
 									{{ product.title }}
 								</h3>
 
 								<!-- Product Description -->
 								<p
-									class="text-gray-600 text-sm mb-3 line-clamp-2 font-['Roboto']"
+									class="text-gray-600 text-sm mb-3 line-clamp-2"
 								>
 									{{ product.shortDescription }}
 								</p>
@@ -105,24 +136,29 @@
 								<div class="flex items-center justify-between">
 									<div class="flex flex-col">
 										<span
-											class="text-lg font-bold text-gray-900 font-['Poppins']"
+											class="text-lg font-bold"
+											[ngClass]="{
+												'text-red-600': product.originalPrice && product.originalPrice > product.price,
+												'text-gray-900': !product.originalPrice || product.originalPrice <= product.price
+											}"
 										>
 											Nu. {{ product.price | number : "1.0-0" }}
 										</span>
 										<span
-											class="text-xs text-gray-500 font-['Roboto']"
+											class="text-xs text-gray-500 line-through"
 											*ngIf="
 												product.originalPrice &&
 												product.originalPrice > product.price
 											"
 										>
-											<s>Nu. {{ product.originalPrice | number : "1.0-0" }}</s>
+											Nu. {{ product.originalPrice | number : "1.0-0" }}
 										</span>
 									</div>
 
 									<button
-										class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium text-sm"
-										(click)="addToCart(product); $event.stopPropagation()"
+										class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors duration-200 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+										(click)="addToCart(product, $event)"
+										[disabled]="product.status === 'out-of-stock'"
 									>
 										Add to Cart
 									</button>
@@ -146,7 +182,7 @@
 											></i>
 										</span>
 									</div>
-									<span class="text-sm text-gray-500 ml-2 font-['Roboto']">
+									<span class="text-sm text-gray-500 ml-2">
 										({{ product.reviewCount || 0 }} reviews)
 									</span>
 								</div>
@@ -160,7 +196,7 @@
 		<!-- View All Button -->
 		<div class="text-center mt-12">
 			<button
-				class="px-8 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors duration-200 font-['Poppins'] font-medium"
+				class="px-8 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors duration-200 font-medium"
 				(click)="viewAllProducts()"
 			>
 				View All Products
@@ -169,3 +205,6 @@
 		</div>
 	</div>
 </section>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>

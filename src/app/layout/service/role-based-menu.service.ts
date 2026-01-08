@@ -2,9 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
 	ADMINSIDEBARITEMS,
-	THEATREMANAGERSIDEBARITEMS,
-	EXECUTIVEPRODUCERSIDEBARITEMS,
-	COUNTERSTAFFSIDEBARITEMS,
 	USERROLESENUM,
 } from '../sidebarmenu';
 import { UserRole } from '../../core/dataservice/auth/auth.interface';
@@ -28,25 +25,9 @@ export class RoleBasedMenuService {
 
 		switch (role) {
 			case USERROLESENUM.ADMIN:
-			case USERROLESENUM.SUPERADMIN:
+			case USERROLESENUM.STAFF:
 				menu = ADMINSIDEBARITEMS;
 				console.log('Returning ADMINSIDEBARITEMS');
-				break;
-
-			case USERROLESENUM.THEATRE_MANAGER:
-			case USERROLESENUM.MANAGER:
-				menu = THEATREMANAGERSIDEBARITEMS;
-				console.log('Returning THEATREMANAGERSIDEBARITEMS');
-				break;
-
-			case USERROLESENUM.EXECUTIVE_PRODUCER:
-				menu = EXECUTIVEPRODUCERSIDEBARITEMS;
-				console.log('Returning EXECUTIVEPRODUCERSIDEBARITEMS');
-				break;
-
-			case USERROLESENUM.COUNTER_STAFF:
-				menu = COUNTERSTAFFSIDEBARITEMS;
-				console.log('Returning COUNTERSTAFFSIDEBARITEMS');
 				break;
 
 			default:
@@ -127,18 +108,8 @@ export class RoleBasedMenuService {
 	getDashboardRoute(role: USERROLESENUM): string {
 		switch (role) {
 			case USERROLESENUM.ADMIN:
-			case USERROLESENUM.SUPERADMIN:
+			case USERROLESENUM.STAFF:
 				return '/admin';
-
-			case USERROLESENUM.THEATRE_MANAGER:
-			case USERROLESENUM.MANAGER:
-				return '/theatre-manager';
-
-			case USERROLESENUM.EXECUTIVE_PRODUCER:
-				return '/executive-producer';
-
-			case USERROLESENUM.COUNTER_STAFF:
-				return '/counter-staff';
 
 			default:
 				return '/';

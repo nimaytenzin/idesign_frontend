@@ -1,0 +1,168 @@
+<div class="p-6">
+	<p-toast></p-toast>
+
+	<form (ngSubmit)="saveWorkExperience()" class="space-y-6">
+		<!-- Work Experience Information Section -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+				Work Experience Information
+			</h3>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<!-- Position Title -->
+				<div>
+					<label
+						for="positionTitle"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Position Title <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="positionTitle"
+						type="text"
+						pInputText
+						[(ngModel)]="positionTitle"
+						name="positionTitle"
+						placeholder="Enter position title"
+						class="w-full"
+						[class.ng-invalid]="submitted && !positionTitle"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !positionTitle"
+						>Position title is required</small
+					>
+				</div>
+
+				<!-- Agency -->
+				<div>
+					<label
+						for="agency"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Agency/Organization <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="agency"
+						type="text"
+						pInputText
+						[(ngModel)]="agency"
+						name="agency"
+						placeholder="Enter agency or organization name"
+						class="w-full"
+						[class.ng-invalid]="submitted && !agency"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !agency"
+						>Agency is required</small
+					>
+				</div>
+
+				<!-- Place -->
+				<div>
+					<label
+						for="place"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Place/Location <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="place"
+						type="text"
+						pInputText
+						[(ngModel)]="place"
+						name="place"
+						placeholder="Enter place or location"
+						class="w-full"
+						[class.ng-invalid]="submitted && !place"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !place"
+						>Place is required</small
+					>
+				</div>
+
+				<!-- Effective Date -->
+				<div>
+					<label
+						for="effectiveDate"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Effective Date <span class="text-red-500">*</span>
+					</label>
+					<p-calendar
+						id="effectiveDate"
+						[(ngModel)]="effectiveDate"
+						name="effectiveDate"
+						dateFormat="yy-mm-dd"
+						[showIcon]="true"
+						styleClass="w-full"
+						[class.ng-invalid]="submitted && !effectiveDate"
+						required
+					></p-calendar>
+					<small class="p-error block mt-1" *ngIf="submitted && !effectiveDate"
+						>Effective date is required</small
+					>
+				</div>
+
+				<!-- Current Position Checkbox -->
+				<div class="md:col-span-2">
+					<div class="flex items-center">
+						<p-checkbox
+							id="isCurrentPosition"
+							[(ngModel)]="isCurrentPosition"
+							name="isCurrentPosition"
+							(onChange)="onCurrentPositionChange()"
+							[binary]="true"
+							inputId="isCurrentPosition"
+						></p-checkbox>
+						<label
+							for="isCurrentPosition"
+							class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+						>
+							Current Position
+						</label>
+					</div>
+					<small class="text-gray-500 dark:text-gray-400">Check if this is the current position</small>
+				</div>
+
+				<!-- End Date -->
+				<div *ngIf="!isCurrentPosition">
+					<label
+						for="endDate"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						End Date
+					</label>
+					<p-calendar
+						id="endDate"
+						[(ngModel)]="endDate"
+						name="endDate"
+						dateFormat="yy-mm-dd"
+						[showIcon]="true"
+						styleClass="w-full"
+					></p-calendar>
+				</div>
+			</div>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update Work Experience' : 'Add Work Experience'"
+				icon="pi pi-check"
+				severity="success"
+				type="submit"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

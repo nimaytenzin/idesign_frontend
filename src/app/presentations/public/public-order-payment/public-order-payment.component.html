@@ -1,0 +1,331 @@
+<div class="min-h-screen bg-slate-50 py-8">
+	<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+		<!-- Header -->
+		<div class="mb-8">
+			<div class="flex items-center gap-3 mb-3">
+				<div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
+					<i class="pi pi-credit-card text-white text-lg"></i>
+				</div>
+				<h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Payment</h1>
+			</div>
+			<p class="text-slate-600 text-sm sm:text-base ml-0 sm:ml-14">
+				Complete your payment securely
+			</p>
+		</div>
+
+		<!-- Loading State -->
+		<div *ngIf="loading || loadingOrder" class="flex justify-center items-center py-20">
+			<p-progressSpinner></p-progressSpinner>
+		</div>
+
+		<!-- Main Content -->
+		<div *ngIf="!loading && !loadingOrder && order" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<!-- Payment Steps -->
+			<div class="lg:col-span-2 space-y-6">
+				<!-- Order Summary Card -->
+				<p-card class="mb-6">
+					<div class="space-y-3">
+						<div class="flex justify-between items-center pb-3 border-b border-gray-200">
+							<span class="text-gray-600 font-medium">Order Number:</span>
+							<span class="text-lg font-bold text-gray-900">{{ order.orderNumber }}</span>
+						</div>
+						<div class="flex justify-between items-center">
+							<span class="text-gray-600 font-medium">Total Amount:</span>
+							<span class="text-xl font-bold text-gray-900">Nu {{ amount.toFixed(2) }}</span>
+						</div>
+					</div>
+				</p-card>
+
+				<!-- Step 1: Initiate Payment -->
+				<p-card *ngIf="activeStep === 1" class="payment-step">
+					<div class="text-center py-8">
+						<div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+							<i class="pi pi-lock text-3xl text-gray-600"></i>
+						</div>
+						<h2 class="text-2xl font-bold text-gray-900 mb-3">Secure Payment</h2>
+						<p class="text-gray-600 mb-8">
+							Click the button below to initiate a secure payment transaction.
+						</p>
+						<p-button
+							label="Initiate Payment"
+							icon="pi pi-arrow-right"
+							[loading]="initiatingPayment"
+							[disabled]="initiatingPayment || sessionExpired"
+							styleClass="bg-gray-900 hover:bg-gray-800"
+							(click)="initiatePayment()"
+						></p-button>
+					</div>
+				</p-card>
+
+				<!-- Step 2: Bank Selection -->
+				<p-card *ngIf="activeStep === 2" class="payment-step">
+					<div class="mb-6">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+							<h2 class="text-xl font-bold text-gray-900">Select Your Bank</h2>
+						</div>
+						<p class="text-gray-600 text-sm">Choose your bank to proceed with payment</p>
+					</div>
+
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+						<div
+							*ngFor="let bank of banks; trackBy: trackByBank"
+							class="p-4 border-2 rounded-lg cursor-pointer transition-all"
+							[class.border-gray-900]="selectedBank?.bankCode === bank.bankCode"
+							[class.border-gray-200]="selectedBank?.bankCode !== bank.bankCode"
+							[class.bg-gray-50]="selectedBank?.bankCode === bank.bankCode"
+							(click)="selectBank(bank)"
+						>
+							<div class="flex items-center gap-3">
+								<div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+									<i class="pi pi-building text-gray-600"></i>
+								</div>
+								<div>
+									<p class="font-semibold text-gray-900">{{ bank.bankName }}</p>
+									<p class="text-xs text-gray-500">Code: {{ bank.bankCode }}</p>
+								</div>
+								<div class="ml-auto" *ngIf="selectedBank?.bankCode === bank.bankCode">
+									<i class="pi pi-check-circle text-gray-900 text-xl"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="flex gap-3">
+						<p-button
+							label="Back"
+							icon="pi pi-arrow-left"
+							severity="secondary"
+							outlined
+							(click)="goToPreviousStep()"
+						></p-button>
+						<p-button
+							label="Continue"
+							icon="pi pi-arrow-right"
+							[disabled]="!selectedBank"
+							styleClass="bg-gray-900 hover:bg-gray-800"
+							(click)="goToAccountStep()"
+						></p-button>
+					</div>
+				</p-card>
+
+				<!-- Step 3: Account Entry -->
+				<p-card *ngIf="activeStep === 3" class="payment-step">
+					<div class="mb-6">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+							<h2 class="text-xl font-bold text-gray-900">Enter Account Number</h2>
+						</div>
+						<p class="text-gray-600 text-sm">Enter your bank account number for validation</p>
+					</div>
+
+					<div class="space-y-4 mb-6">
+						<div *ngIf="selectedBank" class="p-4 bg-gray-50 rounded-lg">
+							<p class="text-sm text-gray-600 mb-1">Selected Bank</p>
+							<p class="font-semibold text-gray-900">{{ selectedBank.bankName }}</p>
+						</div>
+
+						<div>
+							<label class="block text-sm font-semibold text-gray-700 mb-2">
+								Account Number <span class="text-red-500">*</span>
+							</label>
+							<input
+								type="text"
+								pInputText
+								formControlName="accountNumber"
+								(input)="onAccountNumberInput($event)"
+								class="w-full"
+								placeholder="Enter your account number"
+								[class.ng-invalid]="paymentForm.get('accountNumber')?.invalid && paymentForm.get('accountNumber')?.touched"
+							/>
+							<small
+								*ngIf="paymentForm.get('accountNumber')?.invalid && paymentForm.get('accountNumber')?.touched"
+								class="text-red-500 text-xs mt-1 block"
+							>
+								Account number is required (minimum 8 characters)
+							</small>
+						</div>
+					</div>
+
+					<div class="flex gap-3">
+						<p-button
+							label="Back"
+							icon="pi pi-arrow-left"
+							severity="secondary"
+							outlined
+							(click)="goToPreviousStep()"
+						></p-button>
+						<p-button
+							label="Validate Account"
+							icon="pi pi-check"
+							[loading]="validatingAccount"
+							[disabled]="paymentForm.get('accountNumber')?.invalid || validatingAccount"
+							styleClass="bg-gray-900 hover:bg-gray-800"
+							(click)="validateAccount()"
+						></p-button>
+					</div>
+				</p-card>
+
+				<!-- Step 4: OTP Verification -->
+				<p-card *ngIf="activeStep === 4" class="payment-step">
+					<div class="mb-6">
+						<div class="flex items-center gap-2 mb-2">
+							<span class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+							<h2 class="text-xl font-bold text-gray-900">Enter OTP</h2>
+						</div>
+						<p class="text-gray-600 text-sm">
+							Enter the 6-digit OTP sent to your registered mobile number
+						</p>
+					</div>
+
+					<div class="space-y-4 mb-6">
+						<div *ngIf="selectedBank" class="p-4 bg-gray-50 rounded-lg">
+							<p class="text-sm text-gray-600 mb-1">Bank Account</p>
+							<p class="font-semibold text-gray-900">
+								{{ selectedBank.bankName }} - ***{{ accountNumber.slice(-4) }}
+							</p>
+						</div>
+
+						<div>
+							<label class="block text-sm font-semibold text-gray-700 mb-2">
+								OTP Code <span class="text-red-500">*</span>
+							</label>
+							<input
+								type="text"
+								pInputText
+								formControlName="otpCode"
+								(input)="onOtpInput($event)"
+								class="w-full text-center text-2xl tracking-widest"
+								placeholder="000000"
+								maxlength="6"
+								[class.ng-invalid]="paymentForm.get('otpCode')?.invalid && paymentForm.get('otpCode')?.touched"
+							/>
+							<small
+								*ngIf="paymentForm.get('otpCode')?.invalid && paymentForm.get('otpCode')?.touched"
+								class="text-red-500 text-xs mt-1 block"
+							>
+								Please enter a valid 6-digit OTP
+							</small>
+						</div>
+
+						<div *ngIf="otpSent" class="text-center">
+							<p class="text-sm text-gray-600 mb-2">
+								Didn't receive OTP?
+								<button
+									*ngIf="countdown === 0"
+									type="button"
+									class="text-gray-900 font-semibold hover:underline ml-1"
+									(click)="resendOTP()"
+								>
+									Resend
+								</button>
+								<span *ngIf="countdown > 0" class="text-gray-500 ml-1">
+									Resend in {{ countdown }}s
+								</span>
+							</p>
+						</div>
+					</div>
+
+					<div class="flex gap-3">
+						<p-button
+							label="Back"
+							icon="pi pi-arrow-left"
+							severity="secondary"
+							outlined
+							(click)="goToPreviousStep()"
+						></p-button>
+						<p-button
+							label="Complete Payment"
+							icon="pi pi-check"
+							[loading]="completingPayment"
+							[disabled]="paymentForm.get('otpCode')?.invalid || completingPayment"
+							styleClass="bg-gray-900 hover:bg-gray-800"
+							(click)="completePayment()"
+						></p-button>
+					</div>
+				</p-card>
+			</div>
+
+			<!-- Order Summary Sidebar -->
+			<div class="lg:col-span-1">
+				<p-card class="sticky top-6">
+					<div class="space-y-4">
+						<h3 class="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
+
+						<div *ngIf="order.orderItems && order.orderItems.length > 0" class="space-y-3 mb-4">
+							<div
+								*ngFor="let item of order.orderItems"
+								class="flex justify-between items-start text-sm"
+							>
+								<div class="flex-1">
+									<p class="font-medium text-gray-900">
+										{{ item.product?.title || 'Product' }}
+									</p>
+									<p class="text-gray-500 text-xs">
+										Qty: {{ item.quantity }} × Nu {{ item.unitPrice.toFixed(2) }}
+										<span *ngIf="item.discountApplied && item.discountApplied > 0" class="text-green-600 ml-2">
+											(Discount: -Nu {{ (item.discountApplied * item.quantity).toFixed(2) }})
+										</span>
+									</p>
+								</div>
+								<div class="flex flex-col items-end ml-2">
+									<p class="font-semibold text-gray-900" [ngClass]="{'text-red-600': item.discountApplied && item.discountApplied > 0}">
+										Nu {{ item.lineTotal.toFixed(2) }}
+									</p>
+									<p *ngIf="item.discountApplied && item.discountApplied > 0" class="text-xs text-gray-500 line-through">
+										Nu {{ ((item.unitPrice * item.quantity)).toFixed(2) }}
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="pt-4 border-t border-gray-200 space-y-2">
+							<div class="flex justify-between text-sm">
+								<span class="text-gray-600">Subtotal</span>
+								<span class="font-medium text-gray-900">Nu {{ getSubtotal().toFixed(2) }}</span>
+							</div>
+							<div 
+								*ngIf="getTotalDiscount() > 0"
+								class="flex justify-between text-sm"
+							>
+								<span class="text-green-600">
+									<i class="pi pi-tag mr-1"></i>
+									Discount
+								</span>
+								<span class="font-medium text-green-600">
+									-Nu {{ getTotalDiscount().toFixed(2) }}
+								</span>
+							</div>
+							<div class="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+								<span class="text-gray-900">Total</span>
+								<span class="text-gray-900">Nu {{ amount.toFixed(2) }}</span>
+							</div>
+						</div>
+
+						<div class="pt-4 border-t border-gray-200">
+							<p-button
+								label="Cancel Payment"
+								icon="pi pi-times"
+								severity="secondary"
+								outlined
+								styleClass="w-full"
+								(click)="cancelPayment()"
+							></p-button>
+						</div>
+
+						<div class="pt-4 border-t border-gray-200">
+							<div class="flex items-start gap-2 text-xs text-gray-500">
+								<i class="pi pi-shield text-gray-500 mt-0.5"></i>
+								<p>Your payment is processed securely through BFS Payment Gateway.</p>
+							</div>
+						</div>
+					</div>
+				</p-card>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>
+

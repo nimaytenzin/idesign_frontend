@@ -1,0 +1,313 @@
+<div class="p-4 mx-auto max-w-7xl md:p-6">
+	<!-- Breadcrumb Start -->
+	<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+		<h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+			SMS Template List
+		</h2>
+		<nav>
+			<ol class="flex items-center gap-1.5">
+				<li>
+					<a
+						routerLink="/admin"
+						class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+					>
+						Home
+						<svg
+							class="stroke-current"
+							width="17"
+							height="16"
+							viewBox="0 0 17 16"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
+								stroke=""
+								stroke-width="1.2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							></path>
+						</svg>
+					</a>
+				</li>
+				<li class="text-sm text-gray-800 dark:text-white/90">SMS Template List</li>
+			</ol>
+		</nav>
+	</div>
+	<!-- Breadcrumb End -->
+
+	<!-- Content Start -->
+	<div
+		class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+	>
+		<!-- Header Section -->
+		<div
+			class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800"
+		>
+			<div>
+				<h3
+					class="text-lg font-semibold text-gray-800 dark:text-white/90"
+				>
+					SMS Templates
+				</h3>
+				<p class="text-sm text-gray-500 dark:text-gray-400">
+					Manage your SMS templates for order notifications.
+				</p>
+			</div>
+			<div class="flex gap-3">
+				<p-button
+					label="Create Template"
+					icon="pi pi-plus"
+					size="small"
+					(onClick)="openNewTemplate()"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- PrimeNG Table with Built-in Search and Filters -->
+		<div class="overflow-x-auto custom-scrollbar" style="overflow-y: visible;">
+			<p-table
+				[value]="templates"
+				[loading]="loading"
+				[globalFilterFields]="['name', 'triggerEvent', 'message']"
+				[rows]="rows"
+				[first]="first"
+				[totalRecords]="totalRecords"
+				[paginator]="true"
+				[rowsPerPageOptions]="[7, 14, 21, 28]"
+				(onPage)="onPageChange($event)"
+				styleClass="p-datatable-sm"
+				[tableStyle]="{ 'min-width': '100%' }"
+				#templateTable
+			>
+				<ng-template pTemplate="caption">
+					<div class="flex gap-3 sm:justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+						<p-inputGroup class="flex-1 sm:flex-auto sm:w-[300px] sm:min-w-[300px]">
+							<p-inputGroupAddon>
+								<i class="pi pi-search text-gray-500 dark:text-gray-400"></i>
+							</p-inputGroupAddon>
+							<input
+								type="text"
+								pInputText
+								placeholder="Search..."
+								[(ngModel)]="globalFilter"
+								(input)="templateTable.filterGlobal($any($event.target).value, 'contains')"
+								class="shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pr-4 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+							/>
+						</p-inputGroup>
+						<div class="flex gap-2">
+							<p-dropdown
+								[options]="triggerEventOptions"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Trigger Event"
+								[showClear]="true"
+								[(ngModel)]="triggerEventFilter"
+								(onChange)="onFilterChange()"
+								styleClass="w-[200px] h-11"
+							></p-dropdown>
+							<p-dropdown
+								[options]="orderTypeOptions"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Order Type"
+								[showClear]="true"
+								[(ngModel)]="orderTypeFilter"
+								(onChange)="onFilterChange()"
+								styleClass="w-[150px] h-11"
+							></p-dropdown>
+							<p-dropdown
+								[options]="activeStatusOptions"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Status"
+								[showClear]="true"
+								[(ngModel)]="isActiveFilter"
+								(onChange)="onStatusFilterChange($event)"
+								styleClass="w-[150px] h-11"
+							></p-dropdown>
+							<p-button
+								icon="pi pi-times"
+								severity="secondary"
+								[outlined]="true"
+								(onClick)="clearFilters()"
+								[disabled]="!globalFilter && triggerEventFilter === null && orderTypeFilter === null && isActiveFilter === null"
+								styleClass="h-11"
+								pTooltip="Clear Filters"
+							></p-button>
+						</div>
+					</div>
+				</ng-template>
+				<ng-template pTemplate="header">
+					<tr class="border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="name"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Template Name
+								</p>
+								<p-sortIcon field="name"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 py-4 whitespace-nowrap text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="triggerEvent"
+						>
+							<div class="flex items-center gap-3">
+								<span>Trigger Event</span>
+								<p-sortIcon field="triggerEvent"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+						>
+							Order Type
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="priority"
+						>
+							<div class="flex items-center gap-3">
+								<span>Priority</span>
+								<p-sortIcon field="priority"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+						>
+							Send Count
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+						>
+							Send Delay (min)
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+						>
+							Status
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="createdAt"
+						>
+							<div class="flex items-center gap-3">
+								<span>Created At</span>
+								<p-sortIcon field="createdAt"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
+						>
+							<div class="relative">
+								<span class="sr-only">Action</span>
+							</div>
+						</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-template>
+					<tr class="transition hover:bg-gray-50 dark:hover:bg-gray-900">
+						<td class="px-5 py-4 whitespace-nowrap">
+							<div class="flex items-center gap-3">
+								<i class="pi pi-file-edit text-blue-500 text-lg"></i>
+								<span
+									class="text-sm font-medium text-gray-700 dark:text-gray-400"
+									>{{ template.name }}</span
+								>
+							</div>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<span class="text-sm text-gray-700 dark:text-gray-400">
+								{{ getTriggerEventLabel(template.triggerEvent) }}
+							</span>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<span [class]="template.orderType === OrderType.ONLINE 
+								? 'text-xs rounded-full px-2 py-0.5 font-medium bg-blue-50 text-blue-700 dark:bg-blue-500 dark:bg-opacity-15 dark:text-blue-500'
+								: template.orderType === OrderType.COUNTER
+								? 'text-xs rounded-full px-2 py-0.5 font-medium bg-amber-50 text-amber-700 dark:bg-amber-500 dark:bg-opacity-15 dark:text-amber-500'
+								: 'text-xs rounded-full px-2 py-0.5 font-medium bg-gray-50 text-gray-700 dark:bg-gray-500 dark:bg-opacity-15 dark:text-gray-500'">
+								{{ getOrderTypeLabel(template.orderType) }}
+							</span>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<span class="text-sm text-gray-700 dark:text-gray-400">
+								{{ template.priority }}
+							</span>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<span class="text-sm text-gray-700 dark:text-gray-400">
+								{{ template.sendCount }}
+							</span>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<span class="text-sm text-gray-700 dark:text-gray-400">
+								{{ template.sendDelay }}
+							</span>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<span [class]="getStatusClasses(template.isActive)">
+								{{ template.isActive ? 'Active' : 'Inactive' }}
+							</span>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<p class="text-sm text-gray-700 dark:text-gray-400">
+								{{ formatDate(template.createdAt) }}
+							</p>
+						</td>
+						<td class="px-5 py-4 whitespace-nowrap">
+							<div class="flex items-center gap-2">
+								<p-button
+									icon="pi pi-pencil"
+									[text]="true"
+									severity="info"
+									size="small"
+									(onClick)="editTemplate(template)"
+									pTooltip="Edit"
+									styleClass="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+								></p-button>
+								<p-button
+									[icon]="template.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'"
+									[text]="true"
+									[severity]="template.isActive ? 'secondary' : 'success'"
+									size="small"
+									(onClick)="toggleActive(template)"
+									[pTooltip]="template.isActive ? 'Deactivate' : 'Activate'"
+									styleClass="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+								></p-button>
+								<p-button
+									icon="pi pi-trash"
+									[text]="true"
+									severity="danger"
+									size="small"
+									(onClick)="deleteTemplate(template)"
+									pTooltip="Delete"
+									styleClass="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+								></p-button>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="9" class="px-5 py-12 text-center">
+							<div class="flex flex-col items-center gap-3">
+								<i class="pi pi-inbox text-4xl text-gray-300"></i>
+								<p class="text-gray-500">No templates found</p>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
+	<!-- Content End -->
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+

@@ -9,8 +9,68 @@ export * from './product-sub-category/product-sub-category.service';
 export * from './product/product.interface';
 export * from './product/product.service';
 
+// Hero Slide exports
+export * from './hero-slide/hero-slide.interface';
+export * from './hero-slide/hero-slide.service';
+
+// Account exports
+export * from './account/account.interface';
+export * from './account/account.service';
+
+// Company exports
+export * from './company/company.interface';
+export * from './company/company.service';
+
+// Company Client exports
+export * from './company-client/company-client.interface';
+export * from './company-client/company-client.service';
+
+// Company Service exports
+export * from './company-service/company-service.service';
+
+// Chart of Accounts exports
+export * from './chart-of-accounts/chart-of-accounts.interface';
+export * from './chart-of-accounts/chart-of-accounts.service';
+
+// Leave Management exports
+export * from './leave-management/leave-management.enums';
+export * from './leave-management/leave-type.interface';
+export * from './leave-management/leave-type.service';
+export * from './leave-management/leave-request.interface';
+export * from './leave-management/leave-request.service';
+export * from './leave-management/leave-balance.interface';
+export * from './leave-management/leave-balance.service';
+export * from './leave-management/leave-management.service';
+
+// Order exports (must come before SMS template to avoid OrderType conflict)
+export * from './order/order.interface';
+export * from './order/order.service';
+
+// Customer exports
+export * from './customer/customer.interface';
+export * from './customer/customer.service';
+
+// Discount exports
+export * from './discount/discount.interface';
+export * from './discount/discount.service';
+
+// SMS Template exports
+export * from './sms-template/sms-template.interface';
+export * from './sms-template/sms-template.service';
+
+// Employee Management exports
+export * from './employee-management/employee-management.interface';
+export * from './employee-management/employee-management.service';
+
+// Calendar exports
+export * from './calendar/calendar.interface';
+export * from './calendar/calendar.service';
+
+// Todo Management exports
+export * from './todo/todo.interface';
+export * from './todo/todo.service';
+
 // Existing exports
-export * from './auth/auth.interface';
 export * from './auth/auth.service';
 export * from './auth/auth.api';
 export * from './session.service';

@@ -12,9 +12,15 @@
 }
 
 .p-toast {
+    z-index: 9999 !important; /* Ensure toast appears above navbar (z-index: 9998) */
+    
     &.p-toast-top-right,
     &.p-toast-top-left,
     &.p-toast-top-center {
         top: 100px;
     }
+}
+
+.p-toast-message {
+    z-index: 9999 !important;
 }

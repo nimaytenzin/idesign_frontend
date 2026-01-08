@@ -2,8 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CarouselModule } from 'primeng/carousel';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { ProductService } from '../../../core/dataservice/product/product.service';
+import { Product as ServiceProduct } from '../../../core/dataservice/product/product.interface';
+import { ImageUtilityService } from '../../../core/utility/image-utility.service';
+import { CartService } from '../../../core/services/cart.service';
+import { Discount, DiscountValueType, DiscountType, DiscountProduct } from '../../../core/dataservice/discount/discount.interface';
+import { ProductCategoryService } from '../../../core/dataservice/product-category/product-category.service';
+import { ProductSubCategoryService } from '../../../core/dataservice/product-sub-category/product-sub-category.service';
+import { ProductSubCategory } from '../../../core/dataservice/product-category/product-category.interface';
+import { discountCalculationService, Product as ServiceProductForDiscount, DiscountCalculationOptions, ProductDiscountResult, Discount as ServiceDiscount } from '../../../core/services/discount-calculation-frontend.service';
 
-// Product interface
+
+// Product interface for carousel display
 export interface Product {
 	id: string;
 	title: string;
@@ -25,6 +37,9 @@ export interface Product {
 	isNewArrival?: boolean;
 	isBestSelling?: boolean;
 	createdAt: Date;
+	stockQuantity: number;
+	discount?: any;
+	discountPercentage?: number;
 }
 
 @Component({
@@ -32,7 +47,8 @@ export interface Product {
 	templateUrl: './product-carousel.component.html',
 	styleUrls: ['./product-carousel.component.scss'],
 	standalone: true,
-	imports: [CommonModule, CarouselModule],
+	imports: [CommonModule, CarouselModule, ToastModule],
+	providers: [MessageService],
 })
 export class ProductCarouselComponent implements OnInit {
 	featuredProducts: Product[] = [];
@@ -56,132 +72,146 @@ export class ProductCarouselComponent implements OnInit {
 		},
 	];
 
-	constructor(private router: Router) {}
+	loading: boolean = false;
+	subCategories: ProductSubCategory[] = [];
+	allDiscounts: Discount[] = [];
+
+	constructor(
+		private router: Router,
+		private productService: ProductService,
+		private imageUtilityService: ImageUtilityService,
+		private cartService: CartService,
+		private messageService: MessageService,
+		private subCategoryService: ProductSubCategoryService
+	) {}
 
 	ngOnInit() {
+		this.loadSubCategories();
 		this.loadFeaturedProducts();
 	}
 
+	loadSubCategories() {
+		this.subCategoryService.getSubCategories().subscribe({
+			next: (data) => {
+				this.subCategories = data.filter(sub => sub.isActive);
+			},
+			error: (error) => {
+				console.error('Error loading subcategories:', error);
+				this.subCategories = [];
+			}
+		});
+	}
+
 	/**
-	 * Load featured products - in real app, this would come from a service
+	 * Load featured products from API
 	 */
 	loadFeaturedProducts() {
-		// Featured products using actual images from products folder
-		this.featuredProducts = [
-			{
-				id: 'memorial-chorten-001',
-				title: 'Memorial Chorten',
-				shortDescription:
-					'Traditional memorial stupa with authentic Bhutanese architecture and spiritual significance.',
-				image: 'products/memorial-chorten.png',
-				dimensions: '18×18×25 cm',
-				weight: 650,
-				price: 3500,
-				originalPrice: 4000,
-				category: 'stupas',
-				subcategory: 'memorial',
-				material: 'Premium PLA+',
-				status: 'in-stock',
-				rating: 4.9,
-				reviewCount: 32,
-				isFeatured: true,
-				isBestSelling: true,
-				createdAt: new Date('2024-01-15'),
+		this.loading = true;
+		this.productService.getFeaturedProducts().subscribe({
+			next: (products: ServiceProduct[]) => {
+				// Extract all discounts from products
+				this.extractDiscountsFromProducts(products);
+				
+				this.featuredProducts = products.map((product) =>
+					this.mapServiceProductToCarouselProduct(product)
+				);
+				this.loading = false;
 			},
-			{
-				id: 'dochula-chorten-001',
-				title: 'Dochula Chorten',
-				shortDescription:
-					'Replica of the famous Dochula Pass chorten, capturing the essence of this sacred landmark.',
-				image: 'products/dochula chorten.png',
-				dimensions: '15×15×22 cm',
-				weight: 500,
-				price: 2800,
-				category: 'stupas',
-				subcategory: 'landmark',
-				material: 'PLA+',
-				status: 'in-stock',
-				rating: 4.8,
-				reviewCount: 28,
-				isFeatured: true,
-				createdAt: new Date('2024-02-20'),
+			error: (error) => {
+				console.error('Error loading featured products:', error);
+				this.featuredProducts = [];
+				this.loading = false;
 			},
-			{
-				id: 'jangchub-chorten-001',
-				title: 'Jangchub Chorten',
-				shortDescription:
-					'Classic Jangchub chorten representing the path to enlightenment, handcrafted with precision.',
-				image: 'products/jangchub chorten.png',
-				dimensions: '12×12×18 cm',
-				weight: 400,
-				price: 2200,
-				category: 'stupas',
-				subcategory: 'traditional',
-				material: 'PETG',
-				status: 'in-stock',
-				rating: 4.7,
-				reviewCount: 24,
-				isFeatured: true,
-				isNewArrival: true,
-				createdAt: new Date('2024-01-30'),
-			},
-			{
-				id: 'dechenphug-lhakhang-001',
-				title: 'Dechenphug Lhakhang Top',
-				shortDescription:
-					'Detailed replica of Dechenphug Lhakhang temple roof, showcasing traditional Bhutanese temple architecture.',
-				image: 'products/dechenphug lhakhang top.png',
-				dimensions: '14×10×8 cm',
-				weight: 300,
-				price: 1800,
-				category: 'architecture',
-				subcategory: 'temple',
-				material: 'Wood PLA',
-				status: 'made-to-order',
-				rating: 4.6,
-				reviewCount: 18,
-				isFeatured: true,
-				createdAt: new Date('2024-02-05'),
-			},
-			{
-				id: 'chorten-set-001',
-				title: 'Traditional Chorten Set',
-				shortDescription:
-					'Beautiful set of miniature chortens perfect for meditation spaces and home altars.',
-				image: 'products/chorten2.png',
-				dimensions: '8×8×12 cm (each)',
-				weight: 150,
-				price: 1500,
-				originalPrice: 1800,
-				category: 'sets',
-				subcategory: 'miniature',
-				material: 'PLA+',
-				status: 'in-stock',
-				rating: 4.8,
-				reviewCount: 22,
-				isFeatured: true,
-				isNewArrival: true,
-				createdAt: new Date('2024-02-25'),
-			},
-			{
-				id: 'mini-chorten-001',
-				title: 'Mini Desktop Chorten',
-				shortDescription:
-					'Compact chorten ideal for office desks and personal meditation spaces.',
-				image: 'products/mini.png',
-				dimensions: '6×6×9 cm',
-				weight: 100,
-				price: 800,
-				category: 'accessories',
-				subcategory: 'desktop',
-				material: 'Eco PLA',
-				status: 'in-stock',
-				rating: 4.5,
-				reviewCount: 35,
-				isFeatured: true,
-				createdAt: new Date('2024-02-10'),
-			},
-		];
+		});
+	}
+
+	/**
+	 * Extract all unique discounts from products
+	 */
+	private extractDiscountsFromProducts(products: ServiceProduct[]): void {
+		const discountMap = new Map<number, Discount>();
+		
+		products.forEach(product => {
+			if (product.discountProducts && product.discountProducts.length > 0) {
+				product.discountProducts.forEach((dp: any) => {
+					const discount = dp.discount;
+					if (discount && typeof discount === 'object' && discount.id) {
+						// Normalize discount structure
+						const normalizedDiscount: Discount = {
+							...discount,
+							// Ensure productIds, categoryIds, subCategoryIds are populated
+							productIds: discount.productIds || (discount.discountProducts?.map((p: any) => p.productId)),
+							categoryIds: discount.categoryIds || (discount.discountCategories?.map((c: any) => c.categoryId)),
+							subCategoryIds: discount.subCategoryIds || (discount.discountSubcategories?.map((s: any) => s.subCategoryId)),
+						};
+						discountMap.set(discount.id, normalizedDiscount);
+					}
+				});
+			}
+		});
+		
+		this.allDiscounts = Array.from(discountMap.values());
+	}
+
+	/**
+	 * Map service Product to carousel Product format
+	 */
+	private mapServiceProductToCarouselProduct(
+		product: ServiceProduct
+	): Product {
+		// Get primary image URL
+		const primaryImageUrl = this.imageUtilityService.getPrimaryImageUrl(
+			product.images
+		);
+		console.log('primaryImageUrl', primaryImageUrl);
+
+		// Determine status based on availability
+		let status: 'in-stock' | 'made-to-order' | 'out-of-stock' = 'in-stock';
+		if (!product.isAvailable) {
+			status = 'out-of-stock';
+		}
+
+		// Check if product is new (created within last 30 days)
+		const createdAt = new Date(product.createdAt);
+		const thirtyDaysAgo = new Date();
+		thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+		const isNewArrival = createdAt >= thirtyDaysAgo;
+
+		// Check if product is best selling (salesCount > 10)
+		const isBestSelling = product.salesCount > 10;
+
+		// Calculate discounted price
+		const discountInfo = this.calculateDiscountedPrice(product);
+		const finalPrice = discountInfo.discountedPrice;
+		const hasDiscount = discountInfo.bestDiscount !== null;
+
+		return {
+			id: product.id.toString(),
+			title: product.title,
+			shortDescription: product.shortDescription,
+			detailedDescription: product.detailedDescription,
+			image: primaryImageUrl,
+			images: product.images?.map((img) =>
+				this.imageUtilityService.getImageUrl(img.imagePath)
+			),
+			dimensions: product.dimensions,
+			weight: product.weight,
+			price: finalPrice,
+			originalPrice: hasDiscount ? product.price : undefined,
+			category: product.productSubCategory?.productCategory?.name || 'uncategorized',
+			subcategory: product.productSubCategory?.name || '',
+			material: product.material,
+			status: status,
+			rating: product.rating || 0,
+			reviewCount: 0, // Review count not available in Product interface
+			isFeatured: product.isFeatured,
+			isNewArrival: isNewArrival,
+			isBestSelling: isBestSelling,
+			createdAt: createdAt,
+			stockQuantity: product.stockQuantity || 0,
+			discount: discountInfo.bestDiscount,
+			discountPercentage: discountInfo.discountPercentage,
+		};
 	}
 
 	/**
@@ -189,7 +219,7 @@ export class ProductCarouselComponent implements OnInit {
 	 */
 	onImageError(event: any) {
 		// Set a placeholder image when the original fails to load
-		event.target.src = '/assets/images/product-placeholder.jpg';
+		event.target.src = 'product-placeholder.png';
 	}
 
 	/**
@@ -225,12 +255,212 @@ export class ProductCarouselComponent implements OnInit {
 	/**
 	 * Add product to cart
 	 */
-	addToCart(product: Product) {
-		// TODO: Implement cart service
-		console.log('Adding to cart:', product);
+	addToCart(product: Product, event?: Event) {
+		if (event) {
+			event.stopPropagation();
+		}
 
-		// Show success message (you can use a toast service)
-		// For now, just log the action
-		alert(`${product.title} added to cart!`);
+		// Convert carousel Product to ServiceProduct format
+		const serviceProduct: ServiceProduct = {
+			id: parseInt(product.id),
+			title: product.title,
+			shortDescription: product.shortDescription,
+			detailedDescription: product.detailedDescription || '',
+			dimensions: product.dimensions,
+			weight: product.weight,
+			price: product.originalPrice || product.price, // Use original price if available
+			material: product.material,
+			isAvailable: product.status === 'in-stock',
+			productSubCategoryId: 0, // Will be set if needed
+			rating: product.rating || 0,
+			salesCount: 0,
+			isFeatured: product.isFeatured,
+			stockQuantity: product.stockQuantity || 0,
+			images: product.images?.map((img, index) => ({
+				id: index,
+				productId: parseInt(product.id),
+				imagePath: img,
+				fileName: `product-${product.id}-${index}.jpg`,
+				orientation: 'square' as const,
+				isPrimary: index === 0,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			})) || [],
+			createdAt: product.createdAt,
+			updatedAt: product.createdAt,
+		};
+
+		// Add to cart with discount information if available
+		const discount = product.discount || null;
+		this.cartService.addToCart(serviceProduct, 1, discount);
+
+		// Show success message
+		this.messageService.add({
+			severity: 'success',
+			summary: 'Added to Cart',
+			detail: `${product.title} has been added to your cart`,
+			life: 3000,
+		});
 	}
+
+	/**
+	 * Calculate discounted price for a product
+	 */
+	private calculateDiscountedPrice(product: ServiceProduct): {
+		discountedPrice: number;
+		discountPercentage: number;
+		bestDiscount: Discount | null;
+	} {
+		// Get applicable discounts for this product
+		const applicableDiscounts = this.getApplicableDiscountsForProduct(product);
+		
+		if (applicableDiscounts.length === 0) {
+			return {
+				discountedPrice: product.price,
+				discountPercentage: 0,
+				bestDiscount: null,
+			};
+		}
+
+		// Get category ID for the product
+		let categoryId: number | undefined;
+		if (product.productSubCategory?.productCategoryId) {
+			categoryId = product.productSubCategory.productCategoryId;
+		} else if (product.productSubCategoryId) {
+			const subCategory = this.subCategories.find(sub => sub.id === product.productSubCategoryId);
+			categoryId = subCategory?.productCategoryId;
+		}
+
+		// Use discount calculation service
+		const productForDiscount: ServiceProductForDiscount = {
+			id: product.id!,
+			price: product.price,
+			productSubCategoryId: product.productSubCategoryId,
+			productCategoryId: categoryId,
+		};
+
+		const options: DiscountCalculationOptions = {
+			voucherCode: null,
+			currentDate: new Date(),
+		};
+
+		// Convert discounts to service format
+		const serviceDiscounts: ServiceDiscount[] = applicableDiscounts.map(d => ({
+			...d,
+			maxUsageCount: d.maxUsageCount ?? null,
+			minOrderValue: d.minOrderValue ?? null,
+			voucherCode: d.voucherCode ?? null,
+			discountValue: typeof d.discountValue === 'string' ? parseFloat(d.discountValue) : d.discountValue,
+		}));
+
+		const result: ProductDiscountResult = discountCalculationService.getDiscount(
+			productForDiscount,
+			serviceDiscounts,
+			options
+		);
+
+		if (result.discountsApplied.length > 0 && result.newPrice < product.price) {
+			// Calculate discount percentage
+			const discountAmount = product.price - result.newPrice;
+			const discountPercentage = (discountAmount / product.price) * 100;
+
+			// Convert back to original Discount type for return
+			const bestDiscount: Discount | null = result.discountsApplied.length > 0 
+				? {
+					...result.discountsApplied[0],
+					discountValue: typeof result.discountsApplied[0].discountValue === 'string' 
+						? parseFloat(result.discountsApplied[0].discountValue) 
+						: result.discountsApplied[0].discountValue,
+				} as Discount
+				: null;
+
+			return {
+				discountedPrice: result.newPrice,
+				discountPercentage: Math.round(discountPercentage),
+				bestDiscount: bestDiscount,
+			};
+		}
+
+		// No discount applied
+		return {
+			discountedPrice: product.price,
+			discountPercentage: 0,
+			bestDiscount: null,
+		};
+	}
+
+	/**
+	 * Get applicable discounts for a product
+	 */
+	private getApplicableDiscountsForProduct(product: ServiceProduct): Discount[] {
+		if (!product || this.allDiscounts.length === 0) {
+			return [];
+		}
+
+		// Get category ID for the product
+		let categoryId: number | undefined;
+		if (product.productSubCategory?.productCategoryId) {
+			categoryId = product.productSubCategory.productCategoryId;
+		} else if (product.productSubCategoryId) {
+			const subCategory = this.subCategories.find(sub => sub.id === product.productSubCategoryId);
+			categoryId = subCategory?.productCategoryId;
+		}
+
+		const applicableDiscounts = this.allDiscounts.filter(discount => {
+			// Check if discount applies to this product
+			switch (discount.discountType) {
+				case DiscountType.FLAT_ALL_PRODUCTS:
+					return true;
+				case DiscountType.FLAT_SELECTED_PRODUCTS:
+					return discount.productIds?.includes(product.id) || false;
+				case DiscountType.FLAT_SELECTED_CATEGORIES:
+					const categoryMatch = categoryId && discount.categoryIds?.includes(categoryId);
+					const subCategoryMatch = discount.subCategoryIds?.includes(product.productSubCategoryId);
+					return categoryMatch || subCategoryMatch || false;
+				default:
+					return false;
+			}
+		});
+
+		// Filter by constraints (active, date range, voucher code, min order value)
+		const currentDate = new Date();
+		return applicableDiscounts.filter(discount => {
+			// Check if discount is active
+			if (!discount.isActive) {
+				return false;
+			}
+
+			// Check date range
+			const startDate = new Date(discount.startDate);
+			const endDate = new Date(discount.endDate);
+			if (currentDate < startDate || currentDate > endDate) {
+				return false;
+			}
+
+			// For auto-apply discounts (no voucher code), only include those without voucher code
+			if (discount.voucherCode) {
+				return false; // Don't auto-apply voucher code discounts
+			}
+
+			// Check minimum order value - for single product, use product price
+			if (discount.minOrderValue !== null && discount.minOrderValue !== undefined) {
+				if (product.price < discount.minOrderValue) {
+					return false;
+				}
+			}
+
+			// Check usage limits
+			if (discount.maxUsageCount !== null && discount.maxUsageCount !== undefined) {
+				if (discount.usageCount >= discount.maxUsageCount) {
+					return false;
+				}
+			}
+
+			return true;
+		});
+	}
+
+	
+
+
 }

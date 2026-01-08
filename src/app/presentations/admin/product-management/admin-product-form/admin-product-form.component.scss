@@ -1,0 +1,64 @@
+/* Minimal SCSS - Only PrimeNG Component Overrides */
+:host ::ng-deep {
+	/* Input Overrides */
+	.p-inputtext {
+		@apply border-gray-300;
+		&:focus {
+			@apply border-gray-400 ring-1 ring-gray-400;
+		}
+	}
+
+	/* Textarea Overrides */
+	.p-inputtextarea {
+		@apply border-gray-300;
+		&:focus {
+			@apply border-gray-400 ring-1 ring-gray-400;
+		}
+	}
+
+	/* Dropdown Overrides */
+	.p-dropdown {
+		@apply border-gray-300;
+		&:not(.p-disabled):hover {
+			@apply border-gray-400;
+		}
+		&:not(.p-disabled).p-focus {
+			@apply border-gray-400 ring-1 ring-gray-400;
+		}
+	}
+
+	/* Input Number Overrides */
+	.p-inputnumber {
+		@apply w-full;
+		.p-inputtext {
+			@apply border-gray-300;
+		}
+	}
+
+	/* Input Switch Overrides */
+	.p-inputswitch {
+		.p-inputswitch-slider {
+			@apply bg-gray-300;
+		}
+		&.p-inputswitch-checked .p-inputswitch-slider {
+			@apply bg-green-600;
+		}
+	}
+
+	/* File Upload Overrides */
+	.p-fileupload {
+		.p-button {
+			@apply w-full justify-center;
+		}
+	}
+
+	/* Button Overrides */
+	.p-button {
+		@apply font-medium;
+	}
+
+	/* Progress Spinner */
+	.p-progress-spinner-circle {
+		stroke: #00796B;
+	}
+}

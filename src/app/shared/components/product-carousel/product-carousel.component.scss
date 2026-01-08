@@ -1,16 +1,14 @@
-/* Product Carousel Custom Styles */
+/* Product Carousel - Minimal SCSS for PrimeNG overrides only */
 
-/* Carousel container styling */
+/* Carousel container - remove padding */
 :host ::ng-deep .custom-carousel {
     .p-carousel-content {
         padding: 0;
     }
+}
 
-    .p-carousel-container {
-        position: relative;
-    }
-
-    /* Navigation buttons */
+/* Navigation buttons - using Tailwind color values */
+:host ::ng-deep .custom-carousel {
     .p-carousel-prev,
     .p-carousel-next {
         position: absolute;
@@ -18,130 +16,71 @@
         transform: translateY(-50%);
         background: white;
         border: 1px solid #e5e7eb;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
+        border-radius: 9999px;
+        width: 3rem;
+        height: 3rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         transition: all 0.2s ease;
         z-index: 10;
+    }
 
-        &:hover {
-            background: #f9fafb;
-            border-color: #00796b;
-            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
-        }
+    .p-carousel-prev:hover,
+    .p-carousel-next:hover {
+        background: #f9fafb;
+        border-color: #0d9488;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
 
-        &:focus {
-            outline: 2px solid #00796b;
-            outline-offset: 2px;
-        }
+    .p-carousel-prev-icon,
+    .p-carousel-next-icon {
+        color: #374151;
+        font-size: 1rem;
+        transition: color 0.2s ease;
+    }
 
-        .p-carousel-prev-icon,
-        .p-carousel-next-icon {
-            color: #374151;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        &:hover .p-carousel-prev-icon,
-        &:hover .p-carousel-next-icon {
-            color: #00796b;
-        }
+    .p-carousel-prev:hover .p-carousel-prev-icon,
+    .p-carousel-next:hover .p-carousel-next-icon {
+        color: #0d9488;
     }
 
     .p-carousel-prev {
-        left: -24px;
+        left: -1.5rem;
     }
 
     .p-carousel-next {
-        right: -24px;
+        right: -1.5rem;
     }
+}
 
-    /* Indicators */
+/* Indicators */
+:host ::ng-deep .custom-carousel {
     .p-carousel-indicators {
         display: flex;
         justify-content: center;
-        margin-top: 24px;
-        gap: 8px;
-
-        .p-carousel-indicator {
-            button {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                border: none;
-                background: #d1d5db;
-                transition: all 0.2s ease;
-                cursor: pointer;
-
-                &:hover {
-                    background: #9ca3af;
-                }
-
-                &:focus {
-                    outline: 2px solid #00796b;
-                    outline-offset: 2px;
-                }
-            }
-
-            &.p-highlight button {
-                background: #00796b;
-                transform: scale(1.2);
-            }
-        }
-    }
-}
-
-/* Product card enhancements */
-.product-card {
-    transition: all 0.3s ease;
-
-    &:hover {
-        transform: translateY(-4px);
-        box-shadow:
-            0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-}
-
-/* Text truncation utilities */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Rating stars */
-.rating-stars {
-    .pi-star-fill {
-        color: #fbbf24;
+        margin-top: 1.5rem;
+        gap: 0.5rem;
     }
 
-    .pi-star {
-        color: #d1d5db;
-    }
-}
-
-/* Status badges */
-.status-badge {
-    &.in-stock {
-        background-color: #dcfce7;
-        color: #166534;
+    .p-carousel-indicator button {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 9999px;
+        border: none;
+        background: #d1d5db;
+        transition: all 0.2s ease;
+        cursor: pointer;
     }
 
-    &.made-to-order {
-        background-color: #fed7aa;
-        color: #9a3412;
+    .p-carousel-indicator button:hover {
+        background: #9ca3af;
     }
 
-    &.out-of-stock {
-        background-color: #fecaca;
-        color: #991b1b;
+    .p-carousel-indicator.p-highlight button {
+        background: #0d9488;
+        transform: scale(1.25);
     }
 }
 
@@ -149,11 +88,11 @@
 @media (max-width: 1024px) {
     :host ::ng-deep .custom-carousel {
         .p-carousel-prev {
-            left: -16px;
+            left: -1rem;
         }
 
         .p-carousel-next {
-            right: -16px;
+            right: -1rem;
         }
     }
 }
@@ -162,16 +101,16 @@
     :host ::ng-deep .custom-carousel {
         .p-carousel-prev,
         .p-carousel-next {
-            width: 40px;
-            height: 40px;
+            width: 2.5rem;
+            height: 2.5rem;
         }
 
         .p-carousel-prev {
-            left: -8px;
+            left: -0.5rem;
         }
 
         .p-carousel-next {
-            right: -8px;
+            right: -0.5rem;
         }
     }
 }
@@ -180,7 +119,16 @@
     :host ::ng-deep .custom-carousel {
         .p-carousel-prev,
         .p-carousel-next {
-            display: none; /* Hide navigation buttons on very small screens */
+            display: none;
         }
     }
+}
+
+/* Toast z-index fix - ensure it appears above navbar */
+:host ::ng-deep .p-toast {
+    z-index: 9999 !important;
+}
+
+:host ::ng-deep .p-toast-message {
+    z-index: 9999 !important;
 }

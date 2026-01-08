@@ -1,0 +1,236 @@
+<div class="p-6">
+	<p-toast></p-toast>
+
+	<form (ngSubmit)="saveEducation()" class="space-y-6">
+		<!-- Education Information Section -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+				Education Information
+			</h3>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<!-- Level -->
+				<div>
+					<label
+						for="level"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Education Level <span class="text-red-500">*</span>
+					</label>
+					<p-dropdown
+						id="level"
+						[options]="levelOptions"
+						optionLabel="label"
+						optionValue="value"
+						[(ngModel)]="level"
+						name="level"
+						placeholder="Select education level"
+						styleClass="w-full"
+						[class.ng-invalid]="submitted && !level"
+						(onChange)="onLevelChange()"
+						required
+					></p-dropdown>
+					<small class="p-error block mt-1" *ngIf="submitted && !level"
+						>Level is required</small
+					>
+					<div *ngIf="showCustomLevel" class="mt-2">
+						<input
+							id="customLevel"
+							type="text"
+							pInputText
+							[(ngModel)]="customLevel"
+							name="customLevel"
+							placeholder="Enter custom education level"
+							class="w-full"
+							[class.ng-invalid]="submitted && showCustomLevel && !customLevel"
+						/>
+						<small class="p-error block mt-1" *ngIf="submitted && showCustomLevel && !customLevel"
+							>Custom level is required when 'Other' is selected</small
+						>
+					</div>
+				</div>
+
+				<!-- Course Title -->
+				<div>
+					<label
+						for="courseTitle"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Course Title <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="courseTitle"
+						type="text"
+						pInputText
+						[(ngModel)]="courseTitle"
+						name="courseTitle"
+						placeholder="Enter course title"
+						class="w-full"
+						[class.ng-invalid]="submitted && !courseTitle"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !courseTitle"
+						>Course title is required</small
+					>
+				</div>
+
+				<!-- Institute -->
+				<div class="md:col-span-2">
+					<label
+						for="institute"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Institute <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="institute"
+						type="text"
+						pInputText
+						[(ngModel)]="institute"
+						name="institute"
+						placeholder="Enter institute name"
+						class="w-full"
+						[class.ng-invalid]="submitted && !institute"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !institute"
+						>Institute is required</small
+					>
+				</div>
+
+				<!-- Start Date -->
+				<div>
+					<label
+						for="startDate"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Start Date <span class="text-red-500">*</span>
+					</label>
+					<p-calendar
+						id="startDate"
+						[(ngModel)]="startDate"
+						name="startDate"
+						dateFormat="yy-mm-dd"
+						[showIcon]="true"
+						styleClass="w-full"
+						[class.ng-invalid]="submitted && !startDate"
+						(onSelect)="onDateChange()"
+						required
+					></p-calendar>
+					<small class="p-error block mt-1" *ngIf="submitted && !startDate"
+						>Start date is required</small
+					>
+				</div>
+
+				<!-- End Date -->
+				<div>
+					<label
+						for="endDate"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						End Date <span class="text-red-500">*</span>
+					</label>
+					<p-calendar
+						id="endDate"
+						[(ngModel)]="endDate"
+						name="endDate"
+						dateFormat="yy-mm-dd"
+						[showIcon]="true"
+						styleClass="w-full"
+						[class.ng-invalid]="submitted && !endDate"
+						(onSelect)="onDateChange()"
+						required
+					></p-calendar>
+					<small class="p-error block mt-1" *ngIf="submitted && !endDate"
+						>End date is required</small
+					>
+				</div>
+
+				<!-- Duration Days -->
+				<div>
+					<label
+						for="durationDays"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Duration (Days)
+					</label>
+					<input
+						id="durationDays"
+						type="number"
+						pInputText
+						[(ngModel)]="durationDays"
+						name="durationDays"
+						placeholder="Auto-calculated"
+						class="w-full"
+						readonly
+					/>
+					<small class="text-gray-500 dark:text-gray-400">Automatically calculated from dates</small>
+				</div>
+
+				<!-- Status -->
+				<div>
+					<label
+						for="status"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Status <span class="text-red-500">*</span>
+					</label>
+					<p-dropdown
+						id="status"
+						[options]="statusOptions"
+						optionLabel="label"
+						optionValue="value"
+						[(ngModel)]="status"
+						name="status"
+						placeholder="Select status"
+						styleClass="w-full"
+						[class.ng-invalid]="submitted && !status"
+						required
+					></p-dropdown>
+					<small class="p-error block mt-1" *ngIf="submitted && !status"
+						>Status is required</small
+					>
+				</div>
+
+				<!-- Funding -->
+				<div class="md:col-span-2">
+					<label
+						for="funding"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Funding
+					</label>
+					<input
+						id="funding"
+						type="text"
+						pInputText
+						[(ngModel)]="funding"
+						name="funding"
+						placeholder="Enter funding source or scholarship information"
+						class="w-full"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update Education' : 'Add Education'"
+				icon="pi pi-check"
+				severity="success"
+				type="submit"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

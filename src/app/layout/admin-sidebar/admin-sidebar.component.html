@@ -1,17 +1,30 @@
-<!-- Sidebar Header with Logo -->
-<div class="sidebar-header mb-6 bg-black p-6 border-b border-gray-700">
-	<div class="flex items-center gap-3 mb-4">
-		<img src="logowhite.png" class="h-10 rounded-lg" alt="Logo" />
-		<!-- <div class="text-white font-semibold text-xl tracking-tight">
-			{{ appName }}
-		</div> -->
+<div class="sidebar-container h-full flex flex-col">
+	<!-- Sidebar Header -->
+	<div class="sidebar-header px-6 py-5 border-b border-gray-200 bg-white">
+		<div class="flex items-center gap-3 mb-2">
+			<div class="logo-container flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 shadow-md">
+				<span class="text-white font-bold text-xl ">iD</span>
+			</div>
+			<div class="flex-1 min-w-0">
+				<h1 class="text-lg font-bold text-gray-900 m-0 truncate">
+					{{ appName }}
+				</h1>
+			</div>
+		</div>
+		<p class="text-xs font-medium text-gray-500 uppercase tracking-wider m-0 ">
+			{{ appSlogan }}
+		</p>
 	</div>
-	<p class="text-gray-300 text-sm font-medium tracking-wide">
-		{{ appSlogan }}
-	</p>
-</div>
 
-<!-- Navigation Menu -->
-<div class="nav-menu-container px-4 py-2">
-	<app-admin-menu></app-admin-menu>
+	<!-- Navigation Menu -->
+	<nav class="sidebar-nav flex-1 overflow-y-auto overflow-x-hidden px-4 py-4">
+		<app-admin-menu></app-admin-menu>
+	</nav>
+
+	<!-- Sidebar Footer (Optional) -->
+	<div class="sidebar-footer px-4 py-4 border-t border-gray-200 bg-gray-50">
+		<div class="text-xs text-gray-500 text-center ">
+			© 2024 iDesign. All rights reserved.
+		</div>
+	</div>
 </div>

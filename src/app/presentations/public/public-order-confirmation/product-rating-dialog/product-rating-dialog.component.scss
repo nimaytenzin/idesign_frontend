@@ -1,0 +1,49 @@
+.dialog-content {
+	padding: 1rem 0;
+}
+
+.product-rating-item {
+	transition: all 0.2s ease;
+	
+	&:hover {
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+}
+
+.star-button {
+	background: none;
+	border: none;
+	padding: 0;
+	transition: transform 0.1s ease;
+	
+	&:hover:not(:disabled) {
+		transform: scale(1.1);
+	}
+	
+	&:active:not(:disabled) {
+		transform: scale(0.95);
+	}
+	
+	&:disabled {
+		opacity: 0.6;
+	}
+}
+
+::ng-deep .p-dialog {
+	border-radius: 0.5rem;
+}
+
+::ng-deep .p-dialog-header {
+	padding: 1.5rem;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+::ng-deep .p-dialog-content {
+	padding: 1.5rem;
+}
+
+::ng-deep .p-dialog-footer {
+	padding: 1rem 1.5rem;
+	border-top: 1px solid #e5e7eb;
+}
+

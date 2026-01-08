@@ -3,18 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PrimeNgModules } from '../../../primeng.modules';
 
-interface Movie {
-	id: number;
-	title: string;
-	genre: string[];
-	duration: string;
-	rating: string;
-	status: 'active' | 'inactive';
-	totalBookings: number;
-	revenue: number;
-	image: string;
-}
-
 interface Theater {
 	id: number;
 	name: string;
@@ -38,7 +26,6 @@ interface Booking {
 interface DashboardStats {
 	totalRevenue: number;
 	totalBookings: number;
-	totalMovies: number;
 	totalTheaters: number;
 	todayBookings: number;
 	occupancyRate: number;
@@ -54,58 +41,10 @@ export class AdminDashboardComponent implements OnInit {
 	stats: DashboardStats = {
 		totalRevenue: 125000,
 		totalBookings: 2456,
-		totalMovies: 15,
 		totalTheaters: 8,
 		todayBookings: 87,
 		occupancyRate: 76,
 	};
-
-	movies: Movie[] = [
-		{
-			id: 1,
-			title: 'Dune: Part Two',
-			genre: ['Sci-Fi', 'Adventure'],
-			duration: '2h 46m',
-			rating: 'PG-13',
-			status: 'active',
-			totalBookings: 342,
-			revenue: 85500,
-			image: '/movies/dune.jpg',
-		},
-		{
-			id: 2,
-			title: 'Oppenheimer',
-			genre: ['Biography', 'Drama'],
-			duration: '3h 0m',
-			rating: 'R',
-			status: 'active',
-			totalBookings: 298,
-			revenue: 74500,
-			image: '/movies/oppenheimer.jpg',
-		},
-		{
-			id: 3,
-			title: 'Spider-Man: No Way Home',
-			genre: ['Action', 'Adventure'],
-			duration: '2h 28m',
-			rating: 'PG-13',
-			status: 'inactive',
-			totalBookings: 567,
-			revenue: 141750,
-			image: '/movies/spiderman.jpg',
-		},
-		{
-			id: 4,
-			title: 'The Batman',
-			genre: ['Action', 'Crime'],
-			duration: '2h 56m',
-			rating: 'PG-13',
-			status: 'active',
-			totalBookings: 234,
-			revenue: 58500,
-			image: '/movies/batman.jpg',
-		},
-	];
 
 	theaters: Theater[] = [
 		{
@@ -191,8 +130,8 @@ export class AdminDashboardComponent implements OnInit {
 			{
 				label: 'Revenue',
 				data: [15000, 18000, 22000, 19000, 25000, 28000],
-				backgroundColor: 'rgba(139, 69, 19, 0.2)',
-				borderColor: '#6F1C76',
+				backgroundColor: 'rgba(1, 114, 99, 0.2)',
+				borderColor: '#017263',
 				borderWidth: 2,
 			},
 		],

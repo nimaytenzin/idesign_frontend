@@ -1,0 +1,325 @@
+<div class="p-4 mx-auto max-w-7xl md:p-6">
+	<!-- Breadcrumb Start -->
+	<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+		<h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+			Affiliate Marketer Management
+		</h2>
+		<nav>
+			<ol class="flex items-center gap-1.5">
+				<li>
+					<a
+						routerLink="/admin"
+						class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+					>
+						Home
+						<svg
+							class="stroke-current"
+							width="17"
+							height="16"
+							viewBox="0 0 17 16"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
+								stroke=""
+								stroke-width="1.2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							></path>
+						</svg>
+					</a>
+				</li>
+				<li class="text-sm text-gray-800 dark:text-white/90">Affiliate Marketers</li>
+			</ol>
+		</nav>
+	</div>
+	<!-- Breadcrumb End -->
+
+	<!-- Content Start -->
+	<div
+		class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+	>
+		<!-- Header Section -->
+		<div
+			class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800"
+		>
+			<div>
+				<h3
+					class="text-lg font-semibold text-gray-800 dark:text-white/90"
+				>
+					Affiliate Marketers
+				</h3>
+				<p class="text-sm text-gray-500 dark:text-gray-400">
+					Manage affiliate marketers and their commission settings.
+				</p>
+			</div>
+			<div class="flex gap-3">
+				<p-button
+					label="Add Affiliate"
+					icon="pi pi-plus"
+					size="small"
+					(onClick)="openNewAffiliate()"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- PrimeNG Table with Built-in Search and Filters -->
+		<div class="overflow-x-auto custom-scrollbar" style="overflow-y: visible;">
+			<p-table
+				[value]="affiliates"
+				[loading]="loading"
+				[globalFilterFields]="['name', 'email', 'cid', 'voucherCode', 'phoneNumber']"
+				[rows]="rows"
+				[first]="first"
+				[totalRecords]="totalRecords"
+				[paginator]="true"
+				[rowsPerPageOptions]="[10, 20, 30, 50]"
+				(onPage)="onPageChange($event)"
+				styleClass="p-datatable-sm"
+				[tableStyle]="{ 'min-width': '100%' }"
+				#affiliateTable
+			>
+				<ng-template pTemplate="caption">
+					<div class="flex gap-3 sm:justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-800">
+						<p-inputGroup class="flex-1 sm:flex-auto sm:w-[300px] sm:min-w-[300px]">
+							<p-inputGroupAddon>
+								<i class="pi pi-search text-gray-500 dark:text-gray-400"></i>
+							</p-inputGroupAddon>
+							<input
+								type="text"
+								pInputText
+								placeholder="Search affiliates..."
+								[(ngModel)]="globalFilter"
+								(input)="affiliateTable.filterGlobal($any($event.target).value, 'contains')"
+								class="shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pr-4 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+							/>
+						</p-inputGroup>
+						<div class="flex gap-2">
+							<p-dropdown
+								[options]="statusOptions"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Status"
+								[showClear]="true"
+								[(ngModel)]="statusFilter"
+								(onChange)="onStatusFilterChange($event)"
+								styleClass="w-[150px] h-11"
+							></p-dropdown>
+							<p-button
+								icon="pi pi-times"
+								severity="secondary"
+								[outlined]="true"
+								(onClick)="clearFilters()"
+								[disabled]="!globalFilter && statusFilter === null"
+								styleClass="h-11"
+								pTooltip="Clear Filters"
+							></p-button>
+						</div>
+					</div>
+				</ng-template>
+				<ng-template pTemplate="header">
+					<tr class="border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="name"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Name
+								</p>
+								<p-sortIcon field="name"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="cid"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									CID
+								</p>
+								<p-sortIcon field="cid"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="email"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Email
+								</p>
+								<p-sortIcon field="email"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="voucherCode"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Voucher Code
+								</p>
+								<p-sortIcon field="voucherCode"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="discountPercentage"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Discount %
+								</p>
+								<p-sortIcon field="discountPercentage"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="commissionPercentage"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Commission %
+								</p>
+								<p-sortIcon field="commissionPercentage"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="phoneNumber"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Phone
+								</p>
+								<p-sortIcon field="phoneNumber"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="isActive"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Status
+								</p>
+								<p-sortIcon field="isActive"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400"
+							pSortableColumn="createdAt"
+						>
+							<div class="flex items-center gap-3">
+								<p
+									class="text-xs font-medium text-gray-500 dark:text-gray-400"
+								>
+									Created
+								</p>
+								<p-sortIcon field="createdAt"></p-sortIcon>
+							</div>
+						</th>
+						<th
+							class="px-5 whitespace-nowrap py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400"
+						>
+							Actions
+						</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-affiliate>
+					<tr
+						class="border-b border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.02]"
+					>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							{{ affiliate.name }}
+						</td>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							{{ affiliate.cid }}
+						</td>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							{{ affiliate.email }}
+						</td>
+						<td class="px-5 py-4">
+							<span
+								class="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-mono font-semibold dark:bg-blue-500 dark:bg-opacity-15 dark:text-blue-400"
+							>
+								<i class="pi pi-tag text-xs"></i>
+								{{ affiliate.voucherCode }}
+							</span>
+						</td>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							{{ affiliate.discountPercentage }}%
+						</td>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							<span class="font-semibold text-teal-600 dark:text-teal-400">
+								{{ affiliate.commissionPercentage }}%
+							</span>
+						</td>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							{{ affiliate.phoneNumber || 'N/A' }}
+						</td>
+						<td class="px-5 py-4">
+							<span [ngClass]="getStatusClass(affiliate.isActive)">
+								{{ affiliate.isActive ? 'Active' : 'Inactive' }}
+							</span>
+						</td>
+						<td class="px-5 py-4 text-sm text-gray-800 dark:text-white/90">
+							{{ formatDate(affiliate.createdAt) }}
+						</td>
+						<td class="px-5 py-4">
+							<div class="flex items-center justify-center relative">
+								<p-button
+									icon="pi pi-ellipsis-v"
+									[text]="true"
+									severity="secondary"
+									size="small"
+									(onClick)="toggleActionMenu($event, affiliate.id)"
+									[attr.aria-label]="'Actions for ' + affiliate.name"
+									styleClass="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+								></p-button>
+								<p-tieredMenu
+									#actionMenu
+									[model]="getActionMenuItems(affiliate)"
+									[popup]="true"
+									[appendTo]="'body'"
+									styleClass="p-2 bg-white border border-gray-200 rounded-2xl shadow-lg dark:border-gray-800 dark:bg-gray-900 w-48"
+									(onShow)="setActionMenu(affiliate.id, actionMenu)"
+									[baseZIndex]="10000"
+								></p-tieredMenu>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="9" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+							No affiliate marketers found.
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+

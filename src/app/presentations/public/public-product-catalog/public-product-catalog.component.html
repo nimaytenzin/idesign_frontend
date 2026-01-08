@@ -1,13 +1,13 @@
 <!-- Product Catalog Page -->
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-slate-50">
 	<!-- Page Header -->
-	<section class="bg-white border-b border-gray-200">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+	<section class="bg-white border-b border-slate-200">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 			<div class="text-center">
-				<h1 class="text-4xl font-bold text-gray-900 mb-4 font-['Poppins']">
+				<h1 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
 					Sacred Art Collection
 				</h1>
-				<p class="text-xl text-gray-600 max-w-3xl mx-auto font-['Roboto']">
+				<p class="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
 					Discover our exclusive collection of 3D printed Bhutanese chortens,
 					stupas, and spiritual artifacts crafted with precision and reverence.
 				</p>
@@ -21,133 +21,120 @@
 			<!-- Sidebar Filters -->
 			<div class="lg:col-span-1">
 				<div
-					class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8"
+					class="bg-white rounded-lg border border-slate-200 p-6 sticky top-8 filter-sidebar"
 				>
 					<div class="flex justify-between items-center mb-6">
-						<h3 class="text-lg font-semibold text-gray-900 font-['Poppins']">
-							Filters
-						</h3>
-						<button
-							(click)="clearFilters()"
-							class="text-sm text-teal-600 hover:text-teal-700 font-['Roboto'] font-medium"
-						>
-							Clear All
-						</button>
-					</div>
-
-					<!-- Search -->
-					<div class="mb-6">
-						<label
-							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
-						>
-							Search Products
-						</label>
-						<div class="relative">
-							<input
-								type="text"
-								[(ngModel)]="searchTerm"
-								(keyup.enter)="onSearch()"
-								placeholder="Search by name..."
-								class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-['Roboto']"
-							/>
-							<i class="pi pi-search absolute left-3 top-3 text-gray-400"></i>
+						<div class="flex items-center gap-2">
+							<h2 class="text-lg font-semibold text-slate-900">
+								Filters
+							</h2>
+							<span
+								*ngIf="hasActiveFilters()"
+								class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-teal-500 rounded-full"
+							>
+								{{ getActiveFilterCount() }}
+							</span>
 						</div>
 						<button
-							(click)="onSearch()"
-							class="mt-2 w-full bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors font-['Poppins'] text-sm font-medium"
+							class="text-sm text-teal-600 hover:text-teal-600 font-medium transition-colors duration-200"
+							[disabled]="!hasActiveFilters()"
+							[class.opacity-50]="!hasActiveFilters()"
+							[class.cursor-not-allowed]="!hasActiveFilters()"
+							(click)="clearFilters()"
 						>
-							Search
+							Clear all
 						</button>
 					</div>
 
-					<!-- Category Filter -->
-					<div class="mb-6">
-						<label
-							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
-						>
-							Category
-						</label>
-						<p-dropdown
-							[options]="categoryOptions"
-							[(ngModel)]="selectedCategoryId"
-							(onChange)="onCategoryChange($event.value)"
-							optionLabel="label"
-							optionValue="value"
-							placeholder="Select Category"
-							styleClass="w-full"
-						></p-dropdown>
-					</div>
+					<!-- Filter Sections -->
+					<div class="space-y-6">
+						<!-- Search -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								Search
+							</label>
+							<div class="relative">
+								<input
+									type="text"
+									[(ngModel)]="searchTerm"
+									(keyup.enter)="onSearch()"
+									placeholder="Search by name..."
+									class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition-all duration-200 bg-white"
+								/>
+								<i class="pi pi-search absolute left-3 top-2.5 text-slate-400"></i>
+							</div>
+							<button
+								type="button"
+								class="w-full mt-3 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium transition-colors duration-200"
+								(click)="onSearch()"
+							>
+								Search
+							</button>
+						</div>
 
-					<!-- Sub-Category Filter -->
-					<div class="mb-6" *ngIf="selectedCategoryId">
-						<label
-							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
-						>
-							Sub-Category
-						</label>
-						<p-dropdown
-							[options]="subCategoryOptions"
-							[(ngModel)]="selectedSubCategoryId"
-							(onChange)="onSubCategoryChange()"
-							optionLabel="label"
-							optionValue="value"
-							placeholder="Select Sub-Category"
-							styleClass="w-full"
-						></p-dropdown>
-					</div>
+						<!-- Category Filter -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								Category
+							</label>
+							<p-dropdown
+								[options]="categoryOptions"
+								[(ngModel)]="selectedCategoryId"
+								(onChange)="onCategoryChange($event.value)"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Category"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
 
-					<!-- Material Filter -->
-					<div class="mb-6">
-						<label
-							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
-						>
-							Material
-						</label>
-						<p-dropdown
-							[options]="materialOptions"
-							[(ngModel)]="selectedMaterial"
-							(onChange)="onMaterialChange()"
-							optionLabel="label"
-							optionValue="value"
-							placeholder="Select Material"
-							styleClass="w-full"
-						></p-dropdown>
-					</div>
+						<!-- Sub-Category Filter -->
+						<div *ngIf="selectedCategoryId">
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								Sub-Category
+							</label>
+							<p-dropdown
+								[options]="subCategoryOptions"
+								[(ngModel)]="selectedSubCategoryId"
+								(onChange)="onSubCategoryChange()"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Sub-Category"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
 
-					<!-- Availability Filter -->
-					<div class="mb-6">
-						<label
-							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
-						>
-							Availability
-						</label>
-						<p-dropdown
-							[options]="availabilityOptions"
-							[(ngModel)]="selectedAvailability"
-							(onChange)="onAvailabilityChange()"
-							optionLabel="label"
-							optionValue="value"
-							placeholder="Select Availability"
-							styleClass="w-full"
-						></p-dropdown>
-					</div>
+						<!-- Material Filter -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								Material
+							</label>
+							<p-dropdown
+								[options]="materialOptions"
+								[(ngModel)]="selectedMaterial"
+								(onChange)="onMaterialChange()"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Material"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
 
-					<!-- Price Range Filter -->
-					<div class="mb-6">
-						<label
-							class="block text-sm font-medium text-gray-700 mb-2 font-['Roboto']"
-						>
-							Price Range
-						</label>
-						<p-dropdown
-							[options]="priceRangeOptions"
-							[(ngModel)]="priceRangeFilter"
-							(onChange)="onPriceRangeChange()"
-							optionLabel="label"
-							optionValue="value"
-							placeholder="Select Price Range"
-							styleClass="w-full"
-						></p-dropdown>
+						<!-- Price Range Filter -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								Price Range
+							</label>
+							<p-dropdown
+								[options]="priceRangeOptions"
+								[(ngModel)]="priceRangeFilter"
+								(onChange)="onPriceRangeChange()"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Price Range"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -156,24 +143,21 @@
 			<div class="lg:col-span-3">
 				<!-- Toolbar -->
 				<div
-					class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6"
+					class="bg-white rounded-lg border border-slate-200 p-4 mb-6"
 				>
 					<div
 						class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
 					>
 						<!-- Results Count -->
-						<div class="text-sm text-gray-600 font-['Roboto']">
-							<span class="font-medium text-gray-900">{{ totalProducts }}</span>
-							products found
-						</div>
+						<p class="text-sm text-slate-600">
+							<span class="font-semibold text-slate-900">{{ totalProducts }}</span> products found
+						</p>
 
 						<!-- Toolbar Actions -->
 						<div class="flex items-center gap-4">
 							<!-- Sort Dropdown -->
-							<div class="flex items-center gap-2">
-								<label class="text-sm text-gray-600 font-['Roboto']"
-									>Sort:</label
-								>
+							<div class="flex items-center gap-3">
+								<label class="text-sm text-slate-600 font-medium">Sort:</label>
 								<p-dropdown
 									[options]="sortOptions"
 									[(ngModel)]="sortOption"
@@ -185,28 +169,26 @@
 							</div>
 
 							<!-- View Toggle -->
-							<div class="flex items-center border border-gray-300 rounded-md">
+							<div class="flex border border-slate-300 rounded-lg overflow-hidden">
 								<button
+									type="button"
+									class="px-3 py-2 text-sm font-medium transition-colors duration-200"
+									[class.bg-teal-500]="viewMode === 'grid'"
+									[class.text-white]="viewMode === 'grid'"
+									[class.bg-white]="viewMode !== 'grid'"
+									[class.text-slate-700]="viewMode !== 'grid'"
 									(click)="viewMode = 'grid'"
-									[class]="
-										viewMode === 'grid'
-											? 'bg-teal-600 text-white'
-											: 'bg-white text-gray-600'
-									"
-									class="p-2 border-r border-gray-300 hover:bg-teal-50 transition-colors"
-									pTooltip="Grid View"
 								>
 									<i class="pi pi-th-large"></i>
 								</button>
 								<button
+									type="button"
+									class="px-3 py-2 text-sm font-medium transition-colors duration-200 border-l border-slate-300"
+									[class.bg-teal-500]="viewMode === 'list'"
+									[class.text-white]="viewMode === 'list'"
+									[class.bg-white]="viewMode !== 'list'"
+									[class.text-slate-700]="viewMode !== 'list'"
 									(click)="viewMode = 'list'"
-									[class]="
-										viewMode === 'list'
-											? 'bg-teal-600 text-white'
-											: 'bg-white text-gray-600'
-									"
-									class="p-2 hover:bg-teal-50 transition-colors"
-									pTooltip="List View"
 								>
 									<i class="pi pi-list"></i>
 								</button>
@@ -223,36 +205,28 @@
 					>
 						<div
 							*ngFor="let item of [1, 2, 3, 4, 5, 6]"
-							class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+							class="bg-white rounded-lg border border-slate-200 overflow-hidden animate-pulse"
 						>
-							<p-skeleton height="200px" styleClass="mb-4"></p-skeleton>
-							<div class="p-4">
-								<p-skeleton height="20px" styleClass="mb-2"></p-skeleton>
-								<p-skeleton
-									height="16px"
-									width="70%"
-									styleClass="mb-4"
-								></p-skeleton>
-								<p-skeleton height="24px" width="40%"></p-skeleton>
+							<div class="h-64 bg-slate-200"></div>
+							<div class="p-4 space-y-3">
+								<div class="h-4 bg-slate-200 rounded w-3/4"></div>
+								<div class="h-3 bg-slate-200 rounded w-1/2"></div>
+								<div class="h-6 bg-slate-200 rounded w-2/5"></div>
 							</div>
 						</div>
 					</div>
 					<div *ngIf="viewMode === 'list'" class="space-y-4">
 						<div
 							*ngFor="let item of [1, 2, 3, 4]"
-							class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+							class="bg-white rounded-lg border border-slate-200 p-4 animate-pulse"
 						>
 							<div class="flex gap-4">
-								<p-skeleton width="150px" height="150px"></p-skeleton>
-								<div class="flex-1">
-									<p-skeleton height="20px" styleClass="mb-2"></p-skeleton>
-									<p-skeleton height="16px" styleClass="mb-2"></p-skeleton>
-									<p-skeleton
-										height="16px"
-										width="60%"
-										styleClass="mb-4"
-									></p-skeleton>
-									<p-skeleton height="24px" width="30%"></p-skeleton>
+								<div class="w-32 h-32 bg-slate-200 rounded-lg"></div>
+								<div class="flex-1 space-y-3">
+									<div class="h-4 bg-slate-200 rounded w-3/4"></div>
+									<div class="h-3 bg-slate-200 rounded w-full"></div>
+									<div class="h-3 bg-slate-200 rounded w-2/3"></div>
+									<div class="h-6 bg-slate-200 rounded w-1/4"></div>
 								</div>
 							</div>
 						</div>
@@ -266,29 +240,47 @@
 				>
 					<div
 						*ngFor="let product of products; trackBy: trackByProductId"
-						class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+						class="group bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-lg hover:border-teal-300 transition-all duration-200 cursor-pointer product-card fade-in"
 						(click)="viewProductDetails(product.id!)"
 					>
 						<!-- Product Image -->
-						<div class="relative aspect-square overflow-hidden bg-gray-100">
+						<div class="relative aspect-square overflow-hidden bg-slate-100">
 							<img
 								[src]="getPrimaryImage(product)"
 								[alt]="product.title"
-								class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+								class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 product-image"
 								loading="lazy"
 								onerror="this.src='products/image.png'"
 							/>
 
-							<!-- Availability Badge -->
+							<!-- Discount Badge -->
+							<div class="absolute top-3 left-3" *ngIf="hasDiscount(product)">
+								<span
+									class="px-2 py-1 bg-red-500 text-white rounded-full text-xs font-semibold shadow-md"
+								>
+									{{ getDiscountBadgeText(product) }}
+								</span>
+							</div>
+
+							<!-- Stock Badge -->
 							<div class="absolute top-3 right-3">
 								<span
-									class="px-2 py-1 text-xs font-medium rounded-full"
-									[ngClass]="{
-										'bg-green-100 text-green-800': product.isAvailable,
-										'bg-orange-100 text-orange-800': !product.isAvailable
-									}"
+									*ngIf="getStockStatus(product).severity === 'success'"
+									class="px-2 py-1 bg-white rounded-full text-xs font-medium text-green-700 shadow-sm"
 								>
-									{{ product.isAvailable ? "In Stock" : "Made to Order" }}
+									In Stock
+								</span>
+								<span
+									*ngIf="getStockStatus(product).severity === 'warning'"
+									class="px-2 py-1 bg-white rounded-full text-xs font-medium text-amber-700 shadow-sm"
+								>
+									Low Stock
+								</span>
+								<span
+									*ngIf="getStockStatus(product).severity === 'danger'"
+									class="px-2 py-1 bg-white rounded-full text-xs font-medium text-red-700 shadow-sm"
+								>
+									Out of Stock
 								</span>
 							</div>
 						</div>
@@ -296,56 +288,79 @@
 						<!-- Product Info -->
 						<div class="p-4">
 							<!-- Category -->
-							<div
-								class="text-xs text-teal-600 font-medium mb-1 font-['Roboto']"
-							>
+							<p class="text-xs text-slate-500 uppercase tracking-wide mb-1">
 								{{ getCategoryName(product.productSubCategoryId) }} •
 								{{ getSubCategoryName(product.productSubCategoryId) }}
-							</div>
+							</p>
 
 							<!-- Title -->
 							<h3
-								class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 font-['Poppins']"
+								class="text-lg font-semibold text-slate-900 mb-2 line-clamp-2 leading-tight"
 							>
 								{{ product.title }}
 							</h3>
 
 							<!-- Description -->
 							<p
-								class="text-sm text-gray-600 mb-3 line-clamp-2 font-['Roboto']"
+								class="text-sm text-slate-600 mb-3 line-clamp-2 leading-relaxed"
 							>
 								{{ product.shortDescription }}
 							</p>
 
 							<!-- Material & Details -->
-							<div class="flex items-center gap-2 mb-3">
+							<div class="flex items-center gap-2 mb-3 flex-wrap">
 								<span
-									class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-['Roboto']"
+									class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium"
 								>
 									{{ product.material }}
 								</span>
 								<span
-									class="text-xs text-gray-500 font-['Roboto']"
+									class="text-xs text-slate-500"
 									*ngIf="product.weight"
 								>
-									{{ product.weight }}kg
+									{{ product.weight }}g
 								</span>
 							</div>
 
-							<!-- Price -->
-							<div class="flex justify-between items-center">
-								<span class="text-xl font-bold text-gray-900 font-['Poppins']">
-									{{ formatPrice(product.price) }}
-								</span>
+							<!-- Price & Action -->
+							<div class="flex items-center justify-between pt-3 border-t border-slate-200 gap-2">
+								<div class="flex flex-col">
+									<span
+										class="text-2xl font-bold"
+										[ngClass]="{
+											'text-red-600': hasDiscount(product) && getDiscountInfo(product).canApply,
+											'text-slate-900': !hasDiscount(product) || !getDiscountInfo(product).canApply
+										}"
+									>
+										Nu {{ ((hasDiscount(product) && getDiscountInfo(product).canApply) ? getDiscountInfo(product).discountedPrice : product.price).toFixed(2) }}
+									</span>
+									<span
+										*ngIf="hasDiscount(product) && getDiscountInfo(product).canApply"
+										class="text-sm text-slate-500 line-through"
+									>
+										Nu {{ getDiscountInfo(product).originalPrice.toFixed(2) }}
+									</span>
+								</div>
 								<button
-									class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors text-sm font-medium font-['Poppins']"
-									(click)="
-										$event.stopPropagation(); viewProductDetails(product.id!)
-									"
+									type="button"
+									class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+									(click)="$event.stopPropagation(); addToCart(product, $event)"
 								>
-									View Details
+									Add to Cart
 								</button>
 							</div>
+							<!-- Discount Constraint Message -->
+							<p 
+								class="text-amber-600 text-xs mt-2 font-medium" 
+								*ngIf="getDiscountConstraintMessage(product)"
+							>
+								<i class="pi pi-info-circle mr-1"></i>
+								{{ getDiscountConstraintMessage(product) }}
+							</p>
+							<!-- Stock Message -->
+							<p class="text-red-600 text-xs mt-2" *ngIf="!product.stockQuantity || product.stockQuantity === 0">
+								This item is out of stock. It may take 1-2 weeks to complete the order.
+							</p>
 						</div>
 					</div>
 				</div>
@@ -354,17 +369,17 @@
 				<div *ngIf="!loading && viewMode === 'list'" class="space-y-4">
 					<div
 						*ngFor="let product of products; trackBy: trackByProductId"
-						class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+						class="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-md transition-all duration-200 cursor-pointer product-card fade-in"
 						(click)="viewProductDetails(product.id!)"
 					>
 						<div class="flex gap-6">
 							<!-- Product Image -->
 							<div class="flex-shrink-0">
-								<div class="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden">
+								<div class="w-32 h-32 bg-slate-100 rounded-lg overflow-hidden">
 									<img
 										[src]="getPrimaryImage(product)"
 										[alt]="product.title"
-										class="w-full h-full object-cover"
+										class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
 										loading="lazy"
 										onerror="this.src='products/image.png'"
 									/>
@@ -374,71 +389,97 @@
 							<!-- Product Details -->
 							<div class="flex-1 min-w-0">
 								<!-- Category -->
-								<div
-									class="text-sm text-teal-600 font-medium mb-1 font-['Roboto']"
-								>
+								<p class="text-xs text-slate-500 uppercase tracking-wide mb-2">
 									{{ getCategoryName(product.productSubCategoryId) }} •
 									{{ getSubCategoryName(product.productSubCategoryId) }}
-								</div>
+								</p>
 
 								<!-- Title -->
 								<h3
-									class="text-xl font-semibold text-gray-900 mb-2 font-['Poppins']"
+									class="text-xl font-semibold text-slate-900 mb-3 leading-tight"
 								>
 									{{ product.title }}
 								</h3>
 
 								<!-- Description -->
-								<p class="text-gray-600 mb-4 line-clamp-3 font-['Roboto']">
+								<p class="text-sm text-slate-600 mb-4 line-clamp-3 leading-relaxed">
 									{{ product.shortDescription }}
 								</p>
 
 								<!-- Details Row -->
-								<div class="flex items-center gap-4 mb-4">
+								<div class="flex items-center gap-3 mb-4 flex-wrap">
 									<span
-										class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-['Roboto']"
+										class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium"
 									>
 										{{ product.material }}
 									</span>
 									<span
-										class="text-sm text-gray-500 font-['Roboto']"
+										class="text-xs text-slate-500"
 										*ngIf="product.weight"
 									>
-										Weight: {{ product.weight }}kg
+										Weight: {{ product.weight }}g
 									</span>
 									<span
-										class="text-sm text-gray-500 font-['Roboto']"
+										class="text-xs text-slate-500"
 										*ngIf="product.dimensions"
 									>
 										{{ product.dimensions }}
 									</span>
 									<span
-										class="px-2 py-1 text-xs font-medium rounded-full"
-										[ngClass]="{
-											'bg-green-100 text-green-800': product.isAvailable,
-											'bg-orange-100 text-orange-800': !product.isAvailable
-										}"
+										*ngIf="getStockStatus(product).severity === 'success'"
+										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
 									>
-										{{ product.isAvailable ? "In Stock" : "Made to Order" }}
+										In Stock
+									</span>
+									<span
+										*ngIf="getStockStatus(product).severity === 'warning'"
+										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
+									>
+										Low Stock
+									</span>
+									<span
+										*ngIf="getStockStatus(product).severity === 'danger'"
+										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+									>
+										Out of Stock
 									</span>
 								</div>
 
 								<!-- Price and Action -->
-								<div class="flex justify-between items-center">
-									<span
-										class="text-2xl font-bold text-gray-900 font-['Poppins']"
-									>
-										{{ formatPrice(product.price) }}
-									</span>
+								<div class="flex justify-between items-center pt-4 border-t border-slate-200 gap-2">
+									<div class="flex flex-col">
+										<span
+											class="text-2xl font-bold"
+											[ngClass]="{
+												'text-red-600': hasDiscount(product) && getDiscountInfo(product).canApply,
+												'text-slate-900': !hasDiscount(product) || !getDiscountInfo(product).canApply
+											}"
+										>
+											Nu {{ ((hasDiscount(product) && getDiscountInfo(product).canApply) ? getDiscountInfo(product).discountedPrice : product.price).toFixed(2) }}
+										</span>
+										<span
+											*ngIf="hasDiscount(product) && getDiscountInfo(product).canApply"
+											class="text-sm text-slate-500 line-through"
+										>
+											Nu {{ getDiscountInfo(product).originalPrice.toFixed(2) }}
+										</span>
+									</div>
 									<button
-										class="bg-teal-600 text-white px-6 py-2 rounded-md hover:bg-teal-700 transition-colors font-medium font-['Poppins']"
-										(click)="
-											$event.stopPropagation(); viewProductDetails(product.id!)
-										"
+										type="button"
+										class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+										(click)="$event.stopPropagation(); addToCart(product, $event)"
 									>
-										View Details
+										Add to Cart
 									</button>
 								</div>
+								<!-- Discount Constraint Message -->
+								<p 
+									class="text-amber-600 text-xs mt-2 font-medium" 
+									*ngIf="getDiscountConstraintMessage(product)"
+								>
+									<i class="pi pi-info-circle mr-1"></i>
+									{{ getDiscountConstraintMessage(product) }}
+								</p>
 							</div>
 						</div>
 					</div>
@@ -447,19 +488,22 @@
 				<!-- Empty State -->
 				<div
 					*ngIf="!loading && products.length === 0"
-					class="text-center py-12"
+					class="text-center py-12 bg-white rounded-lg border border-slate-200"
 				>
-					<i class="pi pi-search text-4xl text-gray-400 mb-4"></i>
-					<h3 class="text-lg font-semibold text-gray-900 mb-2 font-['Poppins']">
+					<div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
+						<i class="pi pi-search text-2xl text-slate-400"></i>
+					</div>
+					<h3 class="text-lg font-semibold text-slate-900 mb-2">
 						No products found
 					</h3>
-					<p class="text-gray-600 mb-4 font-['Roboto']">
+					<p class="text-sm text-slate-600 mb-6 max-w-md mx-auto">
 						Try adjusting your filters or search terms to find what you're
 						looking for.
 					</p>
 					<button
+						type="button"
+						class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
 						(click)="clearFilters()"
-						class="bg-teal-600 text-white px-6 py-2 rounded-md hover:bg-teal-700 transition-colors font-medium font-['Poppins']"
 					>
 						Clear Filters
 					</button>
@@ -480,3 +524,6 @@
 		</div>
 	</div>
 </div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>

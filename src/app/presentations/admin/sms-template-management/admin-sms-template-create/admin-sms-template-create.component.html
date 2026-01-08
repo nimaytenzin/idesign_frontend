@@ -1,0 +1,282 @@
+<div class="p-6">
+	<p-toast></p-toast>
+
+	<form (ngSubmit)="saveTemplate()" class="space-y-6">
+		<!-- Name -->
+		<div>
+			<label
+				for="templateName"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Template Name <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="templateName"
+				type="text"
+				pInputText
+				[(ngModel)]="template.name"
+				name="name"
+				placeholder="e.g., Order Confirmation - Online"
+				class="w-full"
+				[class.ng-invalid]="submitted && !template.name"
+				required
+			/>
+			<small class="p-error block mt-1" *ngIf="submitted && !template.name"
+				>Template name is required</small
+			>
+		</div>
+
+		<!-- Trigger Event -->
+		<div>
+			<label
+				for="triggerEvent"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Trigger Event <span class="text-red-500">*</span>
+			</label>
+			<p-dropdown
+				id="triggerEvent"
+				[options]="triggerEventOptions"
+				[(ngModel)]="template.triggerEvent"
+				name="triggerEvent"
+				optionLabel="description"
+				optionValue="value"
+				placeholder="Select trigger event"
+				[showClear]="false"
+				styleClass="w-full"
+				[class.ng-invalid]="submitted && !template.triggerEvent"
+				required
+			>
+				<ng-template pTemplate="selectedItem">
+					<span *ngIf="template.triggerEvent">
+						{{ template.triggerEvent }} - {{ getTriggerEventDescription(template.triggerEvent) }}
+					</span>
+				</ng-template>
+				<ng-template let-trigger pTemplate="item">
+					<div>
+						<div class="font-semibold">{{ trigger.value }}</div>
+						<div class="text-sm text-gray-500">{{ trigger.description }}</div>
+					</div>
+				</ng-template>
+			</p-dropdown>
+			<small class="p-error block mt-1" *ngIf="submitted && !template.triggerEvent"
+				>Trigger event is required</small
+			>
+		</div>
+
+		<!-- Order Type -->
+		<div>
+			<label
+				for="orderType"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Order Type
+			</label>
+			<p-dropdown
+				id="orderType"
+				[options]="orderTypeOptions"
+				[(ngModel)]="template.orderType"
+				name="orderType"
+				optionLabel="label"
+				optionValue="value"
+				placeholder="Select order type"
+				[showClear]="true"
+				styleClass="w-full"
+			></p-dropdown>
+			<small class="text-gray-500 dark:text-gray-400">Leave as "Both" to apply to all order types</small>
+		</div>
+
+		<!-- Message -->
+		<div>
+			<label
+				for="messageTextarea"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Message Template <span class="text-red-500">*</span>
+			</label>
+			<textarea
+				id="messageTextarea"
+				pInputTextarea
+				[(ngModel)]="template.message"
+				name="message"
+				[placeholder]="'Enter message with placeholders like ' + placeholderExample"
+				rows="6"
+				class="w-full"
+				[class.ng-invalid]="submitted && !template.message"
+				required
+			></textarea>
+			<small class="text-gray-500 dark:text-gray-400" ngNonBindable
+				>Use double curly braces for placeholders: {{placeholderName}}</small
+			>
+			<small class="p-error block mt-1" *ngIf="submitted && !template.message"
+				>Message template is required</small
+			>
+		</div>
+
+		<!-- Placeholder Helper -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+				>Available Placeholders</label
+			>
+			<div
+				class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-h-48 overflow-y-auto"
+			>
+				<p-button
+					*ngFor="let placeholder of placeholderOptions"
+					[label]="'{{' + placeholder.name + '}}'"
+					size="small"
+					severity="secondary"
+					[text]="true"
+					(onClick)="insertPlaceholder(placeholder.name)"
+					[pTooltip]="placeholder.description"
+					styleClass="text-xs"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- Priority, Send Count, Send Delay -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<div>
+				<label
+					for="priority"
+					class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>Priority</label
+				>
+				<p-inputNumber
+					id="priority"
+					[(ngModel)]="template.priority"
+					name="priority"
+					[showButtons]="true"
+					[min]="0"
+					[step]="1"
+					styleClass="w-full"
+				></p-inputNumber>
+				<small class="text-gray-500 dark:text-gray-400">Lower number = executes first</small>
+			</div>
+
+			<div>
+				<label
+					for="sendCount"
+					class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>Send Count</label
+				>
+				<p-inputNumber
+					id="sendCount"
+					[(ngModel)]="template.sendCount"
+					name="sendCount"
+					[showButtons]="true"
+					[min]="1"
+					[max]="5"
+					[step]="1"
+					styleClass="w-full"
+				></p-inputNumber>
+				<small class="text-gray-500 dark:text-gray-400">Number of times to repeat (1-5)</small>
+			</div>
+
+			<div>
+				<label
+					for="sendDelay"
+					class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>Send Delay (minutes)</label
+				>
+				<p-inputNumber
+					id="sendDelay"
+					[(ngModel)]="template.sendDelay"
+					name="sendDelay"
+					[showButtons]="true"
+					[min]="0"
+					[step]="1"
+					styleClass="w-full"
+				></p-inputNumber>
+				<small class="text-gray-500 dark:text-gray-400">Delay before sending (0 = immediate)</small>
+			</div>
+		</div>
+
+		<!-- Active Status -->
+		<div>
+			<div class="flex items-center gap-3">
+				<p-inputSwitch
+					[(ngModel)]="template.isActive"
+					[ngModelOptions]="{ standalone: true }"
+				></p-inputSwitch>
+				<label for="isActive" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+					>Active</label
+				>
+			</div>
+			<small class="text-gray-500 dark:text-gray-400">Only active templates will be triggered</small>
+		</div>
+
+		<!-- Test Template (only in edit mode) -->
+		<div *ngIf="isEditMode && template.id" class="border-t border-gray-200 dark:border-gray-700 pt-6">
+			<h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white/90">Test Template</h3>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div>
+					<label
+						for="testOrderId"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+						>Select Order</label
+					>
+					<p-dropdown
+						id="testOrderId"
+						[options]="availableOrders"
+						[(ngModel)]="testOrderId"
+						name="testOrderId"
+						optionLabel="orderNumber"
+						optionValue="id"
+						placeholder="Select an order to test"
+						[showClear]="true"
+						styleClass="w-full"
+					>
+						<ng-template let-order pTemplate="item">
+							<div>
+								<div class="font-semibold">{{ order.orderNumber }}</div>
+								<div class="text-sm text-gray-500">
+									{{ order.customer?.name || 'N/A' }} - {{ order.totalAmount | currency }}
+								</div>
+							</div>
+						</ng-template>
+					</p-dropdown>
+				</div>
+				<div class="flex items-end">
+					<p-button
+						label="Test Template"
+						icon="pi pi-send"
+						(onClick)="testTemplate()"
+						[loading]="testLoading"
+						[disabled]="!testOrderId"
+					></p-button>
+				</div>
+			</div>
+
+			<div *ngIf="testRenderedMessage" class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+				<label class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>Rendered Message:</label
+				>
+				<div
+					class="p-3 bg-white dark:bg-gray-800 rounded border border-blue-200 dark:border-blue-800 whitespace-pre-wrap text-gray-800 dark:text-gray-200"
+				>
+					{{ testRenderedMessage }}
+				</div>
+			</div>
+		</div>
+
+		<!-- Actions -->
+		<div class="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update' : 'Create'"
+				icon="pi pi-check"
+				(onClick)="saveTemplate()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

@@ -1,0 +1,32 @@
+.payment-step {
+	animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+::ng-deep {
+	.p-card {
+		box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	}
+
+	// Toast positioning - High z-index to appear above navbar (z-9998)
+	.p-toast {
+		top: 20px;
+		right: 20px;
+		z-index: 10000 !important;
+		
+		.p-toast-message {
+			z-index: 10000 !important;
+		}
+	}
+}
+

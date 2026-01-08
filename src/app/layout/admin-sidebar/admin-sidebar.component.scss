@@ -1,222 +1,186 @@
-/* Admin Sidebar - Black Primary Theme */
+/* Admin Sidebar - Modern Design */
 :host {
-    display: block;
-    height: 100%;
-    background-color: #1a1a1a; /* Primary Charcoal Black */
-    color: #ffffff;
-    font-family: "Roboto", sans-serif;
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: #FFFFFF;
+}
+
+.sidebar-container {
+	height: 100%;
+	background: #FFFFFF;
 }
 
 /* Sidebar Header */
 .sidebar-header {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-    border-bottom: 1px solid #333333;
-    position: relative;
+	background: #FFFFFF;
+	border-bottom: 1px solid #E0E0E0;
+	flex-shrink: 0;
 }
 
-.sidebar-header::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, #00796b 50%, transparent 100%);
+.logo-container {
+	background: linear-gradient(135deg, #017263 0%, #015b4f 100%);
+	box-shadow: 0 4px 12px rgba(1, 114, 99, 0.2);
+	transition: all 0.3s ease;
 }
 
-.sidebar-header .flex.items-center h1,
-.sidebar-header .flex.items-center .text-white {
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
+.logo-container:hover {
+	transform: scale(1.05);
+	box-shadow: 0 6px 16px rgba(1, 114, 99, 0.3);
 }
 
-.sidebar-header p {
-    color: #b0b0b0; /* Light gray for subtitle */
-    font-size: 13px;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-}
-
-.sidebar-header img {
-    border-radius: 8px;
-    border: 2px solid #333333;
-    transition: all 0.3s ease;
-}
-
-.sidebar-header img:hover {
-    border-color: #00796b;
-    transform: scale(1.05);
-}
-
-/* Navigation Menu Container */
-.nav-menu-container {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-top: 16px;
+/* Navigation */
+.sidebar-nav {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 16px;
 }
 
 /* Custom Scrollbar */
-.nav-menu-container::-webkit-scrollbar {
-    width: 6px;
+.sidebar-nav::-webkit-scrollbar {
+	width: 6px;
 }
 
-.nav-menu-container::-webkit-scrollbar-track {
-    background: #2a2a2a;
-    border-radius: 3px;
+.sidebar-nav::-webkit-scrollbar-track {
+	background: #F5F5F5;
+	border-radius: 3px;
 }
 
-.nav-menu-container::-webkit-scrollbar-thumb {
-    background: #404040;
-    border-radius: 3px;
-    transition: background 0.2s ease;
+.sidebar-nav::-webkit-scrollbar-thumb {
+	background: #BDBDBD;
+	border-radius: 3px;
+	transition: background 0.2s ease;
 }
 
-.nav-menu-container::-webkit-scrollbar-thumb:hover {
-    background: #505050;
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+	background: #9E9E9E;
 }
 
-/* Menu Item Styling - Global */
+/* Sidebar Footer */
+.sidebar-footer {
+	flex-shrink: 0;
+	background: #FAFAFA;
+	border-top: 1px solid #E0E0E0;
+}
+
+/* PrimeNG Menu Overrides */
 :host ::ng-deep .p-menuitem {
-    margin-bottom: 4px;
+	margin-bottom: 4px;
 }
 
 :host ::ng-deep .p-menuitem-link {
-    padding: 12px 16px !important;
-    border-radius: 8px !important;
-    margin: 0 8px !important;
-    color: #b0b0b0 !important;
-    font-family: "Roboto", sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    text-decoration: none !important;
-    transition: all 0.2s ease !important;
-    border: none !important;
-    background: transparent !important;
+	padding: 12px 16px !important;
+	border-radius: 8px !important;
+	margin: 0 4px !important;
+	color: #616161 !important;
+	font-family: 'Roboto', sans-serif !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	text-decoration: none !important;
+	transition: all 0.2s ease !important;
+	border: none !important;
+	background: transparent !important;
+	display: flex !important;
+	align-items: center !important;
 }
 
 :host ::ng-deep .p-menuitem-link:hover {
-    background-color: #2a2a2a !important;
-    color: #ffffff !important;
-    transform: translateX(4px);
+	background-color: #F5F5F5 !important;
+	color: #1A1A1A !important;
+	transform: translateX(2px);
 }
 
 :host ::ng-deep .p-menuitem-link:focus {
-    outline: 2px solid #00796b !important;
-    outline-offset: 2px;
+	outline: 2px solid #017263 !important;
+	outline-offset: 2px;
 }
 
 /* Active Menu Item */
 :host ::ng-deep .p-menuitem-link.active,
 :host ::ng-deep .p-menuitem-link[aria-expanded="true"] {
-    background: linear-gradient(135deg, #00796b 0%, #00695c 100%) !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 121, 107, 0.3) !important;
+	background-color: #E0F2F1 !important;
+	color: #017263 !important;
+	box-shadow: 0 0 0 3px rgba(1, 114, 99, 0.1) !important;
+}
+
+:host ::ng-deep .p-menuitem-link.active {
+	border-left: 3px solid #017263 !important;
 }
 
 /* Menu Item Icon */
 :host ::ng-deep .p-menuitem-icon {
-    color: inherit !important;
-    margin-right: 12px !important;
-    font-size: 16px !important;
-    width: 20px !important;
-    text-align: center !important;
+	color: inherit !important;
+	margin-right: 12px !important;
+	font-size: 18px !important;
+	width: 20px !important;
+	text-align: center !important;
 }
 
 /* Menu Item Text */
 :host ::ng-deep .p-menuitem-text {
-    color: inherit !important;
-    font-weight: inherit !important;
+	color: inherit !important;
+	font-weight: inherit !important;
 }
 
 /* Submenu Styling */
 :host ::ng-deep .p-submenu-list {
-    padding: 8px 0 !important;
-    background-color: #2a2a2a !important;
-    border-radius: 8px !important;
-    margin: 4px 8px !important;
-    border: 1px solid #333333 !important;
+	padding: 8px 0 !important;
+	background-color: #FAFAFA !important;
+	border-radius: 8px !important;
+	margin: 4px 8px !important;
+	border: 1px solid #E0E0E0 !important;
 }
 
 :host ::ng-deep .p-submenu-list .p-menuitem-link {
-    padding: 10px 16px 10px 48px !important;
-    font-size: 13px !important;
-    color: #9e9e9e !important;
+	padding: 10px 16px 10px 48px !important;
+	font-size: 13px !important;
+	color: #616161 !important;
 }
 
 :host ::ng-deep .p-submenu-list .p-menuitem-link:hover {
-    background-color: #333333 !important;
-    color: #ffffff !important;
-    transform: translateX(2px);
+	background-color: #F5F5F5 !important;
+	color: #1A1A1A !important;
+	transform: translateX(2px);
 }
 
 :host ::ng-deep .p-submenu-list .p-menuitem-link.active {
-    background: linear-gradient(135deg, #00695c 0%, #004d40 100%) !important;
-    color: #ffffff !important;
+	background-color: #E0F2F1 !important;
+	color: #017263 !important;
 }
 
 /* Menu Group Headers */
 :host ::ng-deep .p-menu-separator {
-    border-top: 1px solid #333333 !important;
-    margin: 16px 8px !important;
+	border-top: 1px solid #E0E0E0 !important;
+	margin: 16px 8px !important;
 }
 
 /* Badge/Label Styling */
 :host ::ng-deep .p-badge {
-    background: #00796b !important;
-    color: #ffffff !important;
-    font-size: 11px !important;
-    border-radius: 12px !important;
-    padding: 2px 8px !important;
-    font-weight: 600 !important;
+	background: #017263 !important;
+	color: #FFFFFF !important;
+	font-size: 11px !important;
+	border-radius: 12px !important;
+	padding: 2px 8px !important;
+	font-weight: 600 !important;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .sidebar-header {
-        padding: 16px !important;
-    }
+	.sidebar-header {
+		padding: 16px;
+	}
 
-    .sidebar-header .flex.items-center .text-white {
-        font-size: 18px !important;
-    }
+	.sidebar-nav {
+		padding: 12px;
+	}
 
-    .nav-menu-container {
-        padding: 8px !important;
-    }
+	:host ::ng-deep .p-menuitem-link {
+		padding: 10px 12px !important;
+		margin: 0 2px !important;
+	}
 
-    :host ::ng-deep .p-menuitem-link {
-        padding: 10px 12px !important;
-        margin: 0 4px !important;
-    }
-
-    :host ::ng-deep .p-submenu-list .p-menuitem-link {
-        padding: 8px 12px 8px 36px !important;
-    }
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-    :host {
-        background-color: #0d1117;
-    }
-
-    .sidebar-header {
-        background: linear-gradient(135deg, #0d1117 0%, #1a1a1a 100%);
-        border-bottom-color: #21262d;
-    }
-
-    :host ::ng-deep .p-menuitem-link:hover {
-        background-color: #21262d !important;
-    }
-
-    :host ::ng-deep .p-submenu-list {
-        background-color: #21262d !important;
-        border-color: #30363d !important;
-    }
+	:host ::ng-deep .p-submenu-list .p-menuitem-link {
+		padding: 8px 12px 8px 36px !important;
+	}
 }

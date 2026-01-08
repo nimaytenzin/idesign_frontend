@@ -16,6 +16,8 @@ import { PaginatorModule } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 // Data Services
 import { ProductService } from '../../../core/dataservice/product/product.service';
@@ -30,6 +32,9 @@ import {
 	ProductSubCategory,
 } from '../../../core/dataservice/product-category/product-category.interface';
 import { ImageUtilityService } from '../../../core/utility/image-utility.service';
+import { CartService } from '../../../core/services/cart.service';
+import { Discount, DiscountValueType, DiscountType, DiscountScope, DiscountProduct } from '../../../core/dataservice/discount/discount.interface';
+import { MessageService } from 'primeng/api';
 
 @Component({
 	selector: 'app-public-product-catalog',
@@ -44,7 +49,10 @@ import { ImageUtilityService } from '../../../core/utility/image-utility.service
 		SkeletonModule,
 		TagModule,
 		TooltipModule,
+		ToastModule,
+		SelectButtonModule,
 	],
+	providers: [MessageService],
 	templateUrl: './public-product-catalog.component.html',
 	styleUrls: ['./public-product-catalog.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,7 +74,6 @@ export class PublicProductCatalogComponent implements OnInit {
 	selectedCategoryId: number | null = null;
 	selectedSubCategoryId: number | null = null;
 	selectedMaterial = '';
-	selectedAvailability = '';
 	priceRangeFilter = '';
 	sortOption = 'newest';
 
@@ -77,6 +84,10 @@ export class PublicProductCatalogComponent implements OnInit {
 
 	// View Options
 	viewMode: 'grid' | 'list' = 'grid';
+	viewToggleOptions = [
+		{ label: '', icon: 'pi pi-th-large', value: 'grid', title: 'Grid View' },
+		{ label: '', icon: 'pi pi-list', value: 'list', title: 'List View' },
+	];
 
 	// Filter Options
 	materialOptions = [
@@ -88,12 +99,6 @@ export class PublicProductCatalogComponent implements OnInit {
 		{ label: 'Wood Filament', value: 'Wood' },
 		{ label: 'Metal Filament', value: 'Metal' },
 		{ label: 'Resin', value: 'Resin' },
-	];
-
-	availabilityOptions = [
-		{ label: 'All Products', value: '' },
-		{ label: 'In Stock', value: 'available' },
-		{ label: 'Made to Order', value: 'unavailable' },
 	];
 
 	priceRangeOptions = [
@@ -117,6 +122,8 @@ export class PublicProductCatalogComponent implements OnInit {
 		private categoryService: ProductCategoryService,
 		private subCategoryService: ProductSubCategoryService,
 		private imageUtilityService: ImageUtilityService,
+		private cartService: CartService,
+		private messageService: MessageService,
 		private router: Router,
 		private cdr: ChangeDetectorRef
 	) {}
@@ -124,446 +131,201 @@ export class PublicProductCatalogComponent implements OnInit {
 	ngOnInit() {
 		this.loadCategories();
 		this.loadSubCategories();
-		this.loadMockProducts();
+		// Products will be loaded after subcategories are loaded
+		// If subcategories fail, products will still load
 	}
 
 	// Data Loading Methods
 	loadCategories() {
-		// Mock categories data
-		this.categories = [
-			{
-				id: 1,
-				name: 'Religious Statues',
-				description: 'Buddha statues and religious figurines',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
+		this.categoryService.getCategories().subscribe({
+			next: (data) => {
+				// Filter only active categories
+				this.categories = data.filter(cat => cat.isActive);
+				this.cdr.markForCheck();
 			},
-			{
-				id: 2,
-				name: 'Stupas & Monuments',
-				description: 'Traditional Bhutanese stupas and monuments',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
+			error: (error) => {
+				console.error('Error loading categories:', error);
+				this.categories = [];
+				this.cdr.markForCheck();
 			},
-			{
-				id: 3,
-				name: 'Prayer Items',
-				description: 'Prayer wheels and spiritual accessories',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-			{
-				id: 4,
-				name: 'Decorative Art',
-				description: 'Mandalas and wall decorations',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-			{
-				id: 5,
-				name: 'Ritual Items',
-				description: 'Incense holders and ritual accessories',
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-		];
-		this.cdr.markForCheck();
+		});
 	}
 
 	loadSubCategories() {
-		// Mock subcategories data
-		this.subCategories = [
-			{
-				id: 1,
-				name: 'Buddha Statues',
-				description: 'Various Buddha statue designs',
-				productCategoryId: 1,
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
+		this.subCategoryService.getSubCategories().subscribe({
+			next: (data) => {
+				// Filter only active subcategories
+				this.subCategories = data.filter(sub => sub.isActive);
+				this.filteredSubCategories = this.subCategories;
+				this.cdr.markForCheck();
 			},
-			{
-				id: 2,
-				name: 'Traditional Stupas',
-				description: 'Classic stupa designs',
-				productCategoryId: 2,
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
+			error: (error) => {
+				console.error('Error loading subcategories:', error);
+				this.subCategories = [];
+				this.filteredSubCategories = [];
+				this.cdr.markForCheck();
 			},
-			{
-				id: 3,
-				name: 'Prayer Wheels',
-				description: 'Spinning prayer wheels',
-				productCategoryId: 3,
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-			{
-				id: 4,
-				name: 'Mandala Art',
-				description: 'Sacred geometric patterns',
-				productCategoryId: 4,
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-			{
-				id: 5,
-				name: 'Incense Holders',
-				description: 'Functional incense accessories',
-				productCategoryId: 5,
-				isActive: true,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-		];
-		this.filteredSubCategories = this.subCategories;
-		this.cdr.markForCheck();
+			complete: () => {
+				// Load products after subcategories are loaded (whether success or error)
+				this.loadProducts();
+			}
+		});
 	}
 
-	loadMockProducts() {
+	loadProducts() {
 		this.loading = true;
 		this.cdr.markForCheck();
 
-		// Simulate loading delay
-		setTimeout(() => {
-			// Mock product data
-			this.products = [
-				{
-					id: 1,
-					title: 'Jangchub Chorten - Traditional Design',
-					shortDescription:
-						'Beautifully crafted 3D printed Jangchub Chorten with intricate traditional details',
-					detailedDescription:
-						'This magnificent Jangchub Chorten represents enlightenment and spiritual awakening. Carefully designed with authentic Bhutanese architectural elements and sacred proportions.',
-					dimensions: '15cm x 10cm x 8cm',
-					weight: 0.5,
-					price: 12750,
-					material: 'PLA',
-					stockQuantity: 10,
-					isAvailable: true,
-					productSubCategoryId: 1,
-					rating: 4.8,
-					salesCount: 25,
-					images: [
-						{
-							id: 1,
-							productId: 1,
-							imagePath: 'products/jangchub chorten.png',
-							fileName: 'jangchub chorten.png',
-							orientation: 'portrait' as const,
-							isPrimary: true,
-							altText: 'Jangchub Chorten - Traditional Design',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						},
-					],
-					createdAt: new Date('2024-01-15'),
-					updatedAt: new Date('2024-01-15'),
-				},
-				{
-					id: 2,
-					title: 'Memorial Chorten - Sacred Monument',
-					shortDescription:
-						'Authentic replica of Bhutanese memorial chorten architecture',
-					detailedDescription:
-						'A precise reproduction of sacred Bhutanese memorial chorten design, perfect for meditation spaces and spiritual practice.',
-					dimensions: '12cm x 12cm x 18cm',
-					weight: 0.7,
-					price: 16150,
-					material: 'PETG',
-					stockQuantity: 0,
-					isAvailable: false,
-					productSubCategoryId: 2,
-					rating: 4.9,
-					salesCount: 18,
-					images: [
-						{
-							id: 2,
-							productId: 2,
-							imagePath: 'products/memorial-chorten.png',
-							fileName: 'memorial-chorten.png',
-							orientation: 'portrait' as const,
-							isPrimary: true,
-							altText: 'Memorial Chorten - Sacred Monument',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						},
-					],
-					createdAt: new Date('2024-01-10'),
-					updatedAt: new Date('2024-01-10'),
-				},
-				{
-					id: 3,
-					title: 'Chorten Collection - Mini Set',
-					shortDescription:
-						'Set of miniature chortens with traditional Bhutanese design',
-					detailedDescription:
-						'Handcrafted miniature chorten collection featuring sacred architectural elements and traditional proportions.',
-					dimensions: '5cm x 5cm x 8cm (each)',
-					weight: 0.2,
-					price: 6800,
-					material: 'Resin',
-					stockQuantity: 15,
-					isAvailable: true,
-					productSubCategoryId: 3,
-					rating: 4.7,
-					salesCount: 42,
-					images: [
-						{
-							id: 3,
-							productId: 3,
-							imagePath: 'products/chorten2.png',
-							fileName: 'chorten2.png',
-							orientation: 'landscape' as const,
-							isPrimary: true,
-							altText: 'Chorten Collection - Mini Set',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						},
-					],
-					createdAt: new Date('2024-01-08'),
-					updatedAt: new Date('2024-01-08'),
-				},
-				{
-					id: 4,
-					title: 'Dochula Chorten - Victory Monument',
-					shortDescription:
-						'Elegant representation of the famous Dochula Pass chorten',
-					detailedDescription:
-						'A beautiful replica of the iconic Dochula Pass chorten, representing victory over negative forces and spiritual protection.',
-					dimensions: '10cm x 6cm x 12cm',
-					weight: 0.3,
-					price: 8500,
-					material: 'Wood',
-					stockQuantity: 8,
-					isAvailable: true,
-					productSubCategoryId: 1,
-					rating: 4.6,
-					salesCount: 31,
-					images: [
-						{
-							id: 4,
-							productId: 4,
-							imagePath: 'products/dochula chorten.png',
-							fileName: 'dochula chorten.png',
-							orientation: 'portrait' as const,
-							isPrimary: true,
-							altText: 'Dochula Chorten - Victory Monument',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						},
-					],
-					createdAt: new Date('2024-01-05'),
-					updatedAt: new Date('2024-01-05'),
-				},
-				{
-					id: 5,
-					title: 'Dechenphug Lhakhang - Temple Model',
-					shortDescription: 'Sacred temple architecture in miniature form',
-					detailedDescription:
-						'Intricate Lhakhang (temple) model designed for spiritual decoration and meditation focus, featuring traditional Bhutanese architectural elements.',
-					dimensions: '20cm x 20cm x 2cm',
-					weight: 0.4,
-					price: 11050,
-					material: 'ABS',
-					stockQuantity: 12,
-					isAvailable: true,
-					productSubCategoryId: 4,
-					rating: 4.8,
-					salesCount: 19,
-					images: [
-						{
-							id: 5,
-							productId: 5,
-							imagePath: 'products/dechenphug lhakhang.png',
-							fileName: 'dechenphug lhakhang.png',
-							orientation: 'square' as const,
-							isPrimary: true,
-							altText: 'Dechenphug Lhakhang - Temple Model',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						},
-					],
-					createdAt: new Date('2024-01-03'),
-					updatedAt: new Date('2024-01-03'),
-				},
-				{
-					id: 6,
-					title: 'Traditional Chorten - Compact Design',
-					shortDescription:
-						'Beautiful compact chorten with traditional proportions',
-					detailedDescription:
-						'Functional and decorative traditional chorten with authentic proportions, perfect for personal altars and meditation spaces.',
-					dimensions: '8cm x 8cm x 3cm',
-					weight: 0.15,
-					price: 3400,
-					material: 'TPU',
-					stockQuantity: 25,
-					isAvailable: true,
-					productSubCategoryId: 5,
-					rating: 4.5,
-					salesCount: 67,
-					images: [
-						{
-							id: 6,
-							productId: 6,
-							imagePath: 'products/chorten22.png',
-							fileName: 'chorten22.png',
-							orientation: 'landscape' as const,
-							isPrimary: true,
-							altText: 'Traditional Chorten - Compact Design',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-						},
-					],
-					createdAt: new Date('2024-01-01'),
-					updatedAt: new Date('2024-01-01'),
-				},
-			];
+		// Build query parameters
+		const query: ProductQueryDto = {
+			search: this.searchTerm || undefined,
+			sortBy: this.mapSortOptionToQuery(this.sortOption),
+			material: this.selectedMaterial || undefined,
+		};
 
-			// Apply filters to mock data
-			this.filteredProducts = this.applyFilters(this.products);
-			this.totalProducts = this.filteredProducts.length;
-			this.totalPages = Math.ceil(this.totalProducts / this.itemsPerPage);
+		this.productService.getProducts(query).subscribe({
+			next: (data) => {
+				// Store all products
+				let allProducts = data;
 
-			// Apply pagination
-			const startIndex = this.currentPage * this.itemsPerPage;
-			const endIndex = startIndex + this.itemsPerPage;
-			this.products = this.filteredProducts.slice(startIndex, endIndex);
+				// Apply category filter client-side if selected
+				// When a category is selected, filter by all subcategories in that category
+				if (this.selectedCategoryId && !this.selectedSubCategoryId) {
+					const categorySubCategoryIds = this.subCategories
+						.filter(sub => sub.productCategoryId === this.selectedCategoryId)
+						.map(sub => sub.id);
+					
+					allProducts = allProducts.filter(
+						product => categorySubCategoryIds.includes(product.productSubCategoryId)
+					);
+				}
 
-			this.loading = false;
-			this.cdr.markForCheck();
-		}, 800); // Simulate loading delay
-	}
+				// Apply subcategory filter client-side if selected
+				if (this.selectedSubCategoryId) {
+					allProducts = allProducts.filter(
+						product => product.productSubCategoryId === this.selectedSubCategoryId
+					);
+				}
 
-	private applyFilters(products: Product[]): Product[] {
-		let filtered = [...products];
+				// Apply price range filter client-side
+				allProducts = this.applyPriceRangeFilter(allProducts);
 
-		// Search filter
-		if (this.searchTerm) {
-			const searchTerm = this.searchTerm.toLowerCase();
-			filtered = filtered.filter(
-				(product) =>
-					product.title.toLowerCase().includes(searchTerm) ||
-					product.shortDescription.toLowerCase().includes(searchTerm) ||
-					product.material.toLowerCase().includes(searchTerm)
-			);
-		}
+				// Store all filtered products
+				this.filteredProducts = allProducts;
+				this.totalProducts = allProducts.length;
+				this.totalPages = Math.ceil(this.totalProducts / this.itemsPerPage);
 
-		// Material filter
-		if (this.selectedMaterial) {
-			filtered = filtered.filter(
-				(product) => product.material === this.selectedMaterial
-			);
-		}
+				// Apply pagination
+				this.updatePaginatedProducts();
 
-		// Availability filter
-		const availabilityFilter = this.getAvailabilityFilter();
-		if (availabilityFilter !== undefined) {
-			filtered = filtered.filter(
-				(product) => product.isAvailable === availabilityFilter
-			);
-		}
-
-		// Price range filter
-		const priceRange = this.getPriceRange();
-		if (priceRange.minPrice !== undefined) {
-			filtered = filtered.filter(
-				(product) => product.price >= priceRange.minPrice!
-			);
-		}
-		if (priceRange.maxPrice !== undefined) {
-			filtered = filtered.filter(
-				(product) => product.price <= priceRange.maxPrice!
-			);
-		}
-
-		// Sort products
-		filtered.sort((a, b) => {
-			const sortField = this.getSortField();
-			const sortOrder = this.getSortOrder();
-
-			let aValue: any, bValue: any;
-
-			switch (sortField) {
-				case 'price':
-					aValue = a.price;
-					bValue = b.price;
-					break;
-				case 'title':
-					aValue = a.title.toLowerCase();
-					bValue = b.title.toLowerCase();
-					break;
-				case 'createdDate':
-				default:
-					aValue = new Date(a.createdAt);
-					bValue = new Date(b.createdAt);
-					break;
-			}
-
-			if (sortOrder === 'ASC') {
-				return aValue > bValue ? 1 : -1;
-			} else {
-				return aValue < bValue ? 1 : -1;
-			}
+				this.loading = false;
+				this.cdr.markForCheck();
+			},
+			error: (error) => {
+				console.error('Error loading products:', error);
+				this.products = [];
+				this.filteredProducts = [];
+				this.totalProducts = 0;
+				this.loading = false;
+				this.cdr.markForCheck();
+			},
 		});
-
-		return filtered;
 	}
+
+	private mapSortOptionToQuery(sortOption: string): ProductQueryDto['sortBy'] {
+		const sortMap: { [key: string]: ProductQueryDto['sortBy'] } = {
+			'newest': 'newest',
+			'price-asc': 'price_asc',
+			'price-desc': 'price_desc',
+		};
+		return sortMap[sortOption] || 'newest';
+	}
+
+	private applyPriceRangeFilter(products: Product[]): Product[] {
+		if (!this.priceRangeFilter) return products;
+
+		const priceRange = this.getPriceRange();
+		return products.filter((product) => {
+			const productPrice = product.price;
+			
+			// Check minimum price
+			if (priceRange.minPrice !== undefined && productPrice < priceRange.minPrice) {
+				return false;
+			}
+			
+			// Check maximum price
+			if (priceRange.maxPrice !== undefined && productPrice > priceRange.maxPrice) {
+				return false;
+			}
+			
+			return true;
+		});
+	}
+
+	private updatePaginatedProducts() {
+		const startIndex = this.currentPage * this.itemsPerPage;
+		const endIndex = startIndex + this.itemsPerPage;
+		this.products = this.filteredProducts.slice(startIndex, endIndex);
+	}
+
+	// Filtering is now done via API, but we keep this for client-side price range filtering
 
 	// Filter Methods
 	onCategoryChange(categoryId: number | null) {
 		this.selectedCategoryId = categoryId;
+		// Reset subcategory when category changes
 		this.selectedSubCategoryId = null;
 
 		if (categoryId) {
+			// Filter subcategories to only show those in the selected category
 			this.filteredSubCategories = this.subCategories.filter(
 				(sub) => sub.productCategoryId === categoryId
 			);
 		} else {
+			// Show all subcategories if no category is selected
 			this.filteredSubCategories = this.subCategories;
 		}
 
 		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
 	}
 
 	onSubCategoryChange() {
+		// If a subcategory is selected, ensure the parent category is also set
+		if (this.selectedSubCategoryId) {
+			const subCategory = this.subCategories.find(
+				sub => sub.id === this.selectedSubCategoryId
+			);
+			if (subCategory && this.selectedCategoryId !== subCategory.productCategoryId) {
+				this.selectedCategoryId = subCategory.productCategoryId;
+				// Update filtered subcategories
+				this.filteredSubCategories = this.subCategories.filter(
+					(sub) => sub.productCategoryId === this.selectedCategoryId
+				);
+			}
+		}
 		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
 	}
 
 	onMaterialChange() {
 		this.resetPagination();
-		this.loadMockProducts();
-	}
-
-	onAvailabilityChange() {
-		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
 	}
 
 	onPriceRangeChange() {
 		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
 	}
 
 	onSortChange() {
 		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
 	}
 
 	onSearch() {
 		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
 	}
 
 	clearFilters() {
@@ -571,18 +333,44 @@ export class PublicProductCatalogComponent implements OnInit {
 		this.selectedCategoryId = null;
 		this.selectedSubCategoryId = null;
 		this.selectedMaterial = '';
-		this.selectedAvailability = '';
 		this.priceRangeFilter = '';
 		this.sortOption = 'newest';
 		this.filteredSubCategories = this.subCategories;
 		this.resetPagination();
-		this.loadMockProducts();
+		this.loadProducts();
+	}
+
+	/**
+	 * Check if any filters are active
+	 */
+	hasActiveFilters(): boolean {
+		return !!(
+			this.searchTerm ||
+			this.selectedCategoryId ||
+			this.selectedSubCategoryId ||
+			this.selectedMaterial ||
+			this.priceRangeFilter
+		);
+	}
+
+	/**
+	 * Get count of active filters
+	 */
+	getActiveFilterCount(): number {
+		let count = 0;
+		if (this.searchTerm) count++;
+		if (this.selectedCategoryId) count++;
+		if (this.selectedSubCategoryId) count++;
+		if (this.selectedMaterial) count++;
+		if (this.priceRangeFilter) count++;
+		return count;
 	}
 
 	// Pagination Methods
 	onPageChange(event: any) {
 		this.currentPage = event.page;
-		this.loadMockProducts();
+		this.updatePaginatedProducts();
+		this.cdr.markForCheck();
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
@@ -600,8 +388,50 @@ export class PublicProductCatalogComponent implements OnInit {
 		this.router.navigate(['/products', productId]);
 	}
 
+	addToCart(product: Product, event?: Event) {
+		if (event) {
+			event.stopPropagation();
+		}
+		
+		// Get current cart items to calculate total for this product
+		const currentCartItems = this.cartService.getCartItems();
+		const existingItem = currentCartItems.find(item => item.product.id === product.id);
+		const currentQuantity = existingItem ? existingItem.quantity : 0;
+		const newQuantity = currentQuantity + 1;
+		
+		// Get discount info based on the new quantity (cart total for this product)
+		const discountInfo = this.getDiscountInfo(product, newQuantity);
+		
+		// Only apply discount if it can be applied (constraints met)
+		const discount = discountInfo.canApply ? discountInfo.bestDiscount : null;
+		
+		// Add to cart with discount information (only if can be applied)
+		this.cartService.addToCart(product, 1, discount);
+		
+		this.messageService.add({
+			severity: 'success',
+			summary: 'Added to Cart',
+			detail: `${product.title} has been added to your cart`,
+			life: 3000,
+		});
+		
+		this.cdr.markForCheck();
+	}
+
 	getPrimaryImage(product: Product): string {
 		return this.imageUtilityService.getPrimaryImageUrl(product.images);
+	}
+
+	getStockStatus(product: Product): { label: string; severity: 'success' | 'warning' | 'danger' } {
+		if (product.stockQuantity > 0) {
+			return { label: 'In Stock', severity: 'success' };
+		} else {
+			return { label: 'Out of Stock (Made to Order)', severity: 'warning' };
+		}
+	}
+
+	isInStock(product: Product): boolean {
+		return product.stockQuantity > 0;
 	}
 
 	getCategoryName(subCategoryId: number): string {
@@ -625,18 +455,207 @@ export class PublicProductCatalogComponent implements OnInit {
 	}
 
 	formatPrice(price: number): string {
-		// Custom formatting for Bhutanese Ngultrum (BTN)
-		return `Nu ${new Intl.NumberFormat('en-BT', {
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0,
-		}).format(price)}`;
+		// Format price with decimals preserved
+		return `Nu ${price.toFixed(2)}`;
 	}
 
-	// Helper Methods
-	private getAvailabilityFilter(): boolean | undefined {
-		if (this.selectedAvailability === 'available') return true;
-		if (this.selectedAvailability === 'unavailable') return false;
-		return undefined;
+
+
+	// Discount helper methods - matching admin-list-products approach
+	hasDiscount(product: Product): boolean {
+		const activeDiscounts = this.getActiveDiscounts(product);
+		return activeDiscounts.length > 0;
+	}
+
+	getDiscountInfo(product: Product, quantity: number = 1) {
+		const activeDiscounts = this.getActiveDiscounts(product);
+		
+		if (activeDiscounts.length === 0) {
+			return {
+				originalPrice: product.price,
+				discountedPrice: product.price,
+				discountAmount: 0,
+				discountPercentage: 0,
+				bestDiscount: null,
+				canApply: false,
+			};
+		}
+
+		// Calculate cart total for this product (quantity * price)
+		const cartTotalForProduct = product.price * quantity;
+
+		// Get the best discount (highest discount amount)
+		let bestDiscount: Discount | null = null;
+		let maxDiscountAmount = 0;
+		let canApplyDiscount = false;
+
+		for (const discount of activeDiscounts) {
+			// Check if minimum order value constraint is met
+			const meetsMinOrderValue = !discount.minOrderValue || 
+				discount.minOrderValue === null || 
+				cartTotalForProduct >= discount.minOrderValue;
+
+			// Only calculate discount if constraint is met
+			if (meetsMinOrderValue) {
+				const discountAmount = this.calculateDiscountAmount(product.price, discount);
+				if (discountAmount > maxDiscountAmount) {
+					maxDiscountAmount = discountAmount;
+					bestDiscount = discount;
+					canApplyDiscount = true;
+				}
+			} else {
+				// If this discount has higher potential but constraint not met, still track it
+				// but don't apply it
+				if (!bestDiscount) {
+					const discountAmount = this.calculateDiscountAmount(product.price, discount);
+					if (discountAmount > maxDiscountAmount) {
+						maxDiscountAmount = discountAmount;
+						bestDiscount = discount;
+						canApplyDiscount = false;
+					}
+				}
+			}
+		}
+
+		// Only apply discount if constraint is met
+		const discountedPrice = canApplyDiscount 
+			? Math.max(0, product.price - maxDiscountAmount)
+			: product.price;
+		
+		const discountPercentage = bestDiscount && canApplyDiscount
+			? bestDiscount.valueType === DiscountValueType.PERCENTAGE
+				? bestDiscount.discountValue
+				: (maxDiscountAmount / product.price) * 100
+			: 0;
+
+		return {
+			originalPrice: product.price,
+			discountedPrice: discountedPrice,
+			discountAmount: canApplyDiscount ? maxDiscountAmount : 0,
+			discountPercentage: Math.round(discountPercentage),
+			bestDiscount: bestDiscount,
+			canApply: canApplyDiscount,
+		};
+	}
+
+	private getActiveDiscounts(product: Product): Discount[] {
+		if (!product.discountProducts || product.discountProducts.length === 0) {
+			return [];
+		}
+
+		const now = new Date();
+		return product.discountProducts
+			.map((dp: DiscountProduct) => dp.discount)
+			.filter((discount: Discount | undefined): discount is Discount => {
+				if (!discount) return false;
+				if (!discount.isActive) return false;
+				
+				const startDate = new Date(discount.startDate);
+				const endDate = new Date(discount.endDate);
+				
+				return now >= startDate && now <= endDate;
+			});
+	}
+
+	private calculateDiscountAmount(price: number, discount: Discount): number {
+		// Ensure discountValue is a number
+		const discountValue = typeof discount.discountValue === 'string' 
+			? parseFloat(discount.discountValue) 
+			: discount.discountValue;
+
+		if (discount.valueType === DiscountValueType.PERCENTAGE) {
+			return (price * discountValue) / 100;
+		} else {
+			// FIXED_AMOUNT
+			return Math.min(discountValue, price);
+		}
+	}
+
+	getDiscountBadgeText(product: Product): string {
+		// Show discount badge even if constraint not met (for display purposes)
+		const activeDiscounts = this.getActiveDiscounts(product);
+		if (activeDiscounts.length === 0) {
+			return '';
+		}
+
+		// Get the best discount (for display, regardless of constraints)
+		let bestDiscount: Discount | null = null;
+		let maxDiscountAmount = 0;
+
+		for (const discount of activeDiscounts) {
+			const discountAmount = this.calculateDiscountAmount(product.price, discount);
+			if (discountAmount > maxDiscountAmount) {
+				maxDiscountAmount = discountAmount;
+				bestDiscount = discount;
+			}
+		}
+
+		if (bestDiscount) {
+			if (bestDiscount.valueType === DiscountValueType.PERCENTAGE) {
+				const discountValue = typeof bestDiscount.discountValue === 'string' 
+					? parseFloat(bestDiscount.discountValue) 
+					: bestDiscount.discountValue;
+				return `-${discountValue}%`;
+			} else {
+				// For fixed amount, show the actual discount amount
+				return `-Nu. ${Math.round(maxDiscountAmount)}`;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Get constraint message for a product's discount
+	 * Shows why discount cannot be applied (e.g., minimum order value)
+	 */
+	getDiscountConstraintMessage(product: Product): string | null {
+		if (!product) {
+			return null;
+		}
+
+		const activeDiscounts = this.getActiveDiscounts(product);
+		if (activeDiscounts.length === 0) {
+			return null;
+		}
+
+		// Get current cart items to calculate total for this product
+		const currentCartItems = this.cartService.getCartItems();
+		const existingItem = currentCartItems.find(item => item.product.id === product.id);
+		const currentQuantity = existingItem ? existingItem.quantity : 0;
+		const cartTotalForProduct = product.price * (currentQuantity + 1); // Include the item being viewed
+
+		// Check each discount for constraints that prevent it from being applied
+		for (const discount of activeDiscounts) {
+			// Check minimum order value constraint
+			if (discount.minOrderValue !== null && discount.minOrderValue !== undefined) {
+				if (cartTotalForProduct < discount.minOrderValue) {
+					const amountNeeded = discount.minOrderValue - cartTotalForProduct;
+					return `Add Nu. ${Math.ceil(amountNeeded)} more to apply this discount`;
+				}
+			}
+
+			// Check usage limits
+			if (discount.maxUsageCount !== null && discount.maxUsageCount !== undefined) {
+				if (discount.usageCount >= discount.maxUsageCount) {
+					return 'Discount usage limit reached';
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Check if discount requires voucher code
+	 */
+	requiresVoucherCode(product: Product): boolean {
+		if (!product) {
+			return false;
+		}
+
+		const activeDiscounts = this.getActiveDiscounts(product);
+		// Check if any discount requires a voucher code
+		return activeDiscounts.some(discount => discount.voucherCode !== null);
 	}
 
 	// Getter methods for dropdown options
@@ -680,16 +699,26 @@ export class PublicProductCatalogComponent implements OnInit {
 	private getPriceRange(): { minPrice?: number; maxPrice?: number } {
 		if (!this.priceRangeFilter) return {};
 
-		const [min, max] = this.priceRangeFilter.split('-');
 		const result: { minPrice?: number; maxPrice?: number } = {};
 
-		if (min && min !== '15000+') {
-			result.minPrice = parseInt(min);
-		}
-		if (max) {
-			result.maxPrice = parseInt(max);
-		} else if (this.priceRangeFilter === '15000+') {
+		// Handle "15000+" case
+		if (this.priceRangeFilter === '15000+') {
 			result.minPrice = 15000;
+			return result;
+		}
+
+		// Handle range like "0-5000", "5000-10000", etc.
+		const parts = this.priceRangeFilter.split('-');
+		if (parts.length === 2) {
+			const min = parts[0].trim();
+			const max = parts[1].trim();
+
+			if (min) {
+				result.minPrice = parseInt(min, 10);
+			}
+			if (max) {
+				result.maxPrice = parseInt(max, 10);
+			}
 		}
 
 		return result;

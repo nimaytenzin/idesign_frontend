@@ -1,0 +1,132 @@
+<div class="company-client-form p-6">
+	<p-toast></p-toast>
+
+	<form #companyClientForm="ngForm" (ngSubmit)="onSubmit()" class="space-y-6">
+		<!-- Name -->
+		<div class="field-group">
+			<label for="name" class="block font-medium text-gray-700 mb-2">
+				Client Name <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="name"
+				type="text"
+				pInputText
+				[(ngModel)]="name"
+				name="name"
+				placeholder="Enter client name"
+				class="w-full"
+				[class.ng-invalid]="submitted && !name.trim()"
+				required
+			/>
+			<small class="p-error" *ngIf="submitted && !name.trim()">Client name is required</small>
+		</div>
+
+		<!-- Website URL -->
+		<div class="field-group">
+			<label for="websiteUrl" class="block font-medium text-gray-700 mb-2">Website URL</label>
+			<input
+				id="websiteUrl"
+				type="url"
+				pInputText
+				[(ngModel)]="websiteUrl"
+				name="websiteUrl"
+				placeholder="https://example.com"
+				class="w-full"
+				[class.ng-invalid]="submitted && websiteUrl && !validateUrl(websiteUrl)"
+			/>
+			<small class="p-error" *ngIf="submitted && websiteUrl && !validateUrl(websiteUrl)">
+				Please enter a valid URL (e.g., https://example.com)
+			</small>
+		</div>
+
+		<!-- Social Media URL -->
+		<div class="field-group">
+			<label for="socialMediaUrl" class="block font-medium text-gray-700 mb-2">Social Media URL</label>
+			<input
+				id="socialMediaUrl"
+				type="url"
+				pInputText
+				[(ngModel)]="socialMediaUrl"
+				name="socialMediaUrl"
+				placeholder="https://facebook.com/example"
+				class="w-full"
+				[class.ng-invalid]="submitted && socialMediaUrl && !validateUrl(socialMediaUrl)"
+			/>
+			<small class="p-error" *ngIf="submitted && socialMediaUrl && !validateUrl(socialMediaUrl)">
+				Please enter a valid URL (e.g., https://facebook.com/example)
+			</small>
+		</div>
+
+		<!-- Logo Upload -->
+		<div class="field-group">
+			<label class="block font-medium text-gray-700 mb-2">
+				Logo
+			</label>
+			<p-fileUpload
+				mode="basic"
+				[accept]="'image/jpeg,image/jpg,image/png,image/gif,image/webp'"
+				[maxFileSize]="MAX_FILE_SIZE"
+				[auto]="false"
+				[showUploadButton]="false"
+				[showCancelButton]="false"
+				[multiple]="false"
+				chooseLabel="Choose Logo"
+				(onSelect)="onFileSelect($event)"
+				(onRemove)="onFileRemove($event)"
+				[files]="uploadedFiles"
+				styleClass="w-full"
+			></p-fileUpload>
+			<small class="text-gray-500 mt-1 block">
+				Allowed formats: JPEG, PNG, GIF, WebP. Max size: 10MB
+			</small>
+			<div *ngIf="previewUrl" class="mt-4">
+				<div class="relative inline-block">
+					<img
+						[src]="previewUrl"
+						alt="Logo Preview"
+						class="max-h-64 rounded-lg border border-gray-200"
+					/>
+					<button
+						type="button"
+						*ngIf="selectedFile || uploadedFiles.length > 0"
+						(click)="removeImage()"
+						class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
+						pButton
+						icon="pi pi-times"
+						[rounded]="true"
+						size="small"
+					></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Active Status -->
+		<div class="field-group">
+			<label class="block font-medium text-gray-700 mb-2">Status</label>
+			<div class="flex items-center gap-3">
+				<p-inputSwitch [(ngModel)]="isActive" name="isActive"></p-inputSwitch>
+				<span class="text-gray-700">{{ isActive ? 'Active' : 'Inactive' }}</span>
+			</div>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				[outlined]="true"
+				severity="secondary"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update Client' : 'Create Client'"
+				icon="pi pi-check"
+				severity="success"
+				(onClick)="onSubmit()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

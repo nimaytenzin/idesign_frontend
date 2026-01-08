@@ -1,0 +1,419 @@
+<div class="discount-form p-4">
+	<p-toast></p-toast>
+
+	<form (ngSubmit)="saveDiscount()" #discountForm="ngForm">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<!-- Left Column -->
+			<div class="space-y-4">
+				<!-- Basic Information -->
+				<div class="card p-4">
+					<h3 class="text-lg font-semibold mb-4">Basic Information</h3>
+
+					<div class="field mb-4">
+						<label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+							Discount Name <span class="text-red-500">*</span>
+						</label>
+						<input
+							id="name"
+							type="text"
+							pInputText
+							[(ngModel)]="discount.name"
+							name="name"
+							required
+							class="w-full"
+							[class.ng-invalid]="submitted && !discount.name"
+							placeholder="e.g., Summer Sale 2024"
+						/>
+						<small class="p-error" *ngIf="submitted && !discount.name">
+							Discount name is required
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+							Description
+						</label>
+						<textarea
+							id="description"
+							pInputTextarea
+							[(ngModel)]="discount.description"
+							name="description"
+							rows="3"
+							class="w-full"
+							placeholder="Optional description of the discount"
+						></textarea>
+					</div>
+
+					<div class="field mb-4">
+						<label for="discountType" class="block text-sm font-medium text-gray-700 mb-2">
+							Discount Type <span class="text-red-500">*</span>
+						</label>
+						<p-dropdown
+							id="discountType"
+							[options]="discountTypeOptions"
+							[(ngModel)]="discount.discountType"
+							name="discountType"
+							optionLabel="label"
+							optionValue="value"
+							placeholder="Select discount type"
+							(onChange)="onDiscountTypeChange()"
+							[class.ng-invalid]="submitted && !discount.discountType"
+							styleClass="w-full"
+						></p-dropdown>
+						<small class="p-error" *ngIf="submitted && !discount.discountType">
+							Discount type is required
+						</small>
+					</div>
+				</div>
+
+				<!-- Discount Value -->
+				<div class="card p-4">
+					<h3 class="text-lg font-semibold mb-4">Discount Value</h3>
+
+					<div class="field mb-4">
+						<label for="valueType" class="block text-sm font-medium text-gray-700 mb-2">
+							Value Type <span class="text-red-500">*</span>
+						</label>
+						<p-dropdown
+							id="valueType"
+							[options]="valueTypeOptions"
+							[(ngModel)]="discount.valueType"
+							name="valueType"
+							optionLabel="label"
+							optionValue="value"
+							placeholder="Select value type"
+							(onChange)="onValueTypeChange()"
+							[class.ng-invalid]="submitted && !discount.valueType"
+							styleClass="w-full"
+						></p-dropdown>
+						<small class="p-error" *ngIf="submitted && !discount.valueType">
+							Value type is required
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<label for="discountValue" class="block text-sm font-medium text-gray-700 mb-2">
+							Discount Value <span class="text-red-500">*</span>
+							<span class="text-xs text-gray-500 ml-2">
+								({{ discount.valueType === DiscountValueType.PERCENTAGE ? '0-100%' : 'Fixed amount' }})
+							</span>
+						</label>
+						<span class="p-input-icon-left w-full">
+							<i
+								class="pi"
+								[ngClass]="
+									discount.valueType === DiscountValueType.PERCENTAGE
+										? 'pi-percentage'
+										: 'pi-dollar'
+								"
+							></i>
+							<input
+								id="discountValue"
+								type="number"
+								pInputText
+								[(ngModel)]="discount.discountValue"
+								name="discountValue"
+								required
+								[min]="0"
+								[max]="getMaxValue()"
+								class="w-full"
+								[class.ng-invalid]="
+									submitted &&
+									(discount.discountValue === undefined ||
+										discount.discountValue === null ||
+										(discount.valueType === DiscountValueType.PERCENTAGE &&
+											(discount.discountValue < 0 || discount.discountValue > 100)))
+								"
+								placeholder="Enter discount value"
+							/>
+						</span>
+						<small class="p-error" *ngIf="submitted && discount.discountValue === undefined">
+							Discount value is required
+						</small>
+						<small
+							class="p-error"
+							*ngIf="
+								submitted &&
+								discount.valueType === DiscountValueType.PERCENTAGE &&
+								discount.discountValue !== undefined &&
+								(discount.discountValue < 0 || discount.discountValue > 100)
+							"
+						>
+							Percentage must be between 0 and 100
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<label for="discountScope" class="block text-sm font-medium text-gray-700 mb-2">
+							Discount Scope
+						</label>
+						<p-dropdown
+							id="discountScope"
+							[options]="scopeOptions"
+							[(ngModel)]="discount.discountScope"
+							name="discountScope"
+							optionLabel="label"
+							optionValue="value"
+							placeholder="Select scope"
+							styleClass="w-full"
+						></p-dropdown>
+						<small class="text-xs text-gray-500 mt-1">
+							Per Product: Applied to each item individually<br />
+							Order Total: Applied to the entire order subtotal
+						</small>
+					</div>
+				</div>
+
+				<!-- Date Range -->
+				<div class="card p-4">
+					<h3 class="text-lg font-semibold mb-4">Date Range</h3>
+
+					<div class="field mb-4">
+						<label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">
+							Start Date <span class="text-red-500">*</span>
+						</label>
+						<p-calendar
+							id="startDate"
+							[(ngModel)]="discount.startDate"
+							name="startDate"
+							[showTime]="true"
+							[showIcon]="true"
+							dateFormat="yy-mm-dd"
+							[hourFormat]="'24'"
+							styleClass="w-full"
+							[class.ng-invalid]="submitted && !discount.startDate"
+							placeholder="Select start date"
+						></p-calendar>
+						<small class="p-error" *ngIf="submitted && !discount.startDate">
+							Start date is required
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">
+							End Date <span class="text-red-500">*</span>
+						</label>
+						<p-calendar
+							id="endDate"
+							[(ngModel)]="discount.endDate"
+							name="endDate"
+							[showTime]="true"
+							[showIcon]="true"
+							dateFormat="yy-mm-dd"
+							[hourFormat]="'24'"
+							[minDate]="getMinDate()"
+							styleClass="w-full"
+							[class.ng-invalid]="submitted && !discount.endDate"
+							placeholder="Select end date"
+						></p-calendar>
+						<small class="p-error" *ngIf="submitted && !discount.endDate">
+							End date is required
+						</small>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Column -->
+			<div class="space-y-4">
+				<!-- Product/Category Selection -->
+				<div
+					class="card p-4"
+					*ngIf="discount.discountType === DiscountType.FLAT_SELECTED_PRODUCTS"
+				>
+					<h3 class="text-lg font-semibold mb-4">Select Products</h3>
+					<div class="field mb-4">
+						<label class="block text-sm font-medium text-gray-700 mb-2">
+							Products <span class="text-red-500">*</span>
+						</label>
+						<p-multiSelect
+							[options]="products"
+							[(ngModel)]="selectedProducts"
+							name="products"
+							optionLabel="title"
+							optionValue="id"
+							[filter]="true"
+							filterPlaceholder="Search products"
+							placeholder="Select products"
+							[displaySelectedLabel]="true"
+							styleClass="w-full"
+							(onChange)="onProductSelectionChange()"
+						>
+							<ng-template let-product pTemplate="item">
+								<div class="flex items-center">
+									<span>{{ product.title }}</span>
+									<span class="text-xs text-gray-500 ml-2">(Nu. {{ product.price }})</span>
+								</div>
+							</ng-template>
+						</p-multiSelect>
+						<small class="p-error" *ngIf="submitted && (!discount.productIds || discount.productIds.length === 0)">
+							At least one product must be selected
+						</small>
+					</div>
+				</div>
+
+				<div
+					class="card p-4"
+					*ngIf="discount.discountType === DiscountType.FLAT_SELECTED_CATEGORIES"
+				>
+					<h3 class="text-lg font-semibold mb-4">Select Categories</h3>
+					<div class="field mb-4">
+						<label class="block text-sm font-medium text-gray-700 mb-2">Categories</label>
+						<p-multiSelect
+							[options]="categories"
+							[(ngModel)]="selectedCategories"
+							name="categories"
+							optionLabel="name"
+							optionValue="id"
+							[filter]="true"
+							filterPlaceholder="Search categories"
+							placeholder="Select categories"
+							[displaySelectedLabel]="true"
+							styleClass="w-full"
+							(onChange)="onCategorySelectionChange()"
+						></p-multiSelect>
+					</div>
+
+					<div class="field mb-4">
+						<label class="block text-sm font-medium text-gray-700 mb-2">Subcategories</label>
+						<p-multiSelect
+							[options]="filteredSubCategories"
+							[(ngModel)]="selectedSubCategories"
+							name="subCategories"
+							optionLabel="name"
+							optionValue="id"
+							[filter]="true"
+							filterPlaceholder="Search subcategories"
+							placeholder="Select subcategories"
+							[displaySelectedLabel]="true"
+							styleClass="w-full"
+							(onChange)="onSubCategorySelectionChange()"
+						>
+							<ng-template let-subCategory pTemplate="item">
+								<div class="flex items-center">
+									<span>{{ subCategory.name }}</span>
+									<span class="text-xs text-gray-500 ml-2">
+										({{ getCategoryName(subCategory.productCategoryId) }})
+									</span>
+								</div>
+							</ng-template>
+						</p-multiSelect>
+						<small class="text-xs text-gray-500 mt-1">
+							Select at least one category or subcategory
+						</small>
+						<small
+							class="p-error"
+							*ngIf="
+								submitted &&
+								discount.discountType === DiscountType.FLAT_SELECTED_CATEGORIES &&
+								(!discount.categoryIds || discount.categoryIds.length === 0) &&
+								(!discount.subCategoryIds || discount.subCategoryIds.length === 0)
+							"
+						>
+							At least one category or subcategory must be selected
+						</small>
+					</div>
+				</div>
+
+				<!-- Additional Options -->
+				<div class="card p-4">
+					<h3 class="text-lg font-semibold mb-4">Additional Options</h3>
+
+					<div class="field mb-4">
+						<label for="voucherCode" class="block text-sm font-medium text-gray-700 mb-2">
+							Voucher Code
+						</label>
+						<input
+							id="voucherCode"
+							type="text"
+							pInputText
+							[(ngModel)]="discount.voucherCode"
+							name="voucherCode"
+							class="w-full font-mono"
+							placeholder="Leave empty for auto-apply discount"
+						/>
+						<small class="text-xs text-gray-500 mt-1">
+							If provided, customers must enter this code to apply the discount. Leave empty for
+							automatic application.
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<label for="minOrderValue" class="block text-sm font-medium text-gray-700 mb-2">
+							Minimum Order Value
+						</label>
+						<span class="p-input-icon-left w-full">
+							<i class="pi pi-dollar"></i>
+							<input
+								id="minOrderValue"
+								type="number"
+								pInputText
+								[(ngModel)]="discount.minOrderValue"
+								name="minOrderValue"
+								min="0"
+								class="w-full"
+								placeholder="0"
+							/>
+						</span>
+						<small class="text-xs text-gray-500 mt-1">
+							Minimum order subtotal required to apply this discount (optional)
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<label for="maxUsageCount" class="block text-sm font-medium text-gray-700 mb-2">
+							Maximum Usage Count
+						</label>
+						<input
+							id="maxUsageCount"
+							type="number"
+							pInputText
+							[(ngModel)]="discount.maxUsageCount"
+							name="maxUsageCount"
+							min="1"
+							class="w-full"
+							placeholder="Unlimited"
+						/>
+						<small class="text-xs text-gray-500 mt-1">
+							Maximum number of times this discount can be used (optional, leave empty for unlimited)
+						</small>
+					</div>
+
+					<div class="field mb-4">
+						<div class="flex items-center">
+							<p-checkbox
+								[(ngModel)]="discount.isActive"
+								name="isActive"
+								binary="true"
+								inputId="isActive"
+							></p-checkbox>
+							<label for="isActive" class="ml-2 text-sm font-medium text-gray-700">
+								Active
+							</label>
+						</div>
+						<small class="text-xs text-gray-500 mt-1">
+							Only active discounts are applied to orders
+						</small>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-2 mt-6">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update Discount' : 'Create Discount'"
+				icon="pi pi-check"
+				(onClick)="saveDiscount()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

@@ -1,0 +1,26 @@
+.receive-payment-dialog {
+	display: flex;
+	flex-direction: column;
+	max-height: 90vh;
+}
+
+:host ::ng-deep {
+	.p-button {
+		&.p-button-success {
+			@apply bg-green-600 hover:bg-green-700;
+		}
+		&.p-button-secondary {
+			@apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+		}
+	}
+
+	.p-dropdown,
+	.p-calendar,
+	.p-inputtextarea {
+		@apply border-gray-300;
+		&:focus {
+			@apply border-gray-400 ring-1 ring-gray-400;
+		}
+	}
+}
+

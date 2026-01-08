@@ -31,19 +31,36 @@ export class ProductService {
 	}
 
 	// Get products with query/filtering (customer view)
+	// Query Parameters:
+	// - categoryId (optional): Filter by category
+	// - subCategoryId (optional): Filter by subcategory
+	// - isAvailable (optional): Filter by availability
+	// - isFeatured (optional): Filter featured products
 	getProducts(query?: ProductQueryDto): Observable<Product[]> {
 		let params = new HttpParams();
 
 		if (query) {
-			if (query.category) params = params.set('category', query.category);
+			// Support both old and new query parameter names
+			if (query.categoryId) params = params.set('categoryId', query.categoryId.toString());
+			if (query.category) params = params.set('categoryId', query.category); // Legacy support
+			if (query.subCategoryId) params = params.set('subCategoryId', query.subCategoryId.toString());
+			if (query.isAvailable !== undefined)
+				params = params.set('isAvailable', query.isAvailable.toString());
+			if (query.availability !== undefined)
+				params = params.set('isAvailable', query.availability.toString()); // Legacy support
+			if (query.isFeatured !== undefined)
+				params = params.set('isFeatured', query.isFeatured.toString());
 			if (query.sortBy) params = params.set('sortBy', query.sortBy);
 			if (query.material) params = params.set('material', query.material);
-			if (query.availability !== undefined)
-				params = params.set('availability', query.availability.toString());
 			if (query.search) params = params.set('search', query.search);
 		}
 
 		return this.http.get<Product[]>(this.apiUrl, { params });
+	}
+
+	// Get featured products
+	getFeaturedProducts(): Observable<Product[]> {
+		return this.http.get<Product[]>(`${this.apiUrl}/featured`);
 	}
 
 	// Get product by ID

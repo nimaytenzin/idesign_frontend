@@ -1,0 +1,274 @@
+<div class="p-6">
+	<p-toast></p-toast>
+
+	<form (ngSubmit)="saveAffiliate()" class="space-y-6">
+		<!-- Basic Information Section -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+				Basic Information
+			</h3>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<!-- Name -->
+				<div>
+					<label
+						for="name"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Full Name <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="name"
+						type="text"
+						pInputText
+						[(ngModel)]="name"
+						name="name"
+						placeholder="Enter full name"
+						class="w-full"
+						[class.ng-invalid]="submitted && !name"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !name"
+						>Name is required</small
+					>
+				</div>
+
+				<!-- CID -->
+				<div>
+					<label
+						for="cid"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Citizen ID (CID) <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="cid"
+						type="text"
+						pInputText
+						[(ngModel)]="cid"
+						name="cid"
+						placeholder="Enter CID"
+						class="w-full"
+						[class.ng-invalid]="submitted && !cid"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !cid"
+						>CID is required</small
+					>
+				</div>
+
+				<!-- Email -->
+				<div>
+					<label
+						for="email"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Email Address <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="email"
+						type="email"
+						pInputText
+						[(ngModel)]="email"
+						name="email"
+						placeholder="Enter email address"
+						class="w-full"
+						[class.ng-invalid]="submitted && !email"
+						required
+					/>
+					<small class="p-error block mt-1" *ngIf="submitted && !email"
+						>Email is required</small
+					>
+				</div>
+
+				<!-- Phone Number -->
+				<div>
+					<label
+						for="phoneNumber"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Phone Number
+					</label>
+					<input
+						id="phoneNumber"
+						type="tel"
+						pInputText
+						[(ngModel)]="phoneNumber"
+						name="phoneNumber"
+						placeholder="Enter phone number"
+						class="w-full"
+					/>
+				</div>
+
+				<!-- Password (only for new affiliates) -->
+				<div *ngIf="!isEditMode">
+					<label
+						for="password"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Password <span class="text-red-500">*</span>
+					</label>
+					<p-password
+						id="password"
+						[(ngModel)]="password"
+						name="password"
+						placeholder="Enter password (min 6 characters)"
+						[feedback]="false"
+						[class.ng-invalid]="submitted && !password"
+						styleClass="w-full"
+						[inputStyleClass]="'w-full'"
+					></p-password>
+					<small class="p-error block mt-1" *ngIf="submitted && !password"
+						>Password is required</small
+					>
+					<small class="text-gray-500 dark:text-gray-400">Minimum 6 characters</small>
+				</div>
+			</div>
+		</div>
+
+		<!-- Affiliate Settings Section -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+				Affiliate Settings
+			</h3>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<!-- Voucher Code -->
+				<div>
+					<label
+						for="voucherCode"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Voucher Code <span class="text-red-500">*</span>
+					</label>
+					<div class="flex gap-2">
+						<input
+							id="voucherCode"
+							type="text"
+							pInputText
+							[(ngModel)]="voucherCode"
+							name="voucherCode"
+							placeholder="Enter voucher code"
+							class="w-full"
+							[class.ng-invalid]="submitted && !voucherCode"
+							style="text-transform: uppercase;"
+							required
+						/>
+						<p-button
+							icon="pi pi-refresh"
+							severity="secondary"
+							[outlined]="true"
+							(onClick)="generateVoucherCode()"
+							pTooltip="Generate Random Code"
+							*ngIf="!isEditMode"
+						></p-button>
+					</div>
+					<small class="p-error block mt-1" *ngIf="submitted && !voucherCode"
+						>Voucher code is required</small
+					>
+					<small class="text-gray-500 dark:text-gray-400"
+						>Uppercase letters and numbers only</small
+					>
+				</div>
+
+				<!-- Discount Percentage -->
+				<div>
+					<label
+						for="discountPercentage"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Customer Discount Percentage <span class="text-red-500">*</span>
+					</label>
+					<p-inputNumber
+						id="discountPercentage"
+						[(ngModel)]="discountPercentage"
+						name="discountPercentage"
+						placeholder="0"
+						[useGrouping]="false"
+						[min]="0"
+						[max]="100"
+						[suffix]="'%'"
+						class="w-full"
+						[class.ng-invalid]="submitted && (discountPercentage < 0 || discountPercentage > 100)"
+					></p-inputNumber>
+					<small class="p-error block mt-1" *ngIf="submitted && (discountPercentage < 0 || discountPercentage > 100)"
+						>Must be between 0 and 100</small
+					>
+					<small class="text-gray-500 dark:text-gray-400"
+						>Discount percentage for customers using this voucher code</small
+					>
+				</div>
+
+				<!-- Commission Percentage -->
+				<div>
+					<label
+						for="commissionPercentage"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Commission Percentage <span class="text-red-500">*</span>
+					</label>
+					<p-inputNumber
+						id="commissionPercentage"
+						[(ngModel)]="commissionPercentage"
+						name="commissionPercentage"
+						placeholder="0"
+						[useGrouping]="false"
+						[min]="0"
+						[max]="100"
+						[suffix]="'%'"
+						class="w-full"
+						[class.ng-invalid]="submitted && (commissionPercentage < 0 || commissionPercentage > 100)"
+					></p-inputNumber>
+					<small class="p-error block mt-1" *ngIf="submitted && (commissionPercentage < 0 || commissionPercentage > 100)"
+						>Must be between 0 and 100</small
+					>
+					<small class="text-gray-500 dark:text-gray-400"
+						>Commission percentage earned by affiliate (calculated on order total before discounts)</small
+					>
+				</div>
+
+				<!-- Active Status -->
+				<div>
+					<label
+						for="isActive"
+						class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+					>
+						Status
+					</label>
+					<p-selectButton
+						[(ngModel)]="isActive"
+						name="isActive"
+						[options]="[
+							{ label: 'Active', value: true },
+							{ label: 'Inactive', value: false }
+						]"
+						optionLabel="label"
+						optionValue="value"
+					></p-selectButton>
+					<small class="text-gray-500 dark:text-gray-400 block mt-1"
+						>Inactive affiliates cannot earn commissions</small
+					>
+				</div>
+			</div>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<p-button
+				label="Cancel"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="cancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update' : 'Create'"
+				icon="pi pi-check"
+				(onClick)="saveAffiliate()"
+				[loading]="loading"
+				[disabled]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+

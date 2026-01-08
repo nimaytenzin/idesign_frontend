@@ -1,0 +1,302 @@
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+	<div class="max-w-[70vw] mx-auto">
+		<!-- Header -->
+		<div class="flex items-center justify-between mb-6">
+			<div>
+				<h1 class="text-2xl font-semibold text-gray-900">General Ledger</h1>
+				<p class="text-sm text-gray-500 mt-1">Complete transaction history and audit trail</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<p-button
+					label="Export CSV"
+					icon="pi pi-download"
+					size="small"
+					severity="secondary"
+					[outlined]="true"
+					(onClick)="exportToCSV()"
+					[disabled]="!ledgerData || entries.length === 0"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- Summary Cards -->
+		<div *ngIf="ledgerData" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+			<div class="bg-white rounded-lg border border-gray-200 p-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-xs font-medium text-gray-500 uppercase">Total Transactions</p>
+						<p class="text-2xl font-semibold text-gray-900 mt-1">
+							{{ ledgerData.totalTransactions | number }}
+						</p>
+					</div>
+					<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+						<i class="pi pi-list text-blue-600"></i>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-lg border border-gray-200 p-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-xs font-medium text-gray-500 uppercase">Total Debits</p>
+						<p class="text-2xl font-semibold text-green-600 mt-1">
+							{{ formatCurrency(ledgerData.summary.totalDebits) }}
+						</p>
+					</div>
+					<div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+						<i class="pi pi-arrow-up text-green-600"></i>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-lg border border-gray-200 p-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-xs font-medium text-gray-500 uppercase">Total Credits</p>
+						<p class="text-2xl font-semibold text-red-600 mt-1">
+							{{ formatCurrency(ledgerData.summary.totalCredits) }}
+						</p>
+					</div>
+					<div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+						<i class="pi pi-arrow-down text-red-600"></i>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-lg border border-gray-200 p-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-xs font-medium text-gray-500 uppercase">Net Balance</p>
+						<p class="text-2xl font-semibold text-gray-900 mt-1">
+							{{ formatCurrency(ledgerData.summary.netBalance) }}
+						</p>
+					</div>
+					<div class="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center">
+						<i class="pi pi-calculator text-gray-600"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filters -->
+		<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				<div>
+					<label class="block text-xs font-medium text-gray-700 mb-1.5">Month</label>
+					<p-calendar
+						[(ngModel)]="selectedMonth"
+						view="month"
+						dateFormat="mm/yy"
+						[showIcon]="true"
+						[showButtonBar]="true"
+						(onSelect)="onFilterChange()"
+						[readonlyInput]="true"
+						[showOnFocus]="false"
+						styleClass="w-full"
+						[appendTo]="'body'"
+					></p-calendar>
+				</div>
+
+				<div>
+					<label class="block text-xs font-medium text-gray-700 mb-1.5">Account</label>
+					<p-dropdown
+						[options]="accountOptions"
+						optionLabel="label"
+						optionValue="value"
+						[(ngModel)]="accountCode"
+						placeholder="All Accounts"
+						[showClear]="true"
+						(onChange)="onFilterChange()"
+						styleClass="w-full"
+					></p-dropdown>
+				</div>
+
+				<div>
+					<label class="block text-xs font-medium text-gray-700 mb-1.5">Source Type</label>
+					<p-dropdown
+						[options]="sourceTypeOptions"
+						optionLabel="label"
+						optionValue="value"
+						[(ngModel)]="selectedSourceType"
+						placeholder="All Types"
+						[showClear]="true"
+						(onChange)="onFilterChange()"
+						styleClass="w-full"
+					></p-dropdown>
+				</div>
+
+				<div>
+					<label class="block text-xs font-medium text-gray-700 mb-1.5">Search</label>
+					<span class="p-input-icon-left w-full">
+					
+						<input
+							type="text"
+							pInputText
+							[(ngModel)]="search"
+							placeholder="Search..."
+							(input)="onSearch()"
+							class="w-full"
+						/>
+					</span>
+				</div>
+			</div>
+
+			<div class="flex items-center gap-2 mt-4">
+				<p-button
+					label="Clear Filters"
+					icon="pi pi-times"
+					[text]="true"
+					size="small"
+					severity="secondary"
+					(onClick)="clearFilters()"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- Period Info -->
+		<div class="mb-4 text-sm text-gray-600">
+			<span class="font-medium">Viewing: {{ getSelectedMonthLabel() }}</span>
+		</div>
+
+		<!-- Ledger Table -->
+		<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div class="overflow-x-auto">
+				<p-table
+					[value]="getFilteredEntries()"
+					[loading]="loading"
+					[paginator]="true"
+					[rows]="pageSize"
+					[totalRecords]="ledgerData?.totalTransactions || 0"
+					[first]="(currentPage - 1) * pageSize"
+					(onPage)="onPageChange($event)"
+					[rowsPerPageOptions]="[50, 100, 200]"
+					styleClass="p-datatable-sm"
+					[scrollable]="true"
+					scrollHeight="600px"
+				>
+					<ng-template pTemplate="header">
+						<tr>
+							<th style="min-width: 120px">Date</th>
+							<th style="min-width: 100px">Account Code</th>
+							<th style="min-width: 150px">Account Name</th>
+							<th style="min-width: 250px">Description</th>
+							<th style="min-width: 120px" class="text-right">Debit</th>
+							<th style="min-width: 120px" class="text-right">Credit</th>
+							<th style="min-width: 120px" class="text-right">Balance</th>
+							<th style="min-width: 120px">Reference</th>
+							<th style="min-width: 100px">Source</th>
+							<th style="min-width: 150px">Source Ref</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-entry>
+						<tr>
+							<td>{{ formatDate(entry.date) }}</td>
+							<td>
+								<span class="font-mono text-xs">{{ entry.accountCode }}</span>
+							</td>
+							<td>{{ entry.accountName }}</td>
+							<td class="line-clamp-2">{{ entry.description }}</td>
+							<td class="text-right">
+								<span *ngIf="entry.debitAmount > 0" class="text-green-600 font-medium">
+									{{ formatCurrency(entry.debitAmount) }}
+								</span>
+								<span *ngIf="entry.debitAmount === 0" class="text-gray-400">-</span>
+							</td>
+							<td class="text-right">
+								<span *ngIf="entry.creditAmount > 0" class="text-red-600 font-medium">
+									{{ formatCurrency(entry.creditAmount) }}
+								</span>
+								<span *ngIf="entry.creditAmount === 0" class="text-gray-400">-</span>
+							</td>
+							<td class="text-right">
+								<span [class]="entry.balance >= 0 ? 'text-gray-900' : 'text-red-600'" class="font-medium">
+									{{ formatCurrency(entry.balance) }}
+								</span>
+							</td>
+							<td>
+								<span class="font-mono text-xs">{{ entry.referenceNumber }}</span>
+							</td>
+							<td>
+								<span
+									class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+									[ngClass]="getSourceTypeBadgeClass(entry.sourceType)"
+								>
+									{{ entry.sourceType }}
+								</span>
+							</td>
+							<td>
+								<span class="text-xs text-gray-600">{{ entry.sourceReference }}</span>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="emptymessage">
+						<tr>
+							<td colspan="10" class="text-center py-8">
+								<div class="flex flex-col items-center justify-center">
+									<i class="pi pi-inbox text-4xl text-gray-400 mb-2"></i>
+									<p class="text-gray-500">No transactions found</p>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="loadingbody">
+						<tr>
+							<td colspan="10" class="text-center py-8">
+								<p-progressSpinner [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
+							</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+		</div>
+
+		<!-- Account Summary -->
+		<div *ngIf="ledgerData && ledgerData.accounts.length > 0" class="mt-6">
+			<h2 class="text-lg font-semibold text-gray-900 mb-4">Account Summary</h2>
+			<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+				<p-table
+					[value]="ledgerData.accounts"
+					styleClass="p-datatable-sm"
+				>
+					<ng-template pTemplate="header">
+						<tr>
+							<th>Account Code</th>
+							<th>Account Name</th>
+							<th class="text-right">Total Debits</th>
+							<th class="text-right">Total Credits</th>
+							<th class="text-right">Balance</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-account>
+						<tr>
+							<td>
+								<span class="font-mono text-xs">{{ account.accountCode }}</span>
+							</td>
+							<td>{{ account.accountName }}</td>
+							<td class="text-right">
+								<span *ngIf="account.totalDebits > 0" class="text-green-600">
+									{{ formatCurrency(account.totalDebits) }}
+								</span>
+								<span *ngIf="account.totalDebits === 0" class="text-gray-400">-</span>
+							</td>
+							<td class="text-right">
+								<span *ngIf="account.totalCredits > 0" class="text-red-600">
+									{{ formatCurrency(account.totalCredits) }}
+								</span>
+								<span *ngIf="account.totalCredits === 0" class="text-gray-400">-</span>
+							</td>
+							<td class="text-right">
+								<span [class]="account.balance >= 0 ? 'text-gray-900' : 'text-red-600'" class="font-medium">
+									{{ formatCurrency(account.balance) }}
+								</span>
+							</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+		</div>
+	</div>
+
+	<p-toast></p-toast>
+</div>
+

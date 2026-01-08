@@ -6,7 +6,7 @@
 			<div>
 				<h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
 				<p class="text-gray-600">
-					Welcome back! Here's what's happening with your cinema today.
+					Welcome back! Here's what's happening today.
 				</p>
 			</div>
 			<div class="mt-4 lg:mt-0 flex space-x-3">
@@ -17,7 +17,6 @@
 					size="small"
 				>
 				</p-button>
-				<p-button label="Add Movie" icon="pi pi-plus" size="small"> </p-button>
 			</div>
 		</div>
 	</div>
@@ -60,24 +59,6 @@
 				</div>
 				<div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
 					<i class="pi pi-ticket text-2xl"></i>
-				</div>
-			</div>
-		</p-card>
-
-		<!-- Active Movies Card -->
-		<p-card
-			styleClass="shadow-lg border-0 bg-gradient-to-r from-purple-500 to-purple-600 text-white"
-		>
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-purple-100 text-sm font-medium">Active Movies</p>
-					<p class="text-2xl font-bold mt-1">{{ stats.totalMovies }}</p>
-					<p class="text-purple-100 text-xs mt-1">
-						<i class="pi pi-plus text-purple-300"></i> 3 new this week
-					</p>
-				</div>
-				<div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
-					<i class="pi pi-video text-2xl"></i>
 				</div>
 			</div>
 		</p-card>
@@ -179,71 +160,8 @@
 		</div>
 	</div>
 
-	<!-- Movies and Theaters Section -->
-	<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-		<!-- Popular Movies -->
-		<p-card styleClass="shadow-lg border-0">
-			<ng-template pTemplate="header">
-				<div class="p-4 border-b flex justify-between items-center">
-					<div>
-						<h3 class="text-lg font-semibold text-gray-900">Popular Movies</h3>
-						<p class="text-gray-600 text-sm">
-							Top performing movies this month
-						</p>
-					</div>
-					<p-button
-						icon="pi pi-external-link"
-						styleClass="p-button-text p-button-sm"
-						pTooltip="View All Movies"
-					>
-					</p-button>
-				</div>
-			</ng-template>
-
-			<div class="p-4">
-				<div class="space-y-4">
-					<div
-						*ngFor="let movie of movies.slice(0, 4)"
-						class="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-					>
-						<img
-							[src]="movie.image"
-							[alt]="movie.title"
-							class="w-16 h-20 object-cover rounded-md shadow-sm"
-						/>
-						<div class="flex-1 min-w-0">
-							<h4 class="font-medium text-gray-900 truncate">
-								{{ movie.title }}
-							</h4>
-							<div class="flex flex-wrap gap-1 mt-1">
-								<p-chip
-									*ngFor="let genre of movie.genre.slice(0, 2)"
-									[label]="genre"
-									styleClass="text-xs p-1"
-								>
-								</p-chip>
-							</div>
-							<p class="text-sm text-gray-600 mt-1">
-								{{ movie.duration }} • {{ movie.rating }}
-							</p>
-						</div>
-						<div class="text-right">
-							<p class="font-semibold text-gray-900">
-								{{ movie.totalBookings }}
-							</p>
-							<p class="text-xs text-gray-600">bookings</p>
-							<p-tag
-								[value]="movie.status"
-								[severity]="getStatusSeverity(movie.status)"
-								styleClass="mt-1"
-							>
-							</p-tag>
-						</div>
-					</div>
-				</div>
-			</div>
-		</p-card>
-
+	<!-- Theaters Section -->
+	<div class="grid grid-cols-1 xl:grid-cols-1 gap-6 mb-8">
 		<!-- Theater Status -->
 		<p-card styleClass="shadow-lg border-0">
 			<ng-template pTemplate="header">

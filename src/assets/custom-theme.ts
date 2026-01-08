@@ -5,17 +5,17 @@ import Aura from '@primeng/themes/aura';
 const CustomTheme = definePreset(Aura, {
 	semantic: {
 		primary: {
-			50: '#eef3fe',
-			100: '#dce7fd',
-			200: '#b9cffc',
-			300: '#96b7fa',
-			400: '#739ff9',
-			500: '#6F1C76', // Base primary
-			600: '#355ac3',
-			700: '#284392',
-			800: '#1a2d62',
-			900: '#0d1631',
-			950: '#070b18',
+			50: '#e6f5f3',
+			100: '#ccebe7',
+			200: '#99d7cf',
+			300: '#66c3b7',
+			400: '#33af9f',
+			500: '#017263', // Base primary
+			600: '#015b4f',
+			700: '#01443b',
+			800: '#012e27',
+			900: '#001714',
+			950: '#000b0a',
 		},
 		accent: {
 			50: '#fff3e0',
@@ -83,7 +83,7 @@ const CustomTheme = definePreset(Aura, {
 			muted: '#9ca3af',
 			onPrimary: '#ffffff',
 			onSecondary: '#ffffff',
-			link: '#4270f4',
+			link: '#017263',
 		},
 		surface: {
 			0: '#ffffff',
@@ -182,7 +182,7 @@ const CustomTheme = definePreset(Aura, {
 
 		// ✅ Focus ring outline (from $focus-ring SCSS)
 		focusRing: {
-			default: '0 0 0 3px rgba(66, 112, 244, 0.2)', // Matches $focus-ring
+			default: '0 0 0 3px rgba(1, 114, 99, 0.2)', // Matches $focus-ring with new primary color
 		},
 	},
 });

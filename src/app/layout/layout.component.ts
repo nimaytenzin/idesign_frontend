@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnInit, Renderer2, ViewChild, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter, Subscription } from 'rxjs';
@@ -20,16 +20,13 @@ import { AuthService } from '../core/dataservice/auth/auth.service';
 		AdminSidebarComponent,
 	],
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnInit, OnDestroy {
 	overlayMenuOpenSubscription: Subscription;
 	currentUser: User | null = null;
-
 	menuOutsideClickListener: any;
-
 	profileMenuOutsideClickListener: any;
 
 	@ViewChild(AdminSidebarComponent) appSidebar!: AdminSidebarComponent;
-
 	@ViewChild(AdminTopbarComponent) appTopbar!: AdminTopbarComponent;
 
 	constructor(
@@ -46,12 +43,12 @@ export class LayoutComponent implements OnInit {
 						'click',
 						(event) => {
 							const isOutsideClicked = !(
-								this.appSidebar.el.nativeElement.isSameNode(event.target) ||
-								this.appSidebar.el.nativeElement.contains(event.target) ||
-								this.appTopbar.menuButton.nativeElement.isSameNode(
+								this.appSidebar?.el.nativeElement.isSameNode(event.target) ||
+								this.appSidebar?.el.nativeElement.contains(event.target) ||
+								this.appTopbar?.menuButton?.nativeElement.isSameNode(
 									event.target
 								) ||
-								this.appTopbar.menuButton.nativeElement.contains(event.target)
+								this.appTopbar?.menuButton?.nativeElement.contains(event.target)
 							);
 
 							if (isOutsideClicked) {
@@ -67,12 +64,12 @@ export class LayoutComponent implements OnInit {
 						'click',
 						(event) => {
 							const isOutsideClicked = !(
-								this.appTopbar.menu.nativeElement.isSameNode(event.target) ||
-								this.appTopbar.menu.nativeElement.contains(event.target) ||
-								this.appTopbar.topbarMenuButton.nativeElement.isSameNode(
+								this.appTopbar?.menu?.nativeElement.isSameNode(event.target) ||
+								this.appTopbar?.menu?.nativeElement.contains(event.target) ||
+								this.appTopbar?.topbarMenuButton?.nativeElement.isSameNode(
 									event.target
 								) ||
-								this.appTopbar.topbarMenuButton.nativeElement.contains(
+								this.appTopbar?.topbarMenuButton?.nativeElement.contains(
 									event.target
 								)
 							);
@@ -96,8 +93,8 @@ export class LayoutComponent implements OnInit {
 				this.hideProfileMenu();
 			});
 	}
+
 	ngOnInit(): void {
-		// Get current user information
 		this.authService.authState$.subscribe((authState) => {
 			this.currentUser = authState.user;
 		});

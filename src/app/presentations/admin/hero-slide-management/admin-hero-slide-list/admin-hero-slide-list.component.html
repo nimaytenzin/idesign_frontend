@@ -1,0 +1,147 @@
+<div class="bg-white min-h-screen">
+	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+		<p-toast></p-toast>
+		<p-confirmDialog></p-confirmDialog>
+
+		<!-- Header -->
+		<div class="flex items-center justify-between mb-8">
+			<div>
+				<h1 class="text-2xl font-semibold text-gray-900">Hero Slides</h1>
+				<p class="text-gray-500 mt-1">Manage your hero slides for the homepage</p>
+			</div>
+			<p-button
+				label="Create New Slide"
+				icon="pi pi-plus"
+				size="small"
+				(onClick)="openCreateDialog()"
+			></p-button>
+		</div>
+
+		<!-- Loading State -->
+		<div *ngIf="loading" class="flex justify-center items-center h-64">
+			<p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+		</div>
+
+		<!-- Slides Table -->
+		<div *ngIf="!loading && slides.length > 0" class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div class="overflow-x-auto">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Order
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Image
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Title
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Description
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Status
+							</th>
+							<th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Actions
+							</th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						<tr *ngFor="let slide of slides" class="hover:bg-gray-50">
+							<td class="px-6 py-4 whitespace-nowrap">
+								<span class="font-medium text-gray-900">{{ slide.order }}</span>
+							</td>
+							<td class="px-6 py-4 whitespace-nowrap">
+								<img
+									[src]="getImageUrl(slide.imageUri)"
+									[alt]="slide.title"
+									class="h-16 w-24 object-cover rounded"
+									onerror="this.src='/assets/images/no-image.png'"
+								/>
+							</td>
+							<td class="px-6 py-4">
+								<div class="font-medium text-gray-900">{{ slide.title }}</div>
+								<div *ngIf="slide.ctaText" class="text-sm text-gray-500">
+									CTA: {{ slide.ctaText }}
+								</div>
+							</td>
+							<td class="px-6 py-4">
+								<div class="text-gray-900 max-w-md truncate">
+									{{ slide.description || '-' }}
+								</div>
+							</td>
+							<td class="px-6 py-4 whitespace-nowrap">
+								<span
+									class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium"
+									[class.bg-green-100]="slide.isActive"
+									[class.text-green-800]="slide.isActive"
+									[class.bg-gray-100]="!slide.isActive"
+									[class.text-gray-800]="!slide.isActive"
+								>
+									{{ slide.isActive ? 'Active' : 'Inactive' }}
+								</span>
+							</td>
+							<td class="px-6 py-4 whitespace-nowrap text-right font-medium">
+								<div class="flex items-center justify-end gap-2">
+									<p-button
+										icon="pi pi-pencil"
+										[rounded]="true"
+										size="small"
+										severity="info"
+										[text]="true"
+										(onClick)="openEditDialog(slide)"
+										pTooltip="Edit"
+									></p-button>
+									<p-button
+										icon="pi"
+										[class.pi-check-circle]="slide.isActive"
+										[class.pi-times-circle]="!slide.isActive"
+										[rounded]="true"
+										size="small"
+										[severity]="slide.isActive ? 'success' : 'secondary'"
+										[text]="true"
+										(onClick)="toggleActive(slide)"
+										[pTooltip]="slide.isActive ? 'Deactivate' : 'Activate'"
+									></p-button>
+									<p-button
+										icon="pi pi-trash"
+										[rounded]="true"
+										size="small"
+										severity="danger"
+										[text]="true"
+										(onClick)="deleteSlide(slide)"
+										pTooltip="Delete"
+									></p-button>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Empty State -->
+		<div *ngIf="!loading && slides.length === 0" class="bg-white rounded-lg border border-gray-200 p-12">
+			<div class="flex flex-col items-center gap-4 text-center">
+				<div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center mb-2">
+					<i class="pi pi-images text-3xl text-gray-400"></i>
+				</div>
+				<div>
+					<h3 class="text-lg font-semibold text-gray-900 mb-2">No Hero Slides Found</h3>
+					<p class="text-gray-600 max-w-md">
+						Get started by creating your first hero slide to display on the homepage.
+					</p>
+				</div>
+				<p-button
+					label="Create Hero Slide"
+					icon="pi pi-plus"
+					size="small"
+					(onClick)="openCreateDialog()"
+				></p-button>
+			</div>
+		</div>
+	</div>
+</div>
+

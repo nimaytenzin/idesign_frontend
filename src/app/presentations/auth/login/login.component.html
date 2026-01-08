@@ -12,10 +12,10 @@
 					<i class="pi pi-cog text-2xl text-white"></i>
 				</div>
 			</div>
-			<h1 class="text-3xl font-bold text-gray-900 font-['Poppins']">
+			<h1 class="text-3xl font-bold text-gray-900 ">
 				iDesign Admin
 			</h1>
-			<p class="mt-2 text-gray-600 font-['Roboto']">
+			<p class="mt-2 text-gray-600 ">
 				3D Printing Management System
 			</p>
 		</div>
@@ -36,7 +36,7 @@
 					/>
 					<div
 						*ngIf="hasFieldError('username')"
-						class="mt-1 text-sm text-red-600 font-['Roboto']"
+						class="mt-1 text-sm text-red-600 "
 					>
 						{{ getFieldError("username") }}
 					</div>
@@ -55,7 +55,7 @@
 					/>
 					<div
 						*ngIf="hasFieldError('password')"
-						class="mt-1 text-sm text-red-600 font-['Roboto']"
+						class="mt-1 text-sm text-red-600 "
 					>
 						{{ getFieldError("password") }}
 					</div>
@@ -71,14 +71,14 @@
 						/>
 						<label
 							for="remember-me"
-							class="ml-2 text-sm text-gray-600 font-['Roboto']"
+							class="ml-2 text-sm text-gray-600 "
 						>
 							Remember me
 						</label>
 					</div>
 					<a
 						href="#"
-						class="text-sm text-teal-600 hover:text-teal-700 font-['Roboto']"
+						class="text-sm text-teal-600 hover:text-teal-700 "
 					>
 						Forgot password?
 					</a>
@@ -91,7 +91,7 @@
 				>
 					<div class="flex">
 						<i class="pi pi-exclamation-triangle text-red-500 mr-2"></i>
-						<span class="text-sm text-red-700 font-['Roboto']">{{
+						<span class="text-sm text-red-700 ">{{
 							errorMessage
 						}}</span>
 					</div>
@@ -111,7 +111,7 @@
 
 			<!-- Footer Links -->
 			<div class="mt-6 text-center">
-				<p class="text-sm text-gray-500 font-['Roboto']">
+				<p class="text-sm text-gray-500 ">
 					Not an admin?
 					<a
 						routerLink="/"
@@ -125,10 +125,10 @@
 
 		<!-- Demo Credentials -->
 		<div class="bg-teal-50 rounded-lg p-4 border border-teal-200">
-			<h3 class="text-sm font-medium text-teal-800 font-['Poppins'] mb-2">
+			<h3 class="text-sm font-medium text-teal-800  mb-2">
 				Demo Credentials
 			</h3>
-			<div class="text-sm text-teal-700 font-['Roboto'] space-y-1">
+			<div class="text-sm text-teal-700  space-y-1">
 				<p><strong>Username:</strong> admin</p>
 				<p><strong>Password:</strong> admin123</p>
 			</div>

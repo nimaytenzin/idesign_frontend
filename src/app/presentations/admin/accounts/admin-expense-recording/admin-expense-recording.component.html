@@ -1,0 +1,451 @@
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+	<div class="max-w-[95vw] mx-auto">
+		<!-- Header -->
+		<div class="flex items-center justify-between mb-6">
+			<div>
+				<h1 class="text-2xl font-semibold text-gray-900">Expense Recording</h1>
+				<p class="text-sm text-gray-500 mt-1">Record and manage business expenses</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<p-button
+					label="Export CSV"
+					icon="pi pi-download"
+					size="small"
+					severity="secondary"
+					[outlined]="true"
+					(onClick)="exportToCSV()"
+					[disabled]="expenses.length === 0 || loading"
+				></p-button>
+				<p-button
+					label="New Expense"
+					icon="pi pi-plus"
+					(onClick)="openNewExpenseDialog()"
+					[disabled]="loading"
+				></p-button>
+			</div>
+		</div>
+
+		<!-- Filters -->
+		<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+					<p-calendar
+						[(ngModel)]="filterQuery.startDate"
+						dateFormat="yy-mm-dd"
+						[showIcon]="true"
+						[readonlyInput]="true"
+						styleClass="w-full"
+					></p-calendar>
+				</div>
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+					<p-calendar
+						[(ngModel)]="filterQuery.endDate"
+						dateFormat="yy-mm-dd"
+						[showIcon]="true"
+						[readonlyInput]="true"
+						styleClass="w-full"
+					></p-calendar>
+				</div>
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+					<p-dropdown
+						[(ngModel)]="filterQuery.isPosted"
+						[options]="postedStatusOptions"
+						optionLabel="label"
+						optionValue="value"
+						placeholder="All"
+						styleClass="w-full"
+					></p-dropdown>
+				</div>
+				<div class="flex items-end gap-2">
+					<p-button
+						label="Apply Filters"
+						icon="pi pi-filter"
+						(onClick)="applyFilters()"
+						[loading]="loading"
+					></p-button>
+					<p-button
+						label="Clear"
+						icon="pi pi-times"
+						severity="secondary"
+						[outlined]="true"
+						(onClick)="clearFilters()"
+					></p-button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Expenses Table -->
+		<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+			<p-table
+				[value]="expenses"
+				[loading]="loading"
+				[paginator]="true"
+				[rows]="pageSize"
+				[totalRecords]="totalRecords"
+				[lazy]="true"
+				(onLazyLoad)="onPageChange($event)"
+				[rowsPerPageOptions]="[10, 20, 50, 100]"
+				styleClass="p-datatable-sm"
+				[responsive]="true"
+			>
+				<ng-template pTemplate="header">
+					<tr>
+						<th>Date</th>
+						<th>Account</th>
+						<th>Amount</th>
+						<th>Payment Method</th>
+						<th>Description</th>
+						<th>Vendor</th>
+						<th>Category</th>
+						<th>Status</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-expense>
+					<tr>
+						<td>{{ formatDate(expense.expenseDate) }}</td>
+						<td>
+							<div class="flex flex-col">
+								<span class="font-medium">{{ expense.accountCode }}</span>
+								<span class="text-xs text-gray-500">{{
+									getExpenseAccountName(expense.accountCode)
+								}}</span>
+							</div>
+						</td>
+						<td>
+							<span class="font-semibold text-red-600">{{
+								formatCurrency(expense.amount)
+							}}</span>
+						</td>
+						<td>
+							<p-tag
+								[value]="getPaymentMethodLabel(expense.paymentMethod)"
+								severity="info"
+							></p-tag>
+						</td>
+						<td>
+							<span class="text-sm">{{ expense.description || '-' }}</span>
+						</td>
+						<td>
+							<span class="text-sm">{{ expense.vendor || '-' }}</span>
+						</td>
+						<td>
+							<span class="text-sm">{{ expense.category || '-' }}</span>
+						</td>
+						<td>
+							<p-tag
+								[value]="expense.isPosted ? 'Posted' : 'Draft'"
+								[severity]="expense.isPosted ? 'success' : 'warning'"
+							></p-tag>
+						</td>
+						<td class="text-center">
+							<div class="flex items-center justify-center gap-2">
+								<p-button
+									icon="pi pi-eye"
+									[rounded]="true"
+									[text]="true"
+									severity="info"
+									[outlined]="true"
+									pTooltip="View Details"
+									tooltipPosition="top"
+									(onClick)="openEditExpenseDialog(expense)"
+								></p-button>
+								<p-button
+									*ngIf="!expense.isPosted"
+									icon="pi pi-pencil"
+									[rounded]="true"
+									[text]="true"
+								[outlined]="true"
+									pTooltip="Edit"
+									tooltipPosition="top"
+									(onClick)="openEditExpenseDialog(expense)"
+								></p-button>
+								<p-button
+									*ngIf="!expense.isPosted"
+									icon="pi pi-check-circle"
+									[rounded]="true"
+									[text]="true"
+									severity="success"
+									[outlined]="true"
+									pTooltip="Post to Ledger"
+									tooltipPosition="top"
+									(onClick)="postExpenseToLedger(expense)"
+								></p-button>
+								<p-button
+									*ngIf="!expense.isPosted"
+									icon="pi pi-trash"
+									[rounded]="true"
+									[text]="true"
+									severity="danger"
+									[outlined]="true"
+									pTooltip="Delete"
+									tooltipPosition="top"
+									(onClick)="deleteExpense(expense)"
+								></p-button>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="9" class="text-center py-8">
+							<div class="flex flex-col items-center gap-2">
+								<i class="pi pi-inbox text-4xl text-gray-400"></i>
+								<p class="text-gray-500">No expenses found</p>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
+</div>
+
+<!-- Expense Dialog -->
+<p-dialog
+	[(visible)]="showExpenseDialog"
+	[header]="isEditMode ? 'Edit Expense' : 'New Expense'"
+	[modal]="true"
+	[style]="{ width: '600px' }"
+	[closable]="true"
+	styleClass="p-fluid"
+>
+	<form (ngSubmit)="saveExpense()">
+		<div class="grid grid-cols-1 gap-4">
+			<!-- Expense Date -->
+			<div class="field">
+				<label for="expenseDate" class="block text-sm font-medium text-gray-700 mb-2">
+					Expense Date <span class="text-red-500">*</span>
+				</label>
+				<p-calendar
+					id="expenseDate"
+					[(ngModel)]="expenseForm.expenseDate"
+					dateFormat="yy-mm-dd"
+					[showIcon]="true"
+					[readonlyInput]="true"
+					styleClass="w-full"
+					name="expenseDate"
+					required
+					[class.ng-invalid]="submitted && !expenseForm.expenseDate"
+				></p-calendar>
+				<small class="p-error" *ngIf="submitted && !expenseForm.expenseDate"
+					>Expense date is required</small
+				>
+			</div>
+
+			<!-- Expense Account -->
+			<div class="field">
+				<label for="accountCode" class="block text-sm font-medium text-gray-700 mb-2">
+					Expense Account <span class="text-red-500">*</span>
+				</label>
+				<p-dropdown
+					id="accountCode"
+					[(ngModel)]="expenseForm.accountCode"
+					[options]="expenseAccounts"
+					optionLabel="accountName"
+					optionValue="accountCode"
+					placeholder="Select expense account"
+					styleClass="w-full"
+					name="accountCode"
+					required
+					[class.ng-invalid]="submitted && !expenseForm.accountCode"
+				>
+					<ng-template let-account pTemplate="item">
+						<div class="flex flex-col">
+							<span class="font-medium">{{ account.accountCode }}</span>
+							<span class="text-xs text-gray-500">{{ account.accountName }}</span>
+						</div>
+					</ng-template>
+				</p-dropdown>
+				<small class="p-error" *ngIf="submitted && !expenseForm.accountCode"
+					>Expense account is required</small
+				>
+			</div>
+
+			<!-- Amount -->
+			<div class="field">
+				<label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+					Amount <span class="text-red-500">*</span>
+				</label>
+				<p-inputNumber
+					id="amount"
+					[(ngModel)]="expenseForm.amount"
+					mode="decimal"
+					[min]="0"
+					[useGrouping]="true"
+					currency="BTN"
+					locale="en-US"
+					styleClass="w-full"
+					name="amount"
+					required
+					[class.ng-invalid]="submitted && (!expenseForm.amount || expenseForm.amount <= 0)"
+				></p-inputNumber>
+				<small
+					class="p-error"
+					*ngIf="submitted && (!expenseForm.amount || expenseForm.amount <= 0)"
+					>Amount must be greater than 0</small
+				>
+			</div>
+
+			<!-- Payment Method -->
+			<div class="field">
+				<label for="paymentMethod" class="block text-sm font-medium text-gray-700 mb-2">
+					Payment Method <span class="text-red-500">*</span>
+				</label>
+				<p-dropdown
+					id="paymentMethod"
+					[(ngModel)]="expenseForm.paymentMethod"
+					[options]="paymentMethods"
+					optionLabel="label"
+					optionValue="value"
+					placeholder="Select payment method"
+					styleClass="w-full"
+					name="paymentMethod"
+					required
+					[class.ng-invalid]="submitted && !expenseForm.paymentMethod"
+				></p-dropdown>
+				<small class="p-error" *ngIf="submitted && !expenseForm.paymentMethod"
+					>Payment method is required</small
+				>
+			</div>
+
+			<!-- Cash Account (Optional) -->
+			<div class="field">
+				<label for="cashAccountCode" class="block text-sm font-medium text-gray-700 mb-2">
+					Cash Account (Optional)
+				</label>
+				<p-dropdown
+					id="cashAccountCode"
+					[(ngModel)]="expenseForm.cashAccountCode"
+					[options]="cashAccounts"
+					optionLabel="accountName"
+					optionValue="accountCode"
+					placeholder="Auto-select based on payment method"
+					styleClass="w-full"
+					name="cashAccountCode"
+				>
+					<ng-template let-account pTemplate="item">
+						<div class="flex flex-col">
+							<span class="font-medium">{{ account.accountCode }}</span>
+							<span class="text-xs text-gray-500">{{ account.accountName }}</span>
+						</div>
+					</ng-template>
+				</p-dropdown>
+				<small class="text-gray-500 text-xs mt-1"
+					>If not specified, will be auto-selected based on payment method</small
+				>
+			</div>
+
+			<!-- Description -->
+			<div class="field">
+				<label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+					Description
+				</label>
+				<textarea
+					id="description"
+					pInputTextarea
+					[(ngModel)]="expenseForm.description"
+					placeholder="Enter expense description"
+					rows="3"
+					styleClass="w-full"
+					name="description"
+				></textarea>
+			</div>
+
+			<!-- Vendor -->
+			<div class="field">
+				<label for="vendor" class="block text-sm font-medium text-gray-700 mb-2">
+					Vendor/Supplier
+				</label>
+				<input
+					id="vendor"
+					type="text"
+					pInputText
+					[(ngModel)]="expenseForm.vendor"
+					placeholder="Enter vendor name"
+					styleClass="w-full"
+					name="vendor"
+				/>
+			</div>
+
+			<!-- Receipt Number -->
+			<div class="field">
+				<label for="receiptNumber" class="block text-sm font-medium text-gray-700 mb-2">
+					Receipt Number
+				</label>
+				<input
+					id="receiptNumber"
+					type="text"
+					pInputText
+					[(ngModel)]="expenseForm.receiptNumber"
+					placeholder="Enter receipt or invoice number"
+					styleClass="w-full"
+					name="receiptNumber"
+				/>
+			</div>
+
+			<!-- Category -->
+			<div class="field">
+				<label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+					Category
+				</label>
+				<p-dropdown
+					id="category"
+					[(ngModel)]="expenseForm.category"
+					[options]="expenseCategories"
+					placeholder="Select category"
+					[showClear]="true"
+					styleClass="w-full"
+					name="category"
+				></p-dropdown>
+			</div>
+
+			<!-- Auto Post -->
+			<div class="field" *ngIf="!isEditMode">
+				<div class="flex items-center gap-2">
+					<p-checkbox
+						[(ngModel)]="expenseForm.autoPost"
+						inputId="autoPost"
+						name="autoPost"
+						binary="true"
+					></p-checkbox>
+					<label for="autoPost" class="text-sm font-medium text-gray-700">
+						Auto-post to ledger immediately
+					</label>
+				</div>
+				<small class="text-gray-500 text-xs mt-1"
+					>If checked, expense will be posted to ledger immediately, creating
+					double-entry transactions</small
+				>
+			</div>
+		</div>
+
+		<!-- Dialog Footer -->
+		<div class="flex justify-end gap-2 mt-6">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="showExpenseDialog = false"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update Expense' : 'Create Expense'"
+				icon="pi pi-check"
+				(onClick)="saveExpense()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog></p-confirmDialog>
+

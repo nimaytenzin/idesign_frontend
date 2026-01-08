@@ -1,4 +1,5 @@
 import { ProductSubCategory } from '../product-category/product-category.interface';
+import { Discount } from '../discount/discount.interface';
 
 export interface ProductImage {
 	id: number;
@@ -18,18 +19,20 @@ export interface Product {
 	shortDescription: string;
 	detailedDescription: string;
 	dimensions: string;
-	weight: number;
-	price: number;
+	weight: number; // FLOAT
+	price: number; // FLOAT
 	material: string;
-	stockQuantity: number;
-	isAvailable: boolean;
+	isAvailable: boolean; // Default: true
+	isFeatured: boolean; // Default: false
 	productSubCategoryId: number;
-	rating: number;
-	salesCount: number;
+	rating: number; // FLOAT, Default: 0
+	salesCount: number; // Default: 0
+	stockQuantity: number; // Default: 0
 	productSubCategory?: ProductSubCategory;
 	images: ProductImage[];
-	createdAt: Date;
-	updatedAt: Date;
+	discountProducts?: any[]; // DiscountProduct[] relationship (to avoid circular dependency)
+	createdAt: Date | string;
+	updatedAt: Date | string;
 }
 
 export interface CreateProductDto {
@@ -40,9 +43,10 @@ export interface CreateProductDto {
 	weight: number;
 	price: number;
 	material: string;
-	stockQuantity: number;
-	isAvailable?: boolean;
+	isAvailable?: boolean; // Default: true
+	isFeatured?: boolean; // Default: false
 	productSubCategoryId: number;
+	stockQuantity?: number; // Default: 0
 }
 
 export interface UpdateProductDto {
@@ -53,13 +57,19 @@ export interface UpdateProductDto {
 	weight?: number;
 	price?: number;
 	material?: string;
-	stockQuantity?: number;
 	isAvailable?: boolean;
+	isFeatured?: boolean;
 	productSubCategoryId?: number;
+	stockQuantity?: number;
 }
 
 export interface ProductQueryDto {
-	category?: string;
+	categoryId?: number; // Filter by category (matching guide)
+	subCategoryId?: number; // Filter by subcategory (matching guide)
+	isAvailable?: boolean; // Filter by availability (matching guide)
+	isFeatured?: boolean; // Filter featured products (matching guide)
+	// Legacy support
+	category?: string | number;
 	sortBy?:
 		| 'price_asc'
 		| 'price_desc'

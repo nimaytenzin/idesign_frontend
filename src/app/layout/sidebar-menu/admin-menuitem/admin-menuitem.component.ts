@@ -26,35 +26,22 @@ import { CommonModule } from '@angular/common';
 	selector: '[app-admin-menuitem]',
 	template: `
 		<ng-container>
+			<!-- Category Header: Only show if root item has no routerLink and no items (pure category) -->
 			<div
-				*ngIf="root && item.visible !== false"
+				*ngIf="root && !item.routerLink && !item.items && item.visible !== false"
 				class="layout-menuitem-root-text"
 			>
 				{{ item.label }}
 			</div>
+			
+			<!-- Menu Link: Show for items with routerLink, items array, or non-root items -->
 			<a
-				*ngIf="(!item.routerLink || item.items) && item.visible !== false"
+				*ngIf="(item.routerLink || item.items || !root) && item.visible !== false"
 				[attr.href]="item.url"
 				(click)="itemClick($event)"
 				[ngClass]="item.class"
-				[attr.target]="item.target"
-				tabindex="0"
-				pRipple
-			>
-				<i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
-				<span class="layout-menuitem-text">{{ item.label }}</span>
-				<i
-					class="pi pi-fw pi-angle-down layout-submenu-toggler"
-					*ngIf="item.items"
-				></i>
-			</a>
-
-			<a
-				*ngIf="item.routerLink && !item.items && item.visible !== false"
-				(click)="itemClick($event)"
-				[ngClass]="item.class"
 				[routerLink]="item.routerLink"
-				routerLinkActive="active-route"
+				[routerLinkActive]="item.routerLink ? 'active-menuitem-link' : ''"
 				[routerLinkActiveOptions]="
 					item.routerLinkActiveOptions || {
 						paths: 'exact',
@@ -72,18 +59,22 @@ import { CommonModule } from '@angular/common';
 				[queryParams]="item.queryParams"
 				[attr.target]="item.target"
 				tabindex="0"
+				class="layout-menuitem-link"
+				[attr.aria-expanded]="item.items ? (active ? 'true' : 'false') : null"
 				pRipple
 			>
-				<i [ngClass]="item.icon" class="layout-menuitem-icon"></i>
+				<i *ngIf="item.icon" [ngClass]="item.icon" class="layout-menuitem-icon"></i>
 				<span class="layout-menuitem-text">{{ item.label }}</span>
 				<i
-					class="pi pi-fw pi-angle-down layout-submenu-toggler"
+					class="pi pi-fw pi-angle-right layout-submenu-toggler"
 					*ngIf="item.items"
 				></i>
 			</a>
 
+			<!-- Submenu -->
 			<ul
 				*ngIf="item.items && item.visible !== false"
+				class="layout-submenu"
 				[@children]="submenuAnimation"
 			>
 				<ng-template ngFor let-child let-i="index" [ngForOf]="item.items">
@@ -114,7 +105,7 @@ import { CommonModule } from '@angular/common';
 			),
 			transition(
 				'collapsed <=> expanded',
-				animate('400ms cubic-bezier(0.86, 0, 0.07, 1)')
+				animate('200ms ease')
 			),
 		]),
 	],

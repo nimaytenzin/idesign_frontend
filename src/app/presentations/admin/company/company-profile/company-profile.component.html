@@ -1,0 +1,269 @@
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+	<div class="max-w-[70vw] mx-auto">
+		<p-toast></p-toast>
+
+		<!-- Loading State -->
+		<div *ngIf="loading" class="flex justify-center items-center h-64">
+			<p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+		</div>
+
+		<!-- Main Content -->
+		<div *ngIf="!loading">
+			<!-- Header -->
+			<div class="flex items-center justify-between mb-6">
+				<div>
+					<h1 class="text-2xl font-bold text-gray-900">Company Profile</h1>
+					<p class="text-gray-500 ">Manage your company information and settings</p>
+				</div>
+				<div class="flex items-center gap-2">
+					<p-button
+						*ngIf="company"
+						label="Edit Profile"
+						icon="pi pi-pencil"
+						size="small"
+ 						[outlined]="true"
+						(onClick)="openCompanyProfileModal()"
+						pTooltip="Edit company profile"
+					></p-button>
+					<p-button
+						*ngIf="!company"
+						label="Create Profile"
+						icon="pi pi-plus"
+						size="small"
+						severity="primary"
+						(onClick)="openCompanyProfileModal()"
+						pTooltip="Create company profile"
+					></p-button>
+				</div>
+			</div>
+
+			<!-- Empty State -->
+			<div *ngIf="!company" class="bg-white rounded-lg border border-gray-200 p-12">
+				<div class="flex flex-col items-center gap-4 text-center">
+					<div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center mb-2">
+						<i class="pi pi-building text-3xl text-gray-400"></i>
+					</div>
+					<div>
+						<h3 class="text-lg font-semibold text-gray-900 mb-2">
+							No Company Profile Found
+						</h3>
+						<p class="text-gray-600 max-w-md">
+							You haven't created a company profile yet. Create one to get started with managing your company information.
+						</p>
+					</div>
+					<p-button
+						label="Create Company Profile"
+						icon="pi pi-plus"
+						size="small"
+						severity="primary"
+						(onClick)="openCompanyProfileModal()"
+					></p-button>
+				</div>
+			</div>
+
+			<!-- Company Profile Display -->
+			<div *ngIf="company" class="space-y-6">
+				<!-- Company Overview Card -->
+				<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+					<div class="p-6 border-b border-gray-200">
+						<div class="flex items-center gap-6">
+							<div
+								*ngIf="company.logo"
+								class="w-24 h-24 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0"
+							>
+								<img
+									[src]="getLogoUrl(company.logo)"
+									alt="Company logo"
+									class="w-full h-full object-contain"
+								/>
+							</div>
+							<div class="flex-1">
+								<h2 class="text-2xl font-semibold text-gray-900">
+									{{ company.name }}
+								</h2>
+								<p class="text-gray-500 mt-1" *ngIf="company.slogan">
+									{{ company.slogan }}
+								</p>
+								 
+							</div>
+						</div>
+					</div>
+
+					<div class="p-6 space-y-6">
+						<!-- Description -->
+						<div *ngIf="company.description" class="pb-6 border-b border-gray-200">
+							<h4 class="font-medium text-gray-500 uppercase mb-2">Description</h4>
+							<p class="text-gray-900 leading-relaxed">{{ company.description }}</p>
+						</div>
+
+						<!-- Contact Information -->
+						<div class="pb-6 border-b border-gray-200">
+							<h4 class="font-medium text-gray-500 uppercase mb-4">Contact Information</h4>
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div *ngIf="company.email" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-envelope text-blue-600"></i>
+									</div>
+									<span class="text-gray-900">{{ company.email }}</span>
+								</div>
+								<div *ngIf="company.phone1" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-phone text-green-600"></i>
+									</div>
+									<span class="text-gray-900">{{ company.phone1 }}</span>
+								</div>
+								<div *ngIf="company.phone2" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-phone text-green-600"></i>
+									</div>
+									<span class="text-gray-900">{{ company.phone2 }}</span>
+								</div>
+								<div *ngIf="company.phone3" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-phone text-green-600"></i>
+									</div>
+									<span class="text-gray-900">{{ company.phone3 }}</span>
+								</div>
+								<div *ngIf="company.website" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-globe text-purple-600"></i>
+									</div>
+									<a
+										[href]="company.website"
+										target="_blank"
+										class="text-blue-600 hover:underline"
+									>
+										{{ company.website }}
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- Address Information -->
+						<div class="pb-6 border-b border-gray-200">
+							<h4 class="font-medium text-gray-500 uppercase mb-4">Address Information</h4>
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div *ngIf="company.address" class="flex items-start gap-3">
+									<div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+										<i class="pi pi-map-marker text-red-600"></i>
+									</div>
+									<span class="text-gray-900">{{ company.address }}</span>
+								</div>
+								<div *ngIf="company.dzongkhag" class="flex items-center gap-3">
+									<span class="font-medium text-gray-500 w-24">Dzongkhag:</span>
+									<span class="text-gray-900">{{ company.dzongkhag }}</span>
+								</div>
+								<div *ngIf="company.thromde" class="flex items-center gap-3">
+									<span class="font-medium text-gray-500 w-24">Thromde:</span>
+									<span class="text-gray-900">{{ company.thromde }}</span>
+								</div>
+								<div *ngIf="company.country" class="flex items-center gap-3">
+									<span class="font-medium text-gray-500 w-24">Country:</span>
+									<span class="text-gray-900">{{ company.country }}</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Business Information -->
+						<div *ngIf="company.tpnNumber || company.businessLicenseNumber" class="pb-6 border-b border-gray-200">
+							<h4 class="font-medium text-gray-500 uppercase mb-4">Business Information</h4>
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div *ngIf="company.tpnNumber" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-id-card text-orange-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">TPN Number</span>
+										<span class="text-gray-900 font-medium">{{ company.tpnNumber }}</span>
+									</div>
+								</div>
+								<div *ngIf="company.businessLicenseNumber" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-file text-orange-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Business License</span>
+										<span class="text-gray-900 font-medium">{{ company.businessLicenseNumber }}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Payment Information -->
+						<div *ngIf="company.zpssBankName || company.zpssAccountName || company.zpssAccountNumber" class="pb-6 border-b border-gray-200">
+							<h4 class="font-medium text-gray-500 uppercase mb-4">Payment Information</h4>
+							<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+								<div class="flex items-start gap-3">
+									<i class="pi pi-info-circle text-yellow-600 mt-0.5"></i>
+									<p class="text-sm text-yellow-800">
+										<strong>Critical:</strong> This account will receive all online payments processed through RMA Payment Gateway. All transactions will be routed to this account.
+									</p>
+								</div>
+							</div>
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div *ngIf="company.zpssBankName" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-building text-indigo-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Bank Name</span>
+										<span class="text-gray-900 font-medium">{{ company.zpssBankName }}</span>
+									</div>
+								</div>
+								<div *ngIf="company.zpssAccountName" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-user text-indigo-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Account Name</span>
+										<span class="text-gray-900 font-medium">{{ company.zpssAccountName }}</span>
+									</div>
+								</div>
+								<div *ngIf="company.zpssAccountNumber" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-credit-card text-indigo-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Account Number</span>
+										<span class="text-gray-900 font-medium">{{ company.zpssAccountNumber }}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Social Media -->
+						<div *ngIf="company.facebookLink || company.tiktokLink">
+							<h4 class="font-medium text-gray-500 uppercase mb-4">Social Media</h4>
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div *ngIf="company.facebookLink" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-facebook text-blue-600"></i>
+									</div>
+									<a
+										[href]="company.facebookLink"
+										target="_blank"
+										class="text-blue-600 hover:underline"
+									>
+										{{ company.facebookLink }}
+									</a>
+								</div>
+								<div *ngIf="company.tiktokLink" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-link text-gray-600"></i>
+									</div>
+									<a
+										[href]="company.tiktokLink"
+										target="_blank"
+										class="text-blue-600 hover:underline"
+									>
+										{{ company.tiktokLink }}
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

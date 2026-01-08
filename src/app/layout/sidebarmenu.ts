@@ -1,25 +1,53 @@
 export enum USERROLESENUM {
 	'ADMIN' = 'ADMIN',
-	'THEATRE_MANAGER' = 'THEATRE_MANAGER',
-	'EXECUTIVE_PRODUCER' = 'EXECUTIVE_PRODUCER',
-	'COUNTER_STAFF' = 'COUNTER_STAFF',
-	'CUSTOMER' = 'CUSTOMER',
-	// Legacy roles - keeping for backward compatibility
-	'OWNER' = 'OWNER',
-	'TENANT' = 'TENANT',
-	'SUPERADMIN' = 'SUPERADMIN',
-	'MANAGER' = 'MANAGER',
+	'STAFF' = 'STAFF',
 }
 // Admin Sidebar Menu - Full system access
 export const ADMINSIDEBARITEMS = [
 	{
-		label: 'Dashboard',
+		label: 'Overview',
 		items: [
 			{
-				label: 'Overview',
+				label: 'Dashboard',
 				icon: 'pi pi-fw pi-chart-bar',
 				routerLink: ['/admin'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
+			},
+
+			{
+				label: 'Company Profile	',
+				icon: 'pi pi-fw pi-building',
+				routerLink: ['/admin/company-profile'],
 				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Services & Clients',
+				icon: 'pi pi-fw pi-users',
+				routerLink: ['/admin/company-clients'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Advertisements',
+				icon: 'pi pi-fw pi-images',
+				routerLink: ['/admin/advertisements'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+		],
+	},
+		{
+			label: 'Task Management',
+			items: [
+			{
+				label: 'Todo Management',
+				icon: 'pi pi-fw pi-list',
+				routerLink: ['/admin/todos'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Calendar & Events',
+				icon: 'pi pi-fw pi-calendar',
+				routerLink: ['/admin/calendar'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
 		],
 	},
@@ -38,6 +66,12 @@ export const ADMINSIDEBARITEMS = [
 				routerLink: ['/admin/products'],
 				roles: [USERROLESENUM.ADMIN],
 			},
+			{
+				label: 'Discounts',
+				icon: 'pi pi-fw pi-money-bill',
+				routerLink: ['/admin/discounts'],
+				roles: [USERROLESENUM.ADMIN],
+			},
 		],
 	},
 	{
@@ -47,7 +81,19 @@ export const ADMINSIDEBARITEMS = [
 				label: 'Orders',
 				icon: 'pi pi-fw pi-shopping-cart',
 				routerLink: ['/admin/orders'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
+			},
+			{
+				label: 'SMS Templates',
+				icon: 'pi pi-fw pi-send',
+				routerLink: ['/admin/orders/sms-templates'],
 				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Customers',
+				icon: 'pi pi-fw pi-users',
+				routerLink: ['/admin/customers'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
 			{
 				label: 'Analytics',
@@ -58,21 +104,67 @@ export const ADMINSIDEBARITEMS = [
 		],
 	},
 	{
-		label: 'User Management',
+		label: 'Accounts',
 		items: [
 			{
-				label: 'Customers',
-				icon: 'pi pi-fw pi-users',
-				routerLink: ['/admin/customers'],
+				label: 'Charts of Accouts',
+				icon: 'pi pi-fw pi-list',
+				routerLink: ['/admin/chart-of-accounts'],
 				roles: [USERROLESENUM.ADMIN],
 			},
 			{
-				label: 'Staff',
-				icon: 'pi pi-fw pi-user-plus',
-				routerLink: ['/admin/staff'],
+				label: 'General Ledger',
+				icon: 'pi pi-fw pi-book',
+				routerLink: ['/admin/general-ledger'],
 				roles: [USERROLESENUM.ADMIN],
 			},
+
+			{
+				label: 'Profit & Loss',
+				icon: 'pi pi-fw pi-money-bill',
+				routerLink: ['/admin/profit-loss'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Expense Recording',
+				icon: 'pi pi-fw pi-file-pdf',
+				routerLink: ['/admin/expense-recording'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
+			},
 		],
+	},
+	{
+		label: 'HR Management',
+		items: [
+			{
+				label: 'Employees',
+				icon: 'pi pi-fw pi-user',
+				routerLink: ['/admin/employees'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Affiliate Marketers',
+				icon: 'pi pi-fw pi-user',
+				routerLink: ['/admin/affiliate-marketers'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Leave Types',
+				icon: 'pi pi-fw pi-calendar-times',
+				routerLink: ['/admin/hr/leave-types'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Leave Requests',
+				icon: 'pi pi-fw pi-calendar-times',
+				routerLink: ['/admin/hr/leave-requests'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
+			},
+		],
+	},
+	{
+		label: 'Content Management',
+		items: [],
 	},
 	{
 		label: 'Settings',
@@ -88,236 +180,6 @@ export const ADMINSIDEBARITEMS = [
 				icon: 'pi pi-fw pi-file-text',
 				routerLink: ['/admin/logs'],
 				roles: [USERROLESENUM.ADMIN],
-			},
-		],
-	},
-];
-
-// Theatre Manager Sidebar Menu - Theatre-specific management
-export const THEATREMANAGERSIDEBARITEMS = [
-	{
-		label: 'Dashboard',
-		items: [
-			{
-				label: 'Theatre Overview',
-				icon: 'pi pi-fw pi-chart-bar',
-				routerLink: ['/theatre-manager'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-			{
-				label: 'Performance Analytics',
-				icon: 'pi pi-fw pi-chart-line',
-				routerLink: ['/theatre-manager/analytics'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-		],
-	},
-	{
-		label: 'Theatre Operations',
-		items: [
-			{
-				label: 'My Theatres',
-				icon: 'pi pi-fw pi-building',
-				routerLink: ['/theatre-manager/theatres'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-			{
-				label: 'Hall Management',
-				icon: 'pi pi-fw pi-th-large',
-				routerLink: ['/theatre-manager/halls'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-			{
-				label: 'Screenings',
-				icon: 'pi pi-fw pi-calendar',
-				routerLink: ['/theatre-manager/screenings'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-		],
-	},
-	{
-		label: 'Bookings & Sales',
-		items: [
-			{
-				label: 'Bookings',
-				icon: 'pi pi-fw pi-ticket',
-				routerLink: ['/theatre-manager/bookings'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-			{
-				label: 'Walk-in Sales',
-				icon: 'pi pi-fw pi-shopping-cart',
-				routerLink: ['/theatre-manager/walk-in-sales'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-			{
-				label: 'Reports',
-				icon: 'pi pi-fw pi-file-pdf',
-				routerLink: ['/theatre-manager/reports'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-		],
-	},
-	{
-		label: 'Staff Management',
-		items: [
-			{
-				label: 'Counter Staff',
-				icon: 'pi pi-fw pi-users',
-				routerLink: ['/theatre-manager/counter-staff'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-			{
-				label: 'Staff Schedules',
-				icon: 'pi pi-fw pi-calendar-plus',
-				routerLink: ['/theatre-manager/staff-schedules'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-		],
-	},
-	{
-		label: 'Profile',
-		items: [
-			{
-				label: 'My Profile',
-				icon: 'pi pi-fw pi-user',
-				routerLink: ['/theatre-manager/profile'],
-				roles: [USERROLESENUM.THEATRE_MANAGER],
-			},
-		],
-	},
-];
-
-// Executive Producer Sidebar Menu - Content and financial management
-export const EXECUTIVEPRODUCERSIDEBARITEMS = [
-	{
-		label: 'Dashboard',
-		items: [
-			{
-				label: 'Overview',
-				icon: 'pi pi-fw pi-chart-bar',
-				routerLink: ['/executive-producer'],
-				roles: [USERROLESENUM.EXECUTIVE_PRODUCER],
-			},
-		],
-	},
-	{
-		label: 'Content Management',
-		items: [
-			{
-				label: 'Movies',
-				icon: 'pi pi-fw pi-video',
-				routerLink: ['/executive-producer/movies'],
-				roles: [USERROLESENUM.EXECUTIVE_PRODUCER],
-			},
-			{
-				label: 'Screenings',
-				icon: 'pi pi-fw pi-calendar',
-				routerLink: ['/executive-producer/screenings'],
-				roles: [USERROLESENUM.EXECUTIVE_PRODUCER],
-			},
-		],
-	},
-	{
-		label: 'Operations',
-		items: [
-			{
-				label: 'Bookings',
-				icon: 'pi pi-fw pi-ticket',
-				routerLink: ['/executive-producer/bookings'],
-				roles: [USERROLESENUM.EXECUTIVE_PRODUCER],
-			},
-		],
-	},
-	{
-		label: 'Financial Management',
-		items: [
-			{
-				label: 'Revenue',
-				icon: 'pi pi-fw pi-money-bill',
-				routerLink: ['/executive-producer/revenue'],
-				roles: [USERROLESENUM.EXECUTIVE_PRODUCER],
-			},
-		],
-	},
-];
-
-// Counter Staff Sidebar Menu - Basic operations
-export const COUNTERSTAFFSIDEBARITEMS = [
-	{
-		label: 'Ticket Operations',
-		items: [
-			{
-				label: 'Sell Tickets',
-				icon: 'pi pi-fw pi-shopping-cart',
-				routerLink: ['/counter-staff/sell-tickets'],
-				roles: [USERROLESENUM.COUNTER_STAFF],
-			},
-			{
-				label: 'Check Bookings',
-				icon: 'pi pi-fw pi-search',
-				routerLink: ['/counter-staff/check-bookings'],
-				roles: [USERROLESENUM.COUNTER_STAFF],
-			},
-			{
-				label: 'Scan Ticket',
-				icon: 'pi pi-fw pi-barcode',
-				routerLink: ['/counter-staff/scan-ticket'],
-				roles: [USERROLESENUM.COUNTER_STAFF],
-			},
-		],
-	},
-];
-
-export const OWNERSIDEBARITEMS = [
-	{
-		label: 'Home',
-		items: [
-			{
-				label: 'Dashboard',
-				icon: 'pi pi-fw pi-home',
-				routerLink: ['/owner'],
-			},
-		],
-	},
-	{
-		label: 'Properties',
-		items: [
-			{
-				label: 'Thram & Plots',
-				icon: 'pi pi-fw pi-th-large',
-				routerLink: ['/owner/properties'],
-			},
-			{
-				label: 'Building & Units',
-				icon: 'pi pi-fw pi-th-large',
-				routerLink: ['/owner/properties'],
-			},
-		],
-	},
-
-	{
-		label: 'Lease',
-		items: [
-			{
-				label: 'Listing',
-				icon: 'pi pi-fw pi-th-large',
-				routerLink: ['/owner/lease'],
-			},
-		],
-	},
-	{
-		label: 'Payments',
-		items: [
-			{
-				label: 'Payments',
-				icon: 'pi pi-fw pi-th-large',
-				routerLink: ['/owner/payments'],
-			},
-			{
-				label: 'Invoices',
-				icon: 'pi pi-fw pi-th-large',
-				routerLink: ['/owner/payments'],
 			},
 		],
 	},

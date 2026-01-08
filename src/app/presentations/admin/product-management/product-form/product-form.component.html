@@ -1,0 +1,259 @@
+<div class="product-form-container">
+	<div class="form-header">
+		<div>
+			<h1 class="form-title">{{ isEditMode ? 'Edit Product' : 'Create New Product' }}</h1>
+			<p class="form-subtitle">{{ isEditMode ? 'Update product information' : 'Add a new product to your catalog' }}</p>
+		</div>
+		<div class="form-actions">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				[outlined]="true"
+				severity="secondary"
+				(onClick)="cancel()"
+			></p-button>
+			<p-button
+				label="Save Product"
+				icon="pi pi-check"
+				severity="success"
+				(onClick)="saveProduct()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</div>
+
+	<div class="form-content" *ngIf="!loading || isEditMode">
+		<div class="form-grid">
+			<!-- Left Column - Main Information -->
+			<div class="form-section">
+				<div class="section-card">
+					<h2 class="section-title">Basic Information</h2>
+					<div class="form-fields">
+						<div class="field-group">
+							<label for="title">Product Title <span class="required">*</span></label>
+							<input
+								id="title"
+								type="text"
+								pInputText
+								[(ngModel)]="product.title"
+								placeholder="Enter product title"
+								class="w-full"
+								[class.ng-invalid]="submitted && !product.title"
+							/>
+							<small class="p-error" *ngIf="submitted && !product.title">Title is required</small>
+						</div>
+
+						<div class="field-group">
+							<label for="shortDescription">Short Description <span class="required">*</span></label>
+							<textarea
+								id="shortDescription"
+								pInputTextarea
+								[(ngModel)]="product.shortDescription"
+								placeholder="Brief description (max 200 characters)"
+								rows="3"
+								[maxlength]="200"
+								class="w-full"
+								[class.ng-invalid]="submitted && !product.shortDescription"
+							></textarea>
+							<small class="p-error" *ngIf="submitted && !product.shortDescription">Short description is required</small>
+							<small class="field-hint">{{ product.shortDescription?.length || 0 }}/200 characters</small>
+						</div>
+
+						<div class="field-group">
+							<label for="detailedDescription">Detailed Description</label>
+							<textarea
+								id="detailedDescription"
+								pInputTextarea
+								[(ngModel)]="product.detailedDescription"
+								placeholder="Full product description"
+								rows="6"
+								class="w-full"
+							></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div class="section-card">
+					<h2 class="section-title">Pricing & Inventory</h2>
+					<div class="form-fields">
+						<div class="field-group">
+							<label for="price">Price <span class="required">*</span></label>
+							<p-inputnumber
+								id="price"
+								[(ngModel)]="product.price"
+								mode="currency"
+								currency="BTN"
+								locale="en-US"
+								[class.ng-invalid]="submitted && !product.price"
+								styleClass="w-full"
+							></p-inputnumber>
+							<small class="p-error" *ngIf="submitted && !product.price">Price is required</small>
+						</div>
+
+						<div class="field-group">
+							<label for="isAvailable">Availability</label>
+							<div class="switch-group">
+								<p-inputSwitch [(ngModel)]="product.isAvailable"></p-inputSwitch>
+								<span class="switch-label">{{ product.isAvailable ? 'Available' : 'Unavailable' }}</span>
+							</div>
+						</div>
+
+						<div class="field-group">
+							<label for="isFeatured">Featured Product</label>
+							<div class="switch-group">
+								<p-inputSwitch [(ngModel)]="product.isFeatured"></p-inputSwitch>
+								<span class="switch-label">{{ product.isFeatured ? 'Featured' : 'Not Featured' }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="section-card">
+					<h2 class="section-title">Product Details</h2>
+					<div class="form-fields">
+						<div class="field-row">
+							<div class="field-group">
+								<label for="material">Material <span class="required">*</span></label>
+								<p-dropdown
+									id="material"
+									[options]="materialOptions"
+									optionLabel="label"
+									optionValue="value"
+									[(ngModel)]="product.material"
+									placeholder="Select material"
+									[class.ng-invalid]="submitted && !product.material"
+									styleClass="w-full"
+								></p-dropdown>
+								<small class="p-error" *ngIf="submitted && !product.material">Material is required</small>
+							</div>
+
+							<div class="field-group">
+								<label for="weight">Weight (grams)</label>
+								<p-inputnumber
+									id="weight"
+									[(ngModel)]="product.weight"
+									[showButtons]="true"
+									[step]="1"
+									[class.ng-invalid]="submitted && product.weight === undefined"
+									styleClass="w-full"
+								></p-inputnumber>
+							</div>
+						</div>
+
+						<div class="field-group">
+							<label for="dimensions">Dimensions</label>
+							<input
+								id="dimensions"
+								type="text"
+								pInputText
+								[(ngModel)]="product.dimensions"
+								placeholder="e.g., 10cm x 10cm x 5cm"
+								class="w-full"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div class="section-card">
+					<h2 class="section-title">Category</h2>
+					<div class="form-fields">
+						<div class="field-group">
+							<label for="productSubCategoryId">Sub Category <span class="required">*</span></label>
+							<p-dropdown
+								id="productSubCategoryId"
+								[options]="filteredSubCategories"
+								optionLabel="name"
+								optionValue="id"
+								[(ngModel)]="product.productSubCategoryId"
+								placeholder="Select sub category"
+								(onChange)="onCategoryChange()"
+								[class.ng-invalid]="submitted && !product.productSubCategoryId"
+								styleClass="w-full"
+							>
+								<ng-template let-subCategory pTemplate="item">
+									<div class="category-option">
+										<span>{{ subCategory.name }}</span>
+										<small class="category-parent">{{ getCategoryName(subCategory.productCategoryId) }}</small>
+									</div>
+								</ng-template>
+							</p-dropdown>
+							<small class="p-error" *ngIf="submitted && !product.productSubCategoryId">Sub category is required</small>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Column - Images & Preview -->
+			<div class="form-section">
+				<div class="section-card">
+					<h2 class="section-title">Product Images</h2>
+					<div class="form-fields">
+						<p-fileupload
+							mode="basic"
+							name="images[]"
+							accept="image/*"
+							[maxFileSize]="5000000"
+							[multiple]="true"
+							[auto]="false"
+							(onSelect)="onFileSelect($event)"
+							chooseLabel="Upload Images"
+							styleClass="w-full"
+						></p-fileupload>
+
+						<div class="image-preview-grid" *ngIf="imagePreviewUrls.length > 0 || productImages.length > 0">
+							<div class="image-preview-item" *ngFor="let url of imagePreviewUrls; let i = index">
+								<img [src]="url" alt="Preview" />
+								<button
+									type="button"
+									class="remove-image-btn"
+									(onClick)="removeImage(i)"
+									pButton
+									icon="pi pi-times"
+									[rounded]="true"
+									severity="danger"
+									[text]="true"
+								></button>
+							</div>
+							<div class="image-preview-item" *ngFor="let image of productImages">
+								<img [src]="getImageUrl(image.imagePath)" [alt]="image.altText || 'Product image'" />
+								<p-tag
+									*ngIf="image.isPrimary"
+									value="Primary"
+									severity="success"
+									class="primary-badge"
+								></p-tag>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="section-card">
+					<h2 class="section-title">Preview</h2>
+					<div class="product-preview">
+						<div class="preview-image">
+							<img
+								[src]="imagePreviewUrls[0] || (productImages[0] ? getImageUrl(productImages[0].imagePath) : '/assets/images/placeholder.png')"
+								alt="Product preview"
+							/>
+						</div>
+						<div class="preview-content">
+							<h3 class="preview-title">{{ product.title || 'Product Title' }}</h3>
+							<p class="preview-price">{{ product.price ? formatCurrency(product.price) : '$0.00' }}</p>
+							<p class="preview-description">{{ product.shortDescription || 'Short description will appear here' }}</p>
+							<div class="preview-meta">
+								<span class="preview-tag">{{ product.material || 'Material' }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="loading-state" *ngIf="loading && isEditMode">
+		<p-progressSpinner></p-progressSpinner>
+		<p>Loading product...</p>
+	</div>
+
+	<p-toast></p-toast>
+</div>

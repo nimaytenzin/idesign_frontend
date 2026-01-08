@@ -1,11 +1,11 @@
 <div
 	*ngIf="!showPreloader"
-	class="min-h-screen bg-gradient-to-b from-black to-gray-900"
+	class="min-h-screen bg-white"
 >
 	<app-navbar></app-navbar>
 
-	<div class="py-8">
+	<main class="pt-0">
 		<router-outlet></router-outlet>
-	</div>
+	</main>
 	<app-footer></app-footer>
 </div>

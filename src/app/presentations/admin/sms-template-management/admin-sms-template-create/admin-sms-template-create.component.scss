@@ -1,0 +1,115 @@
+// Admin SMS Template Create Component Styles
+
+:host ::ng-deep {
+	// PrimeNG Input Styling
+	.p-inputtext {
+		@apply border-gray-300 dark:border-gray-700;
+		@apply bg-transparent dark:bg-gray-900;
+		@apply text-gray-800 dark:text-white/90;
+		@apply placeholder:text-gray-400 dark:placeholder:text-white/30;
+		
+		&:focus {
+			border-color: #33af9f;
+			box-shadow: 0 0 0 3px rgba(1, 114, 99, 0.1);
+			
+			.dark & {
+				border-color: #01443b;
+			}
+		}
+	}
+
+	// PrimeNG Textarea Styling
+	.p-inputtextarea {
+		@apply border-gray-300 dark:border-gray-700;
+		@apply bg-transparent dark:bg-gray-900;
+		@apply text-gray-800 dark:text-white/90;
+		@apply placeholder:text-gray-400 dark:placeholder:text-white/30;
+		
+		&:focus {
+			border-color: #33af9f;
+			box-shadow: 0 0 0 3px rgba(1, 114, 99, 0.1);
+			
+			.dark & {
+				border-color: #01443b;
+			}
+		}
+	}
+
+	// PrimeNG Dropdown Styling
+	.p-dropdown {
+		@apply border-gray-300 dark:border-gray-700;
+		@apply bg-transparent dark:bg-gray-900;
+		
+		.p-dropdown-label {
+			@apply text-gray-800 dark:text-white/90;
+		}
+
+		&:not(.p-disabled):hover {
+			border-color: #33af9f;
+		}
+
+		&:not(.p-disabled).p-focus {
+			border-color: #33af9f;
+			box-shadow: 0 0 0 3px rgba(1, 114, 99, 0.1);
+		}
+
+		.p-dropdown-panel {
+			@apply bg-white dark:bg-gray-800;
+			@apply border-gray-200 dark:border-gray-700;
+			z-index: 1001 !important;
+		}
+	}
+
+	// PrimeNG InputNumber Styling
+	.p-inputnumber {
+		@apply w-full;
+
+		.p-inputtext {
+			@apply border-gray-300 dark:border-gray-700;
+		}
+
+		.p-inputnumber-button {
+			@apply bg-gray-100 dark:bg-gray-700;
+			@apply border-gray-300 dark:border-gray-600;
+			@apply text-gray-700 dark:text-gray-300;
+
+			&:hover {
+				@apply bg-gray-200 dark:bg-gray-600;
+			}
+		}
+	}
+
+	// PrimeNG InputSwitch Styling
+	.p-inputswitch {
+		.p-inputswitch-slider {
+			@apply bg-gray-300 dark:bg-gray-600;
+
+			&:before {
+				@apply bg-white dark:bg-gray-300;
+			}
+		}
+
+		&.p-inputswitch-checked .p-inputswitch-slider {
+			background-color: #017263;
+
+			&:before {
+				@apply bg-white;
+			}
+		}
+	}
+
+	// PrimeNG Button Styling
+	.p-button {
+		&.p-button-secondary {
+			&.p-button-outlined {
+				@apply border-gray-300 dark:border-gray-600;
+				@apply text-gray-700 dark:text-gray-300;
+
+				&:hover {
+					@apply bg-gray-50 dark:bg-gray-700;
+				}
+			}
+		}
+	}
+}
+

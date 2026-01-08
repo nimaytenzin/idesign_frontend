@@ -1,0 +1,7 @@
+/* Minimal SCSS - Only PrimeNG Component Overrides */
+:host ::ng-deep {
+	.p-tag {
+		font-weight: 600;
+		letter-spacing: 0.5px;
+	}
+}

@@ -1,0 +1,412 @@
+<div class="min-h-screen bg-gray-50 p-6">
+	<!-- Header Section -->
+	<div class="mb-8">
+		<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+			<div>
+				<h1 class="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
+				<p class="text-gray-600">Comprehensive visitor analytics and insights</p>
+			</div>
+			<div class="mt-4 lg:mt-0 flex space-x-3">
+				<p-button
+					label="Export CSV"
+					icon="pi pi-download"
+					styleClass="p-button-outlined"
+					size="small"
+					(click)="exportToCSV()"
+				>
+				</p-button>
+				<p-button
+					label="Refresh"
+					icon="pi pi-refresh"
+					size="small"
+					(click)="loadAllData()"
+				>
+				</p-button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Filters Section -->
+	<p-card styleClass="shadow-lg border-0 mb-6">
+		<ng-template pTemplate="header">
+			<div class="p-4 border-b">
+				<h3 class="text-lg font-semibold text-gray-900">Filters</h3>
+			</div>
+		</ng-template>
+		<div class="p-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				<!-- Date Range Preset -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+					<p-dropdown
+						[options]="dateRangePresets"
+						[(ngModel)]="dateRangePreset"
+						optionLabel="label"
+						optionValue="value"
+						placeholder="Select Date Range"
+						styleClass="w-full"
+						(onChange)="onDateRangePresetChange()"
+					>
+					</p-dropdown>
+				</div>
+
+				<!-- Custom Start Date -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+					<p-calendar
+						[(ngModel)]="startDate"
+						[showIcon]="true"
+						dateFormat="yy-mm-dd"
+						styleClass="w-full"
+						(onSelect)="onCustomDateChange()"
+						[showTime]="false"
+					>
+					</p-calendar>
+				</div>
+
+				<!-- Custom End Date -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+					<p-calendar
+						[(ngModel)]="endDate"
+						[showIcon]="true"
+						dateFormat="yy-mm-dd"
+						styleClass="w-full"
+						(onSelect)="onCustomDateChange()"
+						[showTime]="false"
+					>
+					</p-calendar>
+				</div>
+
+				<!-- Country Filter -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+					<p-inputText
+						[(ngModel)]="selectedCountry"
+						placeholder="Filter by country"
+						styleClass="w-full"
+						(onInput)="onFilterChange()"
+					>
+					</p-inputText>
+				</div>
+
+				<!-- Device Type Filter -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Device Type</label>
+					<p-multiSelect
+						[options]="deviceTypeOptions"
+						[(ngModel)]="selectedDeviceTypes"
+						optionLabel="label"
+						optionValue="value"
+						placeholder="All Devices"
+						styleClass="w-full"
+						(onChange)="onFilterChange()"
+					>
+					</p-multiSelect>
+				</div>
+
+				<!-- Referrer Source Filter -->
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Referrer Source</label>
+					<p-multiSelect
+						[options]="referrerSourceOptions"
+						[(ngModel)]="selectedReferrerSources"
+						optionLabel="label"
+						optionValue="value"
+						placeholder="All Sources"
+						styleClass="w-full"
+						(onChange)="onFilterChange()"
+					>
+					</p-multiSelect>
+				</div>
+			</div>
+		</div>
+	</p-card>
+
+	<!-- Overview Cards -->
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+		<!-- Total Visitors Card -->
+		<p-card styleClass="shadow-lg border-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-blue-100 text-sm font-medium">Total Visitors</p>
+					<p class="text-2xl font-bold mt-1">
+						{{ loadingStats ? '...' : formatNumber(overviewMetrics.totalVisitors) }}
+					</p>
+				</div>
+				<div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
+					<i class="pi pi-users text-2xl"></i>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Unique Visitors Card -->
+		<p-card styleClass="shadow-lg border-0 bg-gradient-to-r from-green-500 to-green-600 text-white">
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-green-100 text-sm font-medium">Unique Visitors</p>
+					<p class="text-2xl font-bold mt-1">
+						{{ loadingStats ? '...' : formatNumber(overviewMetrics.uniqueVisitors) }}
+					</p>
+				</div>
+				<div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
+					<i class="pi pi-user text-2xl"></i>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Conversion Rate Card -->
+		<p-card styleClass="shadow-lg border-0 bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-purple-100 text-sm font-medium">Conversion Rate</p>
+					<p class="text-2xl font-bold mt-1">
+						{{ loadingStats ? '...' : formatPercentage(overviewMetrics.conversionRate) }}
+					</p>
+				</div>
+				<div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
+					<i class="pi pi-chart-line text-2xl"></i>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Total Orders Card -->
+		<p-card styleClass="shadow-lg border-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-orange-100 text-sm font-medium">Total Orders</p>
+					<p class="text-2xl font-bold mt-1">
+						{{ loadingStats ? '...' : formatNumber(overviewMetrics.totalOrders) }}
+					</p>
+				</div>
+				<div class="bg-orange-400 bg-opacity-30 p-3 rounded-full">
+					<i class="pi pi-shopping-cart text-2xl"></i>
+				</div>
+			</div>
+		</p-card>
+	</div>
+
+	<!-- Charts Grid -->
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+		<!-- Visitors by Country Chart -->
+		<p-card styleClass="shadow-lg border-0">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b">
+					<h3 class="text-lg font-semibold text-gray-900">Visitors by Country</h3>
+				</div>
+			</ng-template>
+			<div class="p-4">
+				<div *ngIf="loadingCharts" class="flex justify-center items-center h-64">
+					<p-progressSpinner></p-progressSpinner>
+				</div>
+				<div *ngIf="!loadingCharts" class="h-64">
+					<p-chart type="bar" [data]="countryChartData" [options]="countryChartOptions">
+					</p-chart>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Visitors by Device Chart -->
+		<p-card styleClass="shadow-lg border-0">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b">
+					<h3 class="text-lg font-semibold text-gray-900">Visitors by Device Type</h3>
+				</div>
+			</ng-template>
+			<div class="p-4">
+				<div *ngIf="loadingCharts" class="flex justify-center items-center h-64">
+					<p-progressSpinner></p-progressSpinner>
+				</div>
+				<div *ngIf="!loadingCharts" class="h-64">
+					<p-chart type="pie" [data]="deviceChartData" [options]="deviceChartOptions">
+					</p-chart>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Visitors by Referrer Chart -->
+		<p-card styleClass="shadow-lg border-0">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b">
+					<h3 class="text-lg font-semibold text-gray-900">Visitors by Referrer Source</h3>
+				</div>
+			</ng-template>
+			<div class="p-4">
+				<div *ngIf="loadingCharts" class="flex justify-center items-center h-64">
+					<p-progressSpinner></p-progressSpinner>
+				</div>
+				<div *ngIf="!loadingCharts" class="h-64">
+					<p-chart type="bar" [data]="referrerChartData" [options]="referrerChartOptions">
+					</p-chart>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Visitor Trends Chart -->
+		<p-card styleClass="shadow-lg border-0">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b">
+					<h3 class="text-lg font-semibold text-gray-900">Visitor Trends Over Time</h3>
+				</div>
+			</ng-template>
+			<div class="p-4">
+				<div *ngIf="loadingCharts" class="flex justify-center items-center h-64">
+					<p-progressSpinner></p-progressSpinner>
+				</div>
+				<div *ngIf="!loadingCharts" class="h-64">
+					<p-chart type="line" [data]="trendChartData" [options]="trendChartOptions">
+					</p-chart>
+				</div>
+			</div>
+		</p-card>
+	</div>
+
+	<!-- District Table -->
+	<p-card styleClass="shadow-lg border-0 mb-8">
+		<ng-template pTemplate="header">
+			<div class="p-4 border-b flex justify-between items-center">
+				<div>
+					<h3 class="text-lg font-semibold text-gray-900">Visitors by District</h3>
+					<p class="text-gray-600 text-sm">Geographic distribution of visitors</p>
+				</div>
+				<div>
+					<p-dropdown
+						[options]="availableCountries"
+						[(ngModel)]="selectedCountryForDistrict"
+						placeholder="Filter by Country"
+						styleClass="w-48"
+						(onChange)="onDistrictCountryChange()"
+					>
+					</p-dropdown>
+				</div>
+			</div>
+		</ng-template>
+		<div class="p-4">
+			<p-table [value]="districtData" [paginator]="true" [rows]="10" [responsive]="true">
+				<ng-template pTemplate="header">
+					<tr>
+						<th>Country</th>
+						<th>District</th>
+						<th>Visitor Count</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-district>
+					<tr>
+						<td>
+							<p-tag [value]="district.country" severity="info"></p-tag>
+						</td>
+						<td>{{ district.district }}</td>
+						<td>
+							<span class="font-semibold">{{ formatNumber(district.count) }}</span>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="3" class="text-center py-8">
+							<div class="text-gray-500">
+								<i class="pi pi-inbox text-3xl mb-2 block"></i>
+								<p>No district data found</p>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</p-card>
+
+	<!-- Recent Visitors Table -->
+	<p-card styleClass="shadow-lg border-0">
+		<ng-template pTemplate="header">
+			<div class="p-4 border-b flex justify-between items-center">
+				<div>
+					<h3 class="text-lg font-semibold text-gray-900">Recent Visitors</h3>
+					<p class="text-gray-600 text-sm">Individual visitor records</p>
+				</div>
+			</div>
+		</ng-template>
+		<div class="p-4">
+			<div *ngIf="loadingVisitors" class="flex justify-center items-center py-8">
+				<p-progressSpinner></p-progressSpinner>
+			</div>
+			<p-table
+				*ngIf="!loadingVisitors"
+				[value]="visitors"
+				[paginator]="true"
+				[rows]="limit"
+				[totalRecords]="totalVisitors"
+				[responsive]="true"
+				(onPage)="onPageChange($event)"
+				styleClass="p-datatable-sm"
+			>
+				<ng-template pTemplate="header">
+					<tr>
+						<th>Date/Time</th>
+						<th>Country</th>
+						<th>District</th>
+						<th>Device Type</th>
+						<th>Referrer Source</th>
+						<th>IP Address</th>
+						<th>Order ID</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-visitor>
+					<tr>
+						<td>
+							<span class="text-sm">{{ formatDate(visitor.visitedAt) }}</span>
+						</td>
+						<td>
+							<p-tag *ngIf="visitor.country" [value]="visitor.country" severity="info"></p-tag>
+							<span *ngIf="!visitor.country" class="text-gray-400">N/A</span>
+						</td>
+						<td>{{ visitor.district || 'N/A' }}</td>
+						<td>
+							<p-tag
+								[value]="getDeviceTypeLabel(visitor.deviceType)"
+								[severity]="
+									visitor.deviceType === DeviceType.MOBILE
+										? 'success'
+										: visitor.deviceType === DeviceType.COMPUTER
+											? 'info'
+											: 'warning'
+								"
+							>
+							</p-tag>
+						</td>
+						<td>
+							<p-tag
+								[value]="getReferrerSourceLabel(visitor.referrerSource)"
+								severity="secondary"
+							>
+							</p-tag>
+						</td>
+						<td>
+							<span class="font-mono text-xs">{{ visitor.ipAddress }}</span>
+						</td>
+						<td>
+							<p-button
+								*ngIf="visitor.orderId"
+								[label]="'#' + visitor.orderId"
+								styleClass="p-button-text p-button-sm"
+								[routerLink]="['/admin/orders/edit', visitor.orderId]"
+							>
+							</p-button>
+							<span *ngIf="!visitor.orderId" class="text-gray-400">N/A</span>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="7" class="text-center py-8">
+							<div class="text-gray-500">
+								<i class="pi pi-inbox text-3xl mb-2 block"></i>
+								<p>No visitors found</p>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</p-card>
+</div>
+

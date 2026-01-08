@@ -1,0 +1,173 @@
+<div class="p-6">
+	<form (ngSubmit)="onSubmit()" class="space-y-6">
+		<!-- Task Field -->
+		<div>
+			<label
+				for="task"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Task <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="task"
+				type="text"
+				pInputText
+				[(ngModel)]="task"
+				name="task"
+				required
+				class="w-full"
+				placeholder="Enter task title"
+			/>
+		</div>
+
+		<!-- Description Field -->
+		<div>
+			<label
+				for="description"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Description
+			</label>
+			<textarea
+				id="description"
+				pInputTextarea
+				[(ngModel)]="description"
+				name="description"
+				rows="4"
+				class="w-full"
+				placeholder="Enter task description"
+			></textarea>
+		</div>
+
+		<!-- Portfolio Field -->
+		<div>
+			<label
+				for="portfolio"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Portfolio <span class="text-red-500">*</span>
+			</label>
+			<p-dropdown
+				id="portfolio"
+				[options]="portfolios"
+				optionLabel="name"
+				optionValue="id"
+				[(ngModel)]="portfolioId"
+				name="portfolioId"
+				placeholder="Select Portfolio"
+				[showClear]="true"
+				styleClass="w-full"
+				required
+			></p-dropdown>
+		</div>
+
+		<!-- Assigned Users Field -->
+		<div>
+			<label
+				for="assignedUsers"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Assigned Users <span class="text-red-500">*</span>
+			</label>
+			<p-multiSelect
+				id="assignedUsers"
+				[options]="employees"
+				optionLabel="name"
+				optionValue="id"
+				[(ngModel)]="assignedUserIds"
+				name="assignedUserIds"
+				placeholder="Select Users"
+				[showClear]="true"
+				styleClass="w-full"
+				required
+			></p-multiSelect>
+			<small class="text-gray-500 dark:text-gray-400 mt-1 block">
+				Select at least one user to assign this task to
+			</small>
+		</div>
+
+		<!-- Status Field -->
+		<div>
+			<label
+				for="status"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Status
+			</label>
+			<p-dropdown
+				id="status"
+				[options]="statusOptions"
+				optionLabel="label"
+				optionValue="value"
+				[(ngModel)]="status"
+				name="status"
+				styleClass="w-full"
+			></p-dropdown>
+		</div>
+
+		<!-- Assigned Date Field -->
+		<div>
+			<label
+				for="assignedDate"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Assigned Date
+			</label>
+			<p-calendar
+				id="assignedDate"
+				[(ngModel)]="assignedDate"
+				name="assignedDate"
+				[showTime]="true"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showClear]="true"
+				styleClass="w-full"
+				placeholder="Select assigned date (defaults to now)"
+			></p-calendar>
+			<small class="text-gray-500 dark:text-gray-400 mt-1 block">
+				Leave empty to use current time
+			</small>
+		</div>
+
+		<!-- Due Date Field -->
+		<div>
+			<label
+				for="dueBy"
+				class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+			>
+				Due Date
+			</label>
+			<p-calendar
+				id="dueBy"
+				[(ngModel)]="dueBy"
+				name="dueBy"
+				[showTime]="true"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showClear]="true"
+				styleClass="w-full"
+				placeholder="Select due date"
+			></p-calendar>
+		</div>
+
+		<!-- Form Actions -->
+		<div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<p-button
+				label="Cancel"
+				icon="pi pi-times"
+				severity="secondary"
+				(onClick)="onCancel()"
+				[disabled]="loading"
+			></p-button>
+			<p-button
+				[label]="isEditMode ? 'Update' : 'Create'"
+				icon="pi pi-check"
+				type="submit"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</form>
+</div>
+
+<p-toast></p-toast>
+

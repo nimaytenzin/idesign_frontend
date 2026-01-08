@@ -1,5 +1,5 @@
 <!-- iDesign 3D Printing Shop Footer -->
-<footer class="bg-gray-900 text-gray-300 py-16 mt-24">
+<footer class="bg-slate-900 text-slate-300 py-16 mt-24">
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<!-- Main Grid -->
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -7,9 +7,17 @@
 			<div class="lg:col-span-2">
 				<!-- Logo and Brand -->
 				<div class="flex items-center space-x-3 mb-6">
-					<div class="relative">
+					<div *ngIf="company?.logo" class="relative">
+						<img
+						[src]="getLogoUrl(company?.logo)"
+							[alt]="getCompanyName()"
+							class="h-10 w-auto object-contain"
+							onerror="this.src='/assets/images/no-image.png'"
+						/>
+					</div>
+					<div *ngIf="!company?.logo" class="relative">
 						<div
-							class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-300 transform rotate-12"
+							class="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-300 transform rotate-12"
 						></div>
 						<div
 							class="absolute -top-1 -right-1 w-4 h-4 bg-teal-500 rounded-sm"
@@ -17,48 +25,46 @@
 					</div>
 					<div class="flex flex-col">
 						<span
-							class="text-white font-bold text-2xl tracking-tight font-['Poppins']"
+							class="text-white font-bold text-2xl tracking-tight"
 						>
-							iDesign
+							{{ getCompanyName() }}
 						</span>
-						<span class="text-teal-400 text-sm font-medium">
-							3D Printing Excellence
+						<span class="text-teal-400 text-sm font-medium" *ngIf="getCompanySlogan()">
+							{{ getCompanySlogan() }}
 						</span>
 					</div>
 				</div>
 
-				<p class="text-gray-400 mb-4 leading-relaxed font-['Roboto']">
-					Specializing in premium 3D printed Bhutanese stupas and custom
-					designs. We bring traditional craftsmanship into the digital age with
-					precision 3D printing technology.
+				<p class="text-slate-400 mb-4 leading-relaxed" *ngIf="getCompanyDescription()">
+					{{ getCompanyDescription() }}
 				</p>
 
 				<div class="space-y-2 text-sm">
-					<p class="flex items-center">
+					<p class="flex items-center" *ngIf="getAddress()">
 						<i class="pi pi-map-marker text-teal-400 mr-3"></i>
-						<span>Thimphu, Bhutan</span>
+						<span>{{ getAddress() }}</span>
 					</p>
-					<p class="flex items-center">
+					<p class="flex items-center" *ngIf="getPhone()">
 						<i class="pi pi-phone text-teal-400 mr-3"></i>
-						<span>+975 17123456</span>
+						<span>{{ getPhone() }}</span>
 					</p>
-					<p class="flex items-center">
+					<p class="flex items-center" *ngIf="getEmail()">
 						<i class="pi pi-envelope text-teal-400 mr-3"></i>
-						<span>helloidesign.bt</span>
+						<span>{{ getEmail() }}</span>
 					</p>
 				</div>
 			</div>
 
 			<!-- Quick Links -->
 			<div>
-				<h3 class="text-white font-semibold mb-6 font-['Poppins']">
+				<h3 class="text-white font-semibold mb-6">
 					Quick Links
 				</h3>
 				<ul class="space-y-3">
 					<li>
 						<a
 							href="/products"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							All Products
 						</a>
@@ -66,7 +72,7 @@
 					<li>
 						<a
 							href="/products?category=stupas"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Bhutanese Stupas
 						</a>
@@ -74,7 +80,7 @@
 					<li>
 						<a
 							href="/custom"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Custom Orders
 						</a>
@@ -82,7 +88,7 @@
 					<li>
 						<a
 							href="/gallery"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Gallery
 						</a>
@@ -90,7 +96,7 @@
 					<li>
 						<a
 							href="/about"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							About Us
 						</a>
@@ -100,12 +106,12 @@
 
 			<!-- Services -->
 			<div>
-				<h3 class="text-white font-semibold mb-6 font-['Poppins']">Services</h3>
+				<h3 class="text-white font-semibold mb-6">Services</h3>
 				<ul class="space-y-3">
 					<li>
 						<a
 							href="/services/3d-printing"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							3D Printing
 						</a>
@@ -113,7 +119,7 @@
 					<li>
 						<a
 							href="/services/design"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Custom Design
 						</a>
@@ -121,7 +127,7 @@
 					<li>
 						<a
 							href="/services/restoration"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Digital Restoration
 						</a>
@@ -129,7 +135,7 @@
 					<li>
 						<a
 							href="/services/consultation"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Consultation
 						</a>
@@ -137,7 +143,7 @@
 					<li>
 						<a
 							href="/contact"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Contact Us
 						</a>
@@ -147,22 +153,22 @@
 		</div>
 
 		<!-- Newsletter Signup -->
-		<div class="border-t border-gray-800 pt-8 mb-8">
+		<div class="border-t border-slate-800 pt-8 mb-8">
 			<div class="max-w-md">
-				<h3 class="text-white font-semibold mb-4 font-['Poppins']">
+				<h3 class="text-white font-semibold mb-4">
 					Stay Updated
 				</h3>
-				<p class="text-gray-400 text-sm mb-4 font-['Roboto']">
+				<p class="text-slate-400 text-sm mb-4">
 					Subscribe to receive updates on new products and special offers.
 				</p>
 				<div class="flex">
 					<input
 						type="email"
 						placeholder="Enter your email"
-						class="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent font-['Roboto']"
+						class="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-l-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
 					/>
 					<button
-						class="px-6 py-2 bg-teal-600 text-white rounded-r-md hover:bg-teal-700 transition-colors duration-200 font-['Poppins'] font-medium"
+						class="px-6 py-2 bg-teal-500 text-white rounded-r-lg hover:bg-teal-600 transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
 					>
 						Subscribe
 					</button>
@@ -171,17 +177,17 @@
 		</div>
 
 		<!-- Social Media and Bottom Bar -->
-		<div class="border-t border-gray-800 pt-8">
+		<div class="border-t border-slate-800 pt-8">
 			<div class="flex flex-col md:flex-row justify-between items-center gap-6">
 				<!-- Social Media -->
 				<div class="flex items-center space-x-4">
-					<span class="text-sm text-gray-400 font-['Roboto']">Follow us:</span>
+					<span class="text-sm text-slate-400">Follow us:</span>
 					<div class="flex space-x-3">
 						<a
 							*ngFor="let social of socialLinks"
 							[href]="social.url"
 							target="_blank"
-							class="w-10 h-10 rounded-md bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-all duration-200 transform hover:scale-110"
+							class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-teal-600 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-500"
 							[title]="social.name"
 						>
 							<i [class]="social.icon" class="text-sm"></i>
@@ -196,25 +202,25 @@
 					<div class="flex gap-4">
 						<a
 							href="/privacy"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Privacy Policy
 						</a>
 						<a
 							href="/terms"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Terms of Service
 						</a>
 						<a
 							href="/shipping"
-							class="hover:text-teal-400 transition-colors duration-200 font-['Roboto']"
+							class="hover:text-teal-400 transition-colors duration-200"
 						>
 							Shipping Info
 						</a>
 					</div>
-					<p class="text-gray-500 font-['Roboto']">
-						© {{ currentYear }} iDesign. All rights reserved.
+					<p class="text-slate-500">
+						© {{ currentYear }} {{ getCompanyName() }}. All rights reserved.
 					</p>
 				</div>
 			</div>

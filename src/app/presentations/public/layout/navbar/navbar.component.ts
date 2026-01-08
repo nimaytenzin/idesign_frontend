@@ -1,8 +1,13 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { APPNAME } from '../../../../core/constants/constants';
+import { CartService } from '../../../../core/services/cart.service';
+import { CompanyService } from '../../../../core/dataservice/company/company.service';
+import { Company } from '../../../../core/dataservice/company/company.interface';
+import { environment } from '../../../../../environments/environment';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-navbar',
@@ -16,6 +21,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 	isMenuOpen = false;
 	scrolled = false;
 	scrollPosition = 0;
+	cartItemCount = 0;
+	cartIconAnimated = false;
+	company: Company | null = null;
+	private cartSubscription?: Subscription;
+	private cartAnimationSubscription?: Subscription;
 
 	navItems = [
 		{
@@ -45,15 +55,67 @@ export class NavbarComponent implements OnInit, OnDestroy {
 		},
 	];
 
-	constructor(private router: Router) {}
+	constructor(
+		private router: Router,
+		private cartService: CartService,
+		private companyService: CompanyService,
+		private cdr: ChangeDetectorRef
+	) {}
 
 	ngOnInit() {
 		// Initialize scroll detection
 		this.detectScroll();
+		
+		// Subscribe to cart updates
+		this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
+			this.cartItemCount = this.cartService.getTotalItems();
+			this.cdr.markForCheck();
+		});
+		
+		// Subscribe to cart animation trigger
+		this.cartAnimationSubscription = this.cartService.cartAnimation$.subscribe(() => {
+			this.animateCartIcon();
+		});
+		
+		// Get initial cart count
+		this.cartItemCount = this.cartService.getTotalItems();
+		
+		// Load company data
+		this.loadCompany();
+	}
+
+	loadCompany() {
+		this.companyService.getCompany().subscribe({
+			next: (data) => {
+				this.company = data;
+				this.cdr.markForCheck();
+			},
+			error: () => {
+				// If company doesn't exist, use default
+				this.company = null;
+				this.cdr.markForCheck();
+			},
+		});
+	}
+
+	getLogoUrl(logoPath: string | undefined): string {
+		if (!logoPath) {
+			return 'logo.png';
+		}
+		if (logoPath.startsWith('http')) {
+			return logoPath;
+		}
+		return `${environment.BASEAPI_URL}/${logoPath}`;
 	}
 
 	ngOnDestroy() {
-		// Cleanup if needed
+		// Cleanup subscriptions
+		if (this.cartSubscription) {
+			this.cartSubscription.unsubscribe();
+		}
+		if (this.cartAnimationSubscription) {
+			this.cartAnimationSubscription.unsubscribe();
+		}
 	}
 
 	@HostListener('window:scroll', ['$event'])
@@ -145,6 +207,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
 	}
 
 	/**
+	 * Navigate to checkout page
+	 */
+	goToCheckout(): void {
+		if (this.cartItemCount > 0) {
+			this.router.navigate(['/checkout']);
+		}
+		this.closeMenu();
+	}
+
+	/**
 	 * Get scroll progress percentage (for potential progress indicator)
 	 */
 	getScrollProgress(): number {
@@ -154,5 +226,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
 			document.documentElement.scrollHeight -
 			document.documentElement.clientHeight;
 		return (winScroll / height) * 100;
+	}
+
+	/**
+	 * Animate cart icon when item is added
+	 */
+	animateCartIcon(): void {
+		this.cartIconAnimated = true;
+		this.cdr.markForCheck();
+		
+		// Reset animation after animation completes
+		setTimeout(() => {
+			this.cartIconAnimated = false;
+			this.cdr.markForCheck();
+		}, 500); // Match animation duration
 	}
 }

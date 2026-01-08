@@ -1,0 +1,138 @@
+<div class="flex flex-col max-h-[90vh]" *ngIf="order && !loading">
+	<!-- Receipt Content -->
+	<div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+		<div #receiptContent class="bg-white p-10 max-w-4xl mx-auto shadow-md">
+			<!-- Receipt Header -->
+			<div class="flex justify-between items-start mb-8 pb-6 border-b-2 border-gray-200">
+				<div>
+					<h1 class="text-3xl font-bold text-slate-800 mb-1">iDesign</h1>
+					<p class="text-sm text-slate-500 m-0">
+						3D Printing Excellence
+					</p>
+
+				</div>
+				<div class="text-right">
+					<h2 class="text-xl font-semibold text-slate-800 mb-1 uppercase tracking-wide">TAX INVOICE / RECEIPT</h2>
+					<p class="text-sm text-slate-500 m-0 font-medium">Receipt #{{ order.receiptNumber || order.orderNumber }}</p>
+				</div>
+			</div>
+
+			<!-- Receipt Details -->
+			<div class="mb-6 pb-6 border-b border-gray-200">
+				<div class="flex justify-between mb-3 last:mb-0">
+					<div class="flex gap-2">
+						<span class="font-medium text-slate-500">Order Number:</span>
+						<span class="text-slate-800 font-medium">{{ order.orderNumber }}</span>
+					</div>
+					<div class="flex gap-2">
+						<span class="font-medium text-slate-500">Date:</span>
+						<span class="text-slate-800 font-medium">{{ formatDate(order.orderDate) }}</span>
+					</div>
+				</div>
+				<div class="flex justify-between mb-3 last:mb-0" *ngIf="order.paymentDate">
+					<div class="flex gap-2">
+						<span class="font-medium text-slate-500">Payment Date:</span>
+						<span class="text-slate-800 font-medium">{{ formatDate(order.paymentDate) }}</span>
+					</div>
+					<div class="flex gap-2">
+						<span class="font-medium text-slate-500">Payment Method:</span>
+						<span class="text-slate-800 font-medium">{{ getPaymentMethodLabel(order.paymentMethod) }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Customer Information -->
+			<div class="mb-8 pb-6 border-b border-gray-200">
+				<h3 class="text-base font-semibold text-slate-800 mb-3 uppercase tracking-wide">Bill To:</h3>
+				<div>
+					<p class="text-base font-semibold text-slate-800 mb-1 m-0">{{ order.customer?.name || 'N/A' }}</p>
+					<p *ngIf="order.customer?.email" class="text-sm text-slate-500 mb-0.5 m-0">{{ order.customer?.email }}</p>
+					<p *ngIf="order.customer?.phoneNumber" class="text-sm text-slate-500 mb-0.5 m-0">{{ order.customer?.phoneNumber }}</p>
+					<p *ngIf="order.customer?.billingAddress" class="text-sm text-slate-500 mb-0.5 m-0">{{ order.customer?.billingAddress }}</p>
+				</div>
+			</div>
+
+			<!-- Items Table -->
+			<div class="mb-6">
+				<table class="w-full border-collapse">
+					<thead class="bg-slate-50">
+						<tr>
+							<th class="p-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide border-b-2 border-gray-200 w-[40%]">Item</th>
+							<th class="p-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide border-b-2 border-gray-200 w-[10%]">Qty</th>
+							<th class="p-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide border-b-2 border-gray-200 w-[20%]">Unit Price</th>
+							<th class="p-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide border-b-2 border-gray-200 w-[15%]">Discount</th>
+							<th class="p-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide border-b-2 border-gray-200 w-[15%]">Total</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of order.orderItems || []" class="border-b border-slate-100 last:border-b-0">
+							<td class="p-3 text-sm text-slate-800 w-[40%]">{{ item.product?.title || 'N/A' }}</td>
+							<td class="p-3 text-sm text-slate-800 text-right w-[10%]">{{ item.quantity }}</td>
+							<td class="p-3 text-sm text-slate-800 text-right w-[20%]">{{ formatCurrency(item.unitPrice) }}</td>
+							<td class="p-3 text-sm text-slate-800 text-right w-[15%]">{{ formatCurrency(item.discountApplied || 0) }}</td>
+							<td class="p-3 text-sm text-slate-800 text-right w-[15%]">{{ formatCurrency(item.lineTotal) }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Totals -->
+			<div class="mt-6 pt-6 border-t-2 border-gray-200">
+				<div class="flex justify-between items-center py-2">
+					<span class="text-sm font-medium text-slate-500">Subtotal:</span>
+					<span class="text-sm font-semibold text-slate-800">{{ formatCurrency(order.totalAmount - (order.shippingCost || 0)) }}</span>
+				</div>
+				<div class="flex justify-between items-center py-2" *ngIf="order.shippingCost">
+					<span class="text-sm font-medium text-slate-500">Shipping:</span>
+					<span class="text-sm font-semibold text-slate-800">{{ formatCurrency(order.shippingCost) }}</span>
+				</div>
+				<div class="flex justify-between items-center border-t-2 border-slate-800 mt-2 pt-4">
+					<span class="text-lg font-bold text-slate-800">Total Amount:</span>
+					<span class="text-lg font-bold text-slate-800">{{ formatCurrency(order.totalAmount) }}</span>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="mt-8 pt-6 border-t border-gray-200 text-center">
+				<p class="text-base font-semibold text-slate-800 mb-2 m-0">Thank you for your business!</p>
+				<p class="text-xs text-slate-500 m-0">This is a computer-generated receipt. No signature required.</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Footer Actions -->
+	<div class="p-4 border-t border-gray-200 bg-white flex justify-end gap-3 rounded-b-lg">
+		<p-button
+			label="Download PDF"
+			icon="pi pi-file-pdf"
+			size="small"
+			severity="danger"
+			[outlined]="true"
+			(onClick)="downloadAsPDF()"
+		></p-button>
+		<p-button
+			label="Download Image"
+			icon="pi pi-image"
+			size="small"
+			severity="info"
+			[outlined]="true"
+			(onClick)="shareAsImage()"
+		></p-button>
+		<p-button
+			label="Close"
+			icon="pi pi-times"
+			size="small"
+			severity="secondary"
+			[outlined]="true"
+			(onClick)="close()"
+		></p-button>
+	</div>
+</div>
+
+<div *ngIf="loading" class="flex flex-col items-center justify-center py-16 px-5 gap-4">
+	<p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+	<p class="text-gray-500 text-sm">Loading receipt...</p>
+</div>
+
+<p-toast></p-toast>
+

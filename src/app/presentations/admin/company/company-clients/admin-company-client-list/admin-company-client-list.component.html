@@ -1,0 +1,150 @@
+<div class="bg-white min-h-screen">
+	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+		<p-toast></p-toast>
+		<p-confirmDialog></p-confirmDialog>
+
+		<!-- Header -->
+		<div class="flex items-center justify-between mb-8">
+			<div>
+				<h1 class="text-2xl font-semibold text-gray-900">Company Clients</h1>
+				<p class="text-gray-500 mt-1">Manage your company clients and their information</p>
+			</div>
+			<p-button
+				label="Create New Client"
+				icon="pi pi-plus"
+				size="small"
+				(onClick)="openCreateDialog()"
+			></p-button>
+		</div>
+
+		<!-- Loading State -->
+		<div *ngIf="loading" class="flex justify-center items-center h-64">
+			<p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+		</div>
+
+		<!-- Clients Table -->
+		<div *ngIf="!loading && clients.length > 0" class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+			<div class="overflow-x-auto">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Logo
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Name
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Website
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Social Media
+							</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Status
+							</th>
+							<th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+								Actions
+							</th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						<tr *ngFor="let client of clients" class="hover:bg-gray-50">
+							<td class="px-6 py-4 whitespace-nowrap">
+								<img
+									[src]="getImageUrl(client.logo)"
+									[alt]="client.name"
+									class="h-16 w-16 object-cover rounded"
+									onerror="this.src='/assets/images/no-image.png'"
+								/>
+							</td>
+							<td class="px-6 py-4">
+								<div class="font-medium text-gray-900">{{ client.name }}</div>
+							</td>
+							<td class="px-6 py-4">
+								<a
+									*ngIf="client.websiteUrl"
+									[href]="client.websiteUrl"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-blue-600 hover:text-blue-800 truncate block max-w-xs"
+								>
+									{{ client.websiteUrl }}
+								</a>
+								<span *ngIf="!client.websiteUrl" class="text-gray-400">-</span>
+							</td>
+							<td class="px-6 py-4">
+								<a
+									*ngIf="client.socialMediaUrl"
+									[href]="client.socialMediaUrl"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-blue-600 hover:text-blue-800 truncate block max-w-xs"
+								>
+									{{ client.socialMediaUrl }}
+								</a>
+								<span *ngIf="!client.socialMediaUrl" class="text-gray-400">-</span>
+							</td>
+							<td class="px-6 py-4 whitespace-nowrap">
+								<span
+									class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium"
+									[class.bg-green-100]="client.isActive"
+									[class.text-green-800]="client.isActive"
+									[class.bg-gray-100]="!client.isActive"
+									[class.text-gray-800]="!client.isActive"
+								>
+									{{ client.isActive ? 'Active' : 'Inactive' }}
+								</span>
+							</td>
+							<td class="px-6 py-4 whitespace-nowrap text-right font-medium">
+								<div class="flex items-center justify-end gap-2">
+									<p-button
+										icon="pi pi-pencil"
+										[rounded]="true"
+										size="small"
+										severity="info"
+										[text]="true"
+										(onClick)="openEditDialog(client)"
+										pTooltip="Edit"
+									></p-button>
+									
+									<p-button
+										icon="pi pi-trash"
+										[rounded]="true"
+										size="small"
+										severity="danger"
+										[text]="true"
+										(onClick)="deleteClient(client)"
+										pTooltip="Delete"
+									></p-button>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Empty State -->
+		<div *ngIf="!loading && clients.length === 0" class="bg-white rounded-lg border border-gray-200 p-12">
+			<div class="flex flex-col items-center gap-4 text-center">
+				<div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center mb-2">
+					<i class="pi pi-building text-3xl text-gray-400"></i>
+				</div>
+				<div>
+					<h3 class="text-lg font-semibold text-gray-900 mb-2">No Company Clients Found</h3>
+					<p class="text-gray-600 max-w-md">
+						Get started by creating your first company client.
+					</p>
+				</div>
+				<p-button
+					label="Create Company Client"
+					icon="pi pi-plus"
+					size="small"
+					(onClick)="openCreateDialog()"
+				></p-button>
+			</div>
+		</div>
+	</div>
+</div>
+
