@@ -1,0 +1,254 @@
+<div class="p-4 md:p-6">
+	<p-toast></p-toast>
+
+	<!-- Loading State -->
+	<div *ngIf="loading && config?.data?.duplicateProductId" class="flex flex-col items-center justify-center py-24">
+		<p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+		<p class="text-gray-600 mt-4">Loading product...</p>
+	</div>
+
+	<!-- Form Content -->
+	<div *ngIf="!loading || !config?.data?.duplicateProductId" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		<!-- Left Card - Basic Information -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+			<h2 class="text-lg font-semibold text-gray-900 mb-6 pb-3 border-b border-gray-300">Product Information</h2>
+			<div class="space-y-5">
+				<div>
+					<label for="title" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+						Product Title <span class="text-red-500">*</span>
+					</label>
+					<input
+						id="title"
+						type="text"
+						pInputText
+						[(ngModel)]="product.title"
+						placeholder="Enter product title"
+						class="w-full"
+						[class.ng-invalid]="submitted && !product.title"
+					/>
+					<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !product.title">Title is required</small>
+				</div>
+
+				<div>
+					<label for="shortDescription" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+						Short Description <span class="text-red-500">*</span>
+					</label>
+					<textarea
+						id="shortDescription"
+						pInputTextarea
+						[(ngModel)]="product.shortDescription"
+						placeholder="Brief description (max 200 characters)"
+						rows="3"
+						[maxlength]="200"
+						class="w-full"
+						[class.ng-invalid]="submitted && !product.shortDescription"
+					></textarea>
+					<div class="flex items-center justify-between mt-1">
+						<small class="text-red-500 text-xs" *ngIf="submitted && !product.shortDescription">Short description is required</small>
+						<small class="text-gray-500 text-xs ml-auto">{{ product.shortDescription?.length || 0 }}/200 characters</small>
+					</div>
+				</div>
+
+				<div>
+					<label for="detailedDescription" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Detailed Description</label>
+					<textarea
+						id="detailedDescription"
+						pInputTextarea
+						[(ngModel)]="product.detailedDescription"
+						placeholder="Full product description"
+						rows="4"
+						class="w-full"
+					></textarea>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="parentCategory" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+							Parent Category <span class="text-red-500">*</span>
+						</label>
+						<p-dropdown
+							id="parentCategory"
+							[options]="categories"
+							optionLabel="name"
+							optionValue="id"
+							[(ngModel)]="selectedCategoryId"
+							placeholder="Select parent category"
+							(onChange)="onParentCategoryChange()"
+							[class.ng-invalid]="submitted && !selectedCategoryId"
+							styleClass="w-full"
+						></p-dropdown>
+						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !selectedCategoryId">Parent category is required</small>
+					</div>
+
+					<div>
+						<label for="productSubCategoryId" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+							Sub Category <span class="text-red-500">*</span>
+						</label>
+						<p-dropdown
+							id="productSubCategoryId"
+							[options]="filteredSubCategories"
+							optionLabel="name"
+							optionValue="id"
+							[(ngModel)]="product.productSubCategoryId"
+							placeholder="Select sub category"
+							[disabled]="!selectedCategoryId || filteredSubCategories.length === 0"
+							[class.ng-invalid]="submitted && !product.productSubCategoryId"
+							styleClass="w-full"
+						></p-dropdown>
+						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !product.productSubCategoryId">Sub category is required</small>
+						<small class="text-gray-500 text-xs mt-1 block" *ngIf="!selectedCategoryId">Please select a parent category first</small>
+						<small class="text-gray-500 text-xs mt-1 block" *ngIf="selectedCategoryId && filteredSubCategories.length === 0">No subcategories available</small>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="price" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+							Price <span class="text-red-500">*</span>
+						</label>
+						<p-inputnumber
+							id="price"
+							[(ngModel)]="product.price"
+							mode="currency"
+							currency="BTN"
+							locale="en-US"
+							[class.ng-invalid]="submitted && !product.price"
+							styleClass="w-full"
+						></p-inputnumber>
+						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !product.price">Price is required</small>
+					</div>
+
+					<div>
+						<label for="stockQuantity" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+							Stock Quantity <span class="text-red-500">*</span>
+						</label>
+						<p-inputnumber
+							id="stockQuantity"
+							[(ngModel)]="product.stockQuantity"
+							[showButtons]="true"
+							[step]="1"
+							[min]="0"
+							[class.ng-invalid]="submitted && product.stockQuantity === undefined"
+							styleClass="w-full"
+						></p-inputnumber>
+						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && product.stockQuantity === undefined">Stock quantity is required</small>
+					</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label for="material" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+							Material <span class="text-red-500">*</span>
+						</label>
+						<p-dropdown
+							id="material"
+							[options]="materialOptions"
+							optionLabel="label"
+							optionValue="value"
+							[(ngModel)]="product.material"
+							placeholder="Select material"
+							[class.ng-invalid]="submitted && !product.material"
+							styleClass="w-full"
+						></p-dropdown>
+						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !product.material">Material is required</small>
+					</div>
+
+					<div>
+						<label for="weight" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Weight (grams)</label>
+						<p-inputnumber
+							id="weight"
+							[(ngModel)]="product.weight"
+							[showButtons]="true"
+							[step]="1"
+							[min]="0"
+							styleClass="w-full"
+						></p-inputnumber>
+					</div>
+				</div>
+
+				<div>
+					<label for="dimensions" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Dimensions</label>
+					<input
+						id="dimensions"
+						type="text"
+						pInputText
+						[(ngModel)]="product.dimensions"
+						placeholder="e.g., 10cm x 10cm x 5cm"
+						class="w-full"
+					/>
+				</div>
+
+				<div class="flex items-center gap-6 pt-4 border-t border-gray-200">
+					<div class="flex items-center gap-3">
+						<label class="block text-sm font-semibold text-gray-700 uppercase tracking-wide">Availability</label>
+						<p-inputSwitch [(ngModel)]="product.isAvailable"></p-inputSwitch>
+						<span class="text-sm text-gray-600">{{ product.isAvailable ? 'Available' : 'Unavailable' }}</span>
+					</div>
+
+					<div class="flex items-center gap-3">
+						<label class="block text-sm font-semibold text-gray-700 uppercase tracking-wide">Featured</label>
+						<p-inputSwitch [(ngModel)]="product.isFeatured"></p-inputSwitch>
+						<span class="text-sm text-gray-600">{{ product.isFeatured ? 'Featured' : 'Not Featured' }}</span>
+					</div>
+				</div>
+
+				<!-- Action Buttons -->
+				<div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+					<p-button
+						label="Cancel"
+						icon="pi pi-times"
+						[outlined]="true"
+						severity="secondary"
+						(onClick)="cancel()"
+					></p-button>
+					<p-button
+						label="Create Product"
+						icon="pi pi-check"
+						severity="success"
+						(onClick)="saveProduct()"
+						[loading]="loading"
+					></p-button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Right Card - Product Images -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+			<h2 class="text-lg font-semibold text-gray-900 mb-6 pb-3 border-b border-gray-300">Product Images</h2>
+			<div class="space-y-4">
+				<p-fileupload
+					mode="basic"
+					name="images[]"
+					accept="image/*"
+					[maxFileSize]="52428800"
+					[multiple]="true"
+					[auto]="false"
+					(onSelect)="onFileSelect($event)"
+					chooseLabel="Upload Images"
+					styleClass="w-full"
+				></p-fileupload>
+
+				<div *ngIf="imagePreviewUrls.length > 0" class="grid grid-cols-2 gap-3 mt-4">
+					<div *ngFor="let url of imagePreviewUrls; let i = index" class="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+						<img [src]="url" alt="Preview" class="w-full h-full object-cover" />
+						<button
+							type="button"
+							(onClick)="removeImage(i)"
+							pButton
+							icon="pi pi-times"
+							[rounded]="true"
+							severity="danger"
+							[text]="true"
+							class="absolute top-2 right-2"
+						></button>
+					</div>
+				</div>
+
+				<div *ngIf="imagePreviewUrls.length === 0" class="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+					<i class="pi pi-image text-4xl text-gray-400 mb-3"></i>
+					<p class="text-sm text-gray-500">No images uploaded yet</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

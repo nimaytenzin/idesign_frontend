@@ -47,4 +47,12 @@ export class ProductCategoryService {
 	deleteCategory(id: number): Observable<void> {
 		return this.http.delete<void>(`${this.apiUrl}/${id}`);
 	}
+
+	// Toggle category status
+	toggleCategoryStatus(id: number): Observable<ProductCategory> {
+		return this.http.patch<ProductCategory>(
+			`${this.apiUrl}/${id}/toggle-status`,
+			{}
+		);
+	}
 }

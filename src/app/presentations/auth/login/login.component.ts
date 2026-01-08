@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {
 	FormBuilder,
 	FormGroup,
@@ -7,6 +7,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { CompanyService } from '../../../core/dataservice/company/company.service';
+import { Company } from '../../../core/dataservice/company/company.interface';
 
 @Component({
 	selector: 'app-login',
@@ -19,13 +21,49 @@ export class LoginComponent implements OnInit {
 	loginForm!: FormGroup;
 	isLoading = false;
 	errorMessage = '';
+	company: Company | null = null;
+	logoUrl: string = 'logo.png'; // Fallback logo
 
-	constructor(private fb: FormBuilder, private router: Router) {}
+	constructor(
+		private fb: FormBuilder,
+		private router: Router,
+		private companyService: CompanyService,
+		private cdr: ChangeDetectorRef
+	) {}
 
 	ngOnInit(): void {
 		this.loginForm = this.fb.group({
 			username: ['admin', [Validators.required]],
 			password: ['admin123', [Validators.required, Validators.minLength(3)]],
+		});
+		
+		// Load company logo
+		this.loadCompanyLogo();
+	}
+
+	loadCompanyLogo(): void {
+		this.companyService.getCompany().subscribe({
+			next: (data) => {
+				if (data) {
+					this.company = data;
+					if (data.logo) {
+						// Use the logo endpoint
+						this.logoUrl = this.companyService.getLogoUrl();
+					} else {
+						// Use fallback logo
+						this.logoUrl = '/assets/logo.png';
+					}
+				} else {
+					// Use fallback logo
+					this.logoUrl = '/assets/logo.png';
+				}
+				this.cdr.markForCheck();
+			},
+			error: () => {
+				// If company doesn't exist, use fallback logo
+				this.logoUrl = '/assets/logo.png';
+				this.cdr.markForCheck();
+			},
 		});
 	}
 

@@ -1,4 +1,4 @@
-<div class="company-profile-modal space-y-4">
+<form [formGroup]="companyForm" class="create-company-profile space-y-4">
 	<div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 			<!-- Left Column - Main Information -->
@@ -18,15 +18,15 @@
 							<input
 								type="text"
 								pInputText
-								[(ngModel)]="company.name"
+								formControlName="name"
 								placeholder="Enter company name"
 								class="w-full"
-								[class.ng-invalid]="submitted && !company.name"
+								[class.ng-invalid]="isFieldInvalid('name')"
 							/>
 							<small
 								class="text-xs text-red-600"
-								*ngIf="submitted && !company.name"
-								>Company name is required</small
+								*ngIf="isFieldInvalid('name')"
+								>{{ getFieldError('name') }}</small
 							>
 						</div>
 
@@ -35,17 +35,23 @@
 							<input
 								type="text"
 								pInputText
-								[(ngModel)]="company.slogan"
+								formControlName="slogan"
 								placeholder="Enter company slogan"
 								class="w-full"
+								[class.ng-invalid]="isFieldInvalid('slogan')"
 							/>
+							<small
+								class="text-xs text-red-600"
+								*ngIf="isFieldInvalid('slogan')"
+								>{{ getFieldError('slogan') }}</small
+							>
 						</div>
 
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-medium text-gray-600">Description</label>
 							<textarea
 								pInputTextarea
-								[(ngModel)]="company.description"
+								formControlName="description"
 								placeholder="Tell us about your company"
 								rows="5"
 								class="w-full"
@@ -67,21 +73,16 @@
 							<input
 								type="email"
 								pInputText
-								[(ngModel)]="company.email"
+								formControlName="email"
 								placeholder="company@example.com"
 								class="w-full"
-								[class.ng-invalid]="
-									submitted && company.email && !isValidEmail(company.email)
-								"
+								[class.ng-invalid]="isFieldInvalid('email')"
 							/>
 							<small
 								class="text-xs text-red-600"
-								*ngIf="
-									submitted &&
-									company.email &&
-									!isValidEmail(company.email)
-								"
-								>Please enter a valid email address</small>
+								*ngIf="isFieldInvalid('email')"
+								>{{ getFieldError('email') }}</small
+							>
 						</div>
 
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -90,7 +91,7 @@
 								<input
 									type="tel"
 									pInputText
-									[(ngModel)]="company.phone1"
+									formControlName="phone1"
 									placeholder="+975 17 123 456"
 									class="w-full"
 								/>
@@ -101,7 +102,7 @@
 								<input
 									type="tel"
 									pInputText
-									[(ngModel)]="company.phone2"
+									formControlName="phone2"
 									placeholder="+975 17 123 456"
 									class="w-full"
 								/>
@@ -113,7 +114,7 @@
 							<input
 								type="tel"
 								pInputText
-								[(ngModel)]="company.phone3"
+								formControlName="phone3"
 								placeholder="+975 17 123 456"
 								class="w-full"
 							/>
@@ -124,10 +125,16 @@
 							<input
 								type="url"
 								pInputText
-								[(ngModel)]="company.website"
+								formControlName="website"
 								placeholder="https://www.example.com"
 								class="w-full"
+								[class.ng-invalid]="isFieldInvalid('website')"
 							/>
+							<small
+								class="text-xs text-red-600"
+								*ngIf="isFieldInvalid('website')"
+								>{{ getFieldError('website') }}</small
+							>
 						</div>
 					</div>
 				</p-card>
@@ -144,7 +151,7 @@
 							<label class="text-xs font-medium text-gray-600">Street Address</label>
 							<textarea
 								pInputTextarea
-								[(ngModel)]="company.address"
+								formControlName="address"
 								placeholder="Enter street address"
 								rows="3"
 								class="w-full"
@@ -156,7 +163,7 @@
 								<label class="text-xs font-medium text-gray-600">Dzongkhag</label>
 								<p-dropdown
 									[options]="dzongkhagOptions"
-									[(ngModel)]="company.dzongkhag"
+									formControlName="dzongkhag"
 									placeholder="Select dzongkhag"
 									styleClass="w-full"
 								></p-dropdown>
@@ -167,7 +174,7 @@
 								<input
 									type="text"
 									pInputText
-									[(ngModel)]="company.thromde"
+									formControlName="thromde"
 									placeholder="Enter thromde"
 									class="w-full"
 								/>
@@ -179,7 +186,7 @@
 							<input
 								type="text"
 								pInputText
-								[(ngModel)]="company.country"
+								formControlName="country"
 								placeholder="Enter country"
 								class="w-full"
 							/>
@@ -201,7 +208,7 @@
 								<input
 									type="text"
 									pInputText
-									[(ngModel)]="company.tpnNumber"
+									formControlName="tpnNumber"
 									placeholder="Enter TPN number"
 									class="w-full"
 								/>
@@ -214,7 +221,7 @@
 								<input
 									type="text"
 									pInputText
-									[(ngModel)]="company.businessLicenseNumber"
+									formControlName="businessLicenseNumber"
 									placeholder="Enter license number"
 									class="w-full"
 								/>
@@ -241,57 +248,59 @@
 						</div>
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-medium text-gray-600"
-								>Bank Name <span class="text-red-500">*</span></label
+								>Bank Name</label
 							>
 							<p-dropdown
 								[options]="bankNameOptions"
-								[(ngModel)]="company.zpssBankName"
+								formControlName="zpssBankName"
+								optionLabel="label"
+								optionValue="value"
 								placeholder="Select bank name"
 								styleClass="w-full"
-								[class.ng-invalid]="submitted && !company.zpssBankName"
+								[class.ng-invalid]="isFieldInvalid('zpssBankName')"
 							></p-dropdown>
 							<small
 								class="text-xs text-red-600"
-								*ngIf="submitted && !company.zpssBankName"
-								>Bank name is required</small
+								*ngIf="isFieldInvalid('zpssBankName')"
+								>{{ getFieldError('zpssBankName') }}</small
 							>
 						</div>
 
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-medium text-gray-600"
-								>Account Name <span class="text-red-500">*</span></label
+								>Account Name</label
 							>
 							<input
 								type="text"
 								pInputText
-								[(ngModel)]="company.zpssAccountName"
+								formControlName="zpssAccountName"
 								placeholder="Enter account name"
 								class="w-full"
-								[class.ng-invalid]="submitted && !company.zpssAccountName"
+								[class.ng-invalid]="isFieldInvalid('zpssAccountName')"
 							/>
 							<small
 								class="text-xs text-red-600"
-								*ngIf="submitted && !company.zpssAccountName"
-								>Account name is required</small
+								*ngIf="isFieldInvalid('zpssAccountName')"
+								>{{ getFieldError('zpssAccountName') }}</small
 							>
 						</div>
 
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-medium text-gray-600"
-								>Account Number <span class="text-red-500">*</span></label
+								>Account Number</label
 							>
 							<input
 								type="text"
 								pInputText
-								[(ngModel)]="company.zpssAccountNumber"
+								formControlName="zpssAccountNumber"
 								placeholder="Enter account number"
 								class="w-full"
-								[class.ng-invalid]="submitted && !company.zpssAccountNumber"
+								[class.ng-invalid]="isFieldInvalid('zpssAccountNumber')"
 							/>
 							<small
 								class="text-xs text-red-600"
-								*ngIf="submitted && !company.zpssAccountNumber"
-								>Account number is required</small
+								*ngIf="isFieldInvalid('zpssAccountNumber')"
+								>{{ getFieldError('zpssAccountNumber') }}</small
 							>
 						</div>
 					</div>
@@ -310,10 +319,16 @@
 							<input
 								type="url"
 								pInputText
-								[(ngModel)]="company.facebookLink"
+								formControlName="facebookLink"
 								placeholder="https://www.facebook.com/yourpage"
 								class="w-full"
+								[class.ng-invalid]="isFieldInvalid('facebookLink')"
 							/>
+							<small
+								class="text-xs text-red-600"
+								*ngIf="isFieldInvalid('facebookLink')"
+								>{{ getFieldError('facebookLink') }}</small
+							>
 						</div>
 
 						<div class="flex flex-col gap-1.5">
@@ -321,57 +336,24 @@
 							<input
 								type="url"
 								pInputText
-								[(ngModel)]="company.tiktokLink"
+								formControlName="tiktokLink"
 								placeholder="https://www.tiktok.com/@yourhandle"
 								class="w-full"
+								[class.ng-invalid]="isFieldInvalid('tiktokLink')"
 							/>
+							<small
+								class="text-xs text-red-600"
+								*ngIf="isFieldInvalid('tiktokLink')"
+								>{{ getFieldError('tiktokLink') }}</small
+							>
 						</div>
 					</div>
 				</p-card>
 			</div>
 
-			<!-- Right Column - Logo & Settings -->
+			<!-- Right Column - Settings -->
 			<div class="space-y-4">
-				<!-- Company Logo -->
-				<p-card>
-					<ng-template pTemplate="header">
-						<div class="p-4 border-b border-gray-200">
-							<h4 class="text-sm font-semibold text-gray-900">Company Logo</h4>
-						</div>
-					</ng-template>
-					<div class="p-4 space-y-4">
-						<div
-							*ngIf="company.logo"
-							class="w-full rounded-lg border-2 border-dashed border-gray-200 p-4 bg-gray-50 flex items-center justify-center"
-						>
-							<img
-								[src]="getLogoUrl(company.logo)"
-								alt="Company logo"
-								class="max-w-full max-h-48 object-contain"
-							/>
-						</div>
-						<div
-							*ngIf="!company.logo"
-							class="w-full h-48 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 text-gray-400"
-						>
-							<i class="pi pi-image text-4xl"></i>
-							<p class="text-sm">No logo uploaded</p>
-						</div>
-						<div class="flex flex-col gap-1.5">
-							<label class="text-xs font-medium text-gray-600">Logo URL or Path</label>
-							<input
-								type="text"
-								pInputText
-								[(ngModel)]="company.logo"
-								placeholder="Enter logo URL or path"
-								class="w-full"
-							/>
-							<small class="text-xs text-gray-500"
-								>Enter the URL or path to your company logo</small
-							>
-						</div>
-					</div>
-				</p-card>
+				<!-- Note: Logo upload is handled separately in the main company profile component -->
 
 				<!-- Settings -->
 				<p-card>
@@ -384,9 +366,9 @@
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-medium text-gray-600">Company Status</label>
 							<div class="flex items-center gap-3">
-								<p-inputSwitch [(ngModel)]="company.isActive"></p-inputSwitch>
+								<p-inputSwitch formControlName="isActive"></p-inputSwitch>
 								<span class="text-sm text-gray-700">{{
-									company.isActive ? 'Active' : 'Inactive'
+									companyForm.get('isActive')?.value ? 'Active' : 'Inactive'
 								}}</span>
 							</div>
 						</div>
@@ -402,41 +384,31 @@
 					</ng-template>
 					<div class="p-4">
 						<div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-							<div
-								*ngIf="company.logo"
-								class="w-full h-32 bg-gray-50 flex items-center justify-center p-4 border-b border-gray-200"
-							>
-								<img
-									[src]="getLogoUrl(company.logo)"
-									alt="Company logo"
-									class="max-w-full max-h-full object-contain"
-								/>
-							</div>
 							<div class="p-4">
 								<h3 class="text-lg font-bold text-gray-900">
-									{{ company.name || 'Company Name' }}
+									{{ companyForm.get('name')?.value || 'Company Name' }}
 								</h3>
-								<p class="text-sm text-gray-600 italic mt-1" *ngIf="company.slogan">
-									{{ company.slogan }}
+								<p class="text-sm text-gray-600 italic mt-1" *ngIf="companyForm.get('slogan')?.value">
+									{{ companyForm.get('slogan')?.value }}
 								</p>
 								<div class="mt-3 space-y-2">
 									<p
-										*ngIf="company.email"
+										*ngIf="companyForm.get('email')?.value"
 										class="text-xs text-gray-600 flex items-center gap-2"
 									>
-										<i class="pi pi-envelope"></i> {{ company.email }}
+										<i class="pi pi-envelope"></i> {{ companyForm.get('email')?.value }}
 									</p>
 									<p
-										*ngIf="company.phone1"
+										*ngIf="companyForm.get('phone1')?.value"
 										class="text-xs text-gray-600 flex items-center gap-2"
 									>
-										<i class="pi pi-phone"></i> {{ company.phone1 }}
+										<i class="pi pi-phone"></i> {{ companyForm.get('phone1')?.value }}
 									</p>
 									<p
-										*ngIf="company.address"
+										*ngIf="companyForm.get('address')?.value"
 										class="text-xs text-gray-600 flex items-center gap-2"
 									>
-										<i class="pi pi-map-marker"></i> {{ company.address }}
+										<i class="pi pi-map-marker"></i> {{ companyForm.get('address')?.value }}
 									</p>
 								</div>
 							</div>
@@ -458,15 +430,16 @@
 		></button>
 		<button
 			pButton
-			type="button"
-			[label]="isEditMode ? 'Update Profile' : 'Create Profile'"
+			type="submit"
+			label="Create Profile"
 			icon="pi pi-check"
 			class="p-button-primary"
-			[disabled]="loading"
+			[disabled]="loading || companyForm.invalid"
 			[loading]="loading"
-			(click)="saveCompany()"
+			(click)="createCompany()"
 		></button>
 	</div>
 
 	<p-toast></p-toast>
-</div>
+</form>
+

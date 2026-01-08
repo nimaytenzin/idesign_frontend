@@ -2,17 +2,21 @@
 	<!-- Sidebar Header -->
 	<div class="sidebar-header px-6 py-5 border-b border-gray-200 bg-white">
 		<div class="flex items-center gap-3 mb-2">
-			<div class="logo-container flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 shadow-md">
-				<span class="text-white font-bold text-xl ">iD</span>
+			<div class=" flex items-center justify-center w-12 h-12 rounded-xl bg-white shadow-md overflow-hidden">
+				<img
+					[src]="logoUrl"
+					alt="Company Logo"
+					class="w-full h-full object-contain p-1"
+				/>
 			</div>
 			<div class="flex-1 min-w-0">
 				<h1 class="text-lg font-bold text-gray-900 m-0 truncate">
-					{{ appName }}
+					{{ getCompanyName() }}
 				</h1>
 			</div>
 		</div>
 		<p class="text-xs font-medium text-gray-500 uppercase tracking-wider m-0 ">
-			{{ appSlogan }}
+			{{ getCompanySlogan() }}
 		</p>
 	</div>
 

@@ -1,0 +1,46 @@
+// View Product Component Styles
+// Uses Tailwind CSS classes, minimal custom styles needed
+
+:host {
+	display: block;
+	overflow: visible;
+	max-height: none;
+
+	.carousel-pagination {
+		scrollbar-width: thin;
+		scrollbar-color: #cbd5e1 transparent;
+
+		&::-webkit-scrollbar {
+			height: 4px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: #cbd5e1;
+			border-radius: 2px;
+		}
+	}
+
+	.carousel-pagination-item {
+		cursor: pointer;
+		transition: all 0.2s ease;
+
+		&:hover {
+			opacity: 0.8;
+			transform: scale(1.05);
+		}
+	}
+
+	.carousel-prev,
+	.carousel-next {
+		transition: all 0.3s ease;
+
+		&:hover:not(:disabled) {
+			transform: translateY(-50%) scale(1.1);
+		}
+	}
+}
+

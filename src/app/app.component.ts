@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationStart, RouterModule } from '@angular/router';
 import { filter, first } from 'rxjs/operators';
+import { DynamicDialogModule, DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
 @Component({
 	selector: 'app-root',
 	standalone: true,
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.scss',
-	imports: [RouterModule],
+	imports: [RouterModule, DynamicDialogModule],
+	
 })
 export class AppComponent implements OnInit {
 	constructor(private router: Router) {}

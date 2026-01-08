@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CompanyService } from '../../../../core/dataservice/company/company.service';
 import { Company } from '../../../../core/dataservice/company/company.interface';
-import { environment } from '../../../../../environments/environment';
 
 @Component({
 	selector: 'app-footer',
@@ -80,14 +79,13 @@ export class FooterComponent implements OnInit {
 		}
 	}
 
-	getLogoUrl(logoPath: string | undefined): string {
-		if (!logoPath) {
-			return '/assets/images/no-image.png';
+	getLogoUrl(): string {
+		if (this.company && this.company.logo) {
+			// Use the logo endpoint
+			return this.companyService.getLogoUrl();
 		}
-		if (logoPath.startsWith('http')) {
-			return logoPath;
-		}
-		return `${environment.BASEAPI_URL}/${logoPath}`;
+		// Fallback to default logo
+		return '/assets/logo.png';
 	}
 
 	getCompanyName(): string {

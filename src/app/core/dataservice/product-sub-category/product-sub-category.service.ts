@@ -26,7 +26,7 @@ export class ProductSubCategoryService {
 		categoryId: number
 	): Observable<ProductSubCategory[]> {
 		return this.http.get<ProductSubCategory[]>(
-			`${this.apiUrl}/category/${categoryId}`
+			`${this.apiUrl}/by-category/${categoryId}`
 		);
 	}
 
@@ -56,5 +56,13 @@ export class ProductSubCategoryService {
 	// Delete subcategory
 	deleteSubCategory(id: number): Observable<void> {
 		return this.http.delete<void>(`${this.apiUrl}/${id}`);
+	}
+
+	// Toggle subcategory status
+	toggleSubCategoryStatus(id: number): Observable<ProductSubCategory> {
+		return this.http.patch<ProductSubCategory>(
+			`${this.apiUrl}/${id}/toggle-status`,
+			{}
+		);
 	}
 }

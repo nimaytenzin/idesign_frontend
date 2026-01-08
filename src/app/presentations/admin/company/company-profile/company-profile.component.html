@@ -21,9 +21,19 @@
 						label="Edit Profile"
 						icon="pi pi-pencil"
 						size="small"
- 						[outlined]="true"
-						(onClick)="openCompanyProfileModal()"
+						[outlined]="true"
+						(onClick)="openUpdateCompanyProfileModal()"
 						pTooltip="Edit company profile"
+					></p-button>
+					<p-button
+						*ngIf="company"
+						label="Delete Profile"
+						icon="pi pi-trash"
+						size="small"
+						severity="danger"
+						[outlined]="true"
+						(onClick)="deleteCompany()"
+						pTooltip="Delete company profile"
 					></p-button>
 					<p-button
 						*ngIf="!company"
@@ -31,7 +41,7 @@
 						icon="pi pi-plus"
 						size="small"
 						severity="primary"
-						(onClick)="openCompanyProfileModal()"
+						(onClick)="openCreateCompanyProfileModal()"
 						pTooltip="Create company profile"
 					></p-button>
 				</div>
@@ -40,15 +50,20 @@
 			<!-- Empty State -->
 			<div *ngIf="!company" class="bg-white rounded-lg border border-gray-200 p-12">
 				<div class="flex flex-col items-center gap-4 text-center">
-					<div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center mb-2">
-						<i class="pi pi-building text-3xl text-gray-400"></i>
+					<div class="w-16 h-16 rounded-lg bg-yellow-100 flex items-center justify-center mb-2">
+						<i class="pi pi-info-circle text-3xl text-yellow-600"></i>
 					</div>
 					<div>
 						<h3 class="text-lg font-semibold text-gray-900 mb-2">
-							No Company Profile Found
+							Company Profile Not Created
 						</h3>
-						<p class="text-gray-600 max-w-md">
-							You haven't created a company profile yet. Create one to get started with managing your company information.
+						<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 max-w-lg">
+							<p class="text-sm text-yellow-800 leading-relaxed">
+								<strong>Note:</strong> Company profile has not been created. The system will use dummy profile data in its public interfaces until a company profile is created.
+							</p>
+						</div>
+						<p class="text-gray-600 max-w-md mb-4">
+							Create a company profile to customize your company information displayed in public interfaces, including contact details, logo, and branding.
 						</p>
 					</div>
 					<p-button
@@ -56,13 +71,92 @@
 						icon="pi pi-plus"
 						size="small"
 						severity="primary"
-						(onClick)="openCompanyProfileModal()"
+						(onClick)="openCreateCompanyProfileModal()"
 					></p-button>
 				</div>
 			</div>
 
 			<!-- Company Profile Display -->
 			<div *ngIf="company" class="space-y-6">
+				<!-- Logo Upload Section -->
+				<div class="bg-white rounded-lg border border-gray-200 p-6">
+					<h3 class="text-lg font-semibold text-gray-900 mb-4">Company Logo</h3>
+					<div class="flex flex-col md:flex-row gap-6">
+						<!-- Logo Preview -->
+						<div class="flex-shrink-0">
+							<div class="w-48 h-48 rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+								<img
+									*ngIf="logoPreview || company.logo; else noLogo"
+									[src]="logoPreview || getLogoUrl()"
+									alt="Company logo"
+									class="max-w-full max-h-full object-contain"
+								/>
+								<ng-template #noLogo>
+									<div class="flex flex-col items-center justify-center gap-2 text-gray-400">
+										<i class="pi pi-image text-4xl"></i>
+										<p class="text-sm">No logo uploaded</p>
+									</div>
+								</ng-template>
+							</div>
+						</div>
+
+						<!-- Upload Controls -->
+						<div class="flex-1 space-y-4">
+							<div class="flex flex-col gap-2">
+								<label class="text-sm font-medium text-gray-700">Upload Logo</label>
+								<div class="flex items-center gap-2">
+									<input
+										type="file"
+										id="logoFileInput"
+										accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+										class="hidden"
+										(change)="onLogoFileSelect($event)"
+										[disabled]="uploadingLogo"
+									/>
+									<p-button
+										label="Choose File"
+										icon="pi pi-upload"
+										size="small"
+										[outlined]="true"
+										[disabled]="uploadingLogo"
+										(onClick)="triggerFileInput()"
+									></p-button>
+									<span *ngIf="selectedLogoFile" class="text-sm text-gray-600">
+										{{ selectedLogoFile.name }}
+									</span>
+								</div>
+								<small class="text-xs text-gray-500">
+									Supported formats: JPG, JPEG, PNG, GIF, WEBP (Max 5MB)
+								</small>
+							</div>
+
+							<div class="flex items-center gap-2" *ngIf="selectedLogoFile">
+								<p-button
+									label="Upload Logo"
+									icon="pi pi-check"
+									size="small"
+									severity="primary"
+									[loading]="uploadingLogo"
+									[disabled]="uploadingLogo"
+									(onClick)="uploadLogo()"
+								></p-button>
+								<p-button
+									label="Cancel"
+									icon="pi pi-times"
+									size="small"
+									[outlined]="true"
+									[disabled]="uploadingLogo"
+									(onClick)="cancelLogoUpload()"
+								></p-button>
+							</div>
+
+							<div *ngIf="company.logo && !selectedLogoFile" class="text-sm text-gray-600">
+								<p>Current logo is displayed above. Upload a new file to replace it.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
 				<!-- Company Overview Card -->
 				<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 					<div class="p-6 border-b border-gray-200">
@@ -72,7 +166,7 @@
 								class="w-24 h-24 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0"
 							>
 								<img
-									[src]="getLogoUrl(company.logo)"
+									[src]="getLogoUrl()"
 									alt="Company logo"
 									class="w-full h-full object-contain"
 								/>
@@ -267,3 +361,5 @@
 		</div>
 	</div>
 </div>
+
+<p-confirmDialog></p-confirmDialog>

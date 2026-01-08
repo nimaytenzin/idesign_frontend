@@ -6,17 +6,17 @@
 		<!-- Header -->
 		<div class="text-center">
 			<div class="flex justify-center mb-6">
-				<div
-					class="w-16 h-16 bg-teal-600 rounded-lg flex items-center justify-center"
-				>
-					<i class="pi pi-cog text-2xl text-white"></i>
-				</div>
+				<img
+					[src]="logoUrl"
+					alt="Company Logo"
+					class="h-16 w-auto object-contain"
+				/>
 			</div>
 			<h1 class="text-3xl font-bold text-gray-900 ">
-				iDesign Admin
+				{{ company?.name || 'iDesign Admin' }}
 			</h1>
 			<p class="mt-2 text-gray-600 ">
-				3D Printing Management System
+				{{ company?.slogan || '3D Printing Management System' }}
 			</p>
 		</div>
 

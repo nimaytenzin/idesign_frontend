@@ -6,7 +6,6 @@ import { APPNAME } from '../../../../core/constants/constants';
 import { CartService } from '../../../../core/services/cart.service';
 import { CompanyService } from '../../../../core/dataservice/company/company.service';
 import { Company } from '../../../../core/dataservice/company/company.interface';
-import { environment } from '../../../../../environments/environment';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -98,14 +97,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	getLogoUrl(logoPath: string | undefined): string {
-		if (!logoPath) {
-			return 'logo.png';
+	getLogoUrl(): string {
+		if (this.company && this.company.logo) {
+			// Use the logo endpoint
+			return this.companyService.getLogoUrl();
 		}
-		if (logoPath.startsWith('http')) {
-			return logoPath;
-		}
-		return `${environment.BASEAPI_URL}/${logoPath}`;
+		// Fallback to default logo
+		return 'logo.png';
 	}
 
 	ngOnDestroy() {
@@ -118,7 +116,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 		}
 	}
 
-	@HostListener('window:scroll', ['$event'])
+	@HostListener('window:scroll')
 	onWindowScroll() {
 		this.detectScroll();
 	}

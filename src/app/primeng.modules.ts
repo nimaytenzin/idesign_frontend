@@ -49,6 +49,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { SliderModule } from 'primeng/slider';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 
 const PRIME_NG_MODULES = [
@@ -102,6 +103,7 @@ const PRIME_NG_MODULES = [
 	SliderModule,
 	ConfirmPopupModule,
 	InputSwitchModule,
+	ToggleSwitchModule,
 	DynamicDialogModule,
 ];
 

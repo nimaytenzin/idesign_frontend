@@ -14,10 +14,9 @@
 				<div class="relative">
 					<!-- Company Logo -->
 					<img 
-						[src]="company?.logo ? getLogoUrl(company?.logo) : 'logo.png'" 
+						[src]="getLogoUrl()" 
 						[alt]="company?.name || APPNAME" 
 						class="h-16 object-contain"
-						onerror="this.src='logo.png'"
 					/>
 				</div>
 			</div>

@@ -1,10 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { TieredMenu } from 'primeng/tieredmenu';
 import { Product } from '../../../../core/dataservice/product/product.interface';
 import { ProductService } from '../../../../core/dataservice/product/product.service';
 import { ProductCategoryService } from '../../../../core/dataservice/product-category/product-category.service';
@@ -14,7 +13,9 @@ import { PrimeNgModules } from '../../../../primeng.modules';
 import { Discount, DiscountValueType, DiscountProduct } from '../../../../core/dataservice/discount/discount.interface';
 import { environment } from '../../../../../environments/environment';
 import { Table } from 'primeng/table';
-import { AdminProductFormComponent } from '../admin-product-form/admin-product-form.component';
+import { CreateProductComponent } from '../components/create-product/create-product.component';
+import { UpdateProductComponent } from '../components/update-product/update-product.component';
+import { ViewProductComponent } from '../components/view-product/view-product.component';
 
 @Component({
 	selector: 'app-admin-list-products',
@@ -24,9 +25,8 @@ import { AdminProductFormComponent } from '../admin-product-form/admin-product-f
 	templateUrl: './admin-list-products.component.html',
 	styleUrls: ['./admin-list-products.component.scss'],
 })
-export class AdminListProductsComponent implements OnInit, AfterViewInit {
+export class AdminListProductsComponent implements OnInit {
 	@ViewChild('productTable') productTable!: Table;
-	@ViewChildren('actionMenu') actionMenuList!: QueryList<TieredMenu>;
 
 	// Data
 	public products: Product[] = [];
@@ -49,8 +49,6 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 	public selectedMap: { [key: number]: boolean } = {};
 	public allSelected: boolean = false;
 
-	// Action menu references
-	public actionMenus: Map<number, TieredMenu> = new Map();
 
 	// UI State
 	public loading: boolean = false;
@@ -84,32 +82,14 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 		this.loadCategories();
 	}
 
-	ngAfterViewInit(): void {
-		// Capture menu references when view is initialized or changes
-		this.actionMenuList.changes.subscribe(() => {
-			this.updateMenuReferences();
-		});
-		// Initial update
-		setTimeout(() => this.updateMenuReferences(), 0);
-	}
-
-	private updateMenuReferences(): void {
-		if (this.actionMenuList && this.actionMenuList.length > 0) {
-			const products = this.getFilteredProducts();
-			this.actionMenuList.forEach((menu: TieredMenu, index) => {
-				if (products[index]) {
-					this.actionMenus.set(products[index].id, menu);
-				}
-			});
-		}
-	}
-
 	public loadProducts(): void {
 		this.loading = true;
 		this.productService.getAllProductsAdmin().subscribe({
 			next: (data) => {
-				this.products = data;
-				this.totalRecords = data.length;
+				// Remove duplicate products based on ID
+				const uniqueProducts = this.removeDuplicates(data);
+				this.products = uniqueProducts;
+				this.totalRecords = uniqueProducts.length;
 				this.loading = false;
 				this.updateSelectedProducts();
 				this.cdr.markForCheck();
@@ -124,6 +104,24 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 				this.cdr.markForCheck();
 			},
 		});
+	}
+
+	/**
+	 * Remove duplicate products based on product ID
+	 * Keeps the first occurrence of each unique product
+	 */
+	private removeDuplicates(products: Product[]): Product[] {
+		const seen = new Set<number>();
+		const uniqueProducts: Product[] = [];
+
+		for (const product of products) {
+			if (!seen.has(product.id)) {
+				seen.add(product.id);
+				uniqueProducts.push(product);
+			}
+		}
+
+		return uniqueProducts;
 	}
 
 	public loadCategories(): void {
@@ -310,7 +308,7 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 	}
 
 	public openNew(): void {
-		this.dialogRef = this.dialogService.open(AdminProductFormComponent, {
+		this.dialogRef = this.dialogService.open(CreateProductComponent, {
 			header: 'Create New Product',
 			width: '90%',
 			style: { 'max-width': '1200px' },
@@ -328,8 +326,23 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 		});
 	}
 
+	public viewProduct(product: Product): void {
+		this.dialogRef = this.dialogService.open(ViewProductComponent, {
+			header: 'View Product',
+			width: '90%',
+			style: { 'max-width': '1200px' },
+			contentStyle: { overflow: 'visible' },
+			baseZIndex: 10000,
+			modal: true,
+			dismissableMask: true,
+			data: {
+				product: product,
+			},
+		});
+	}
+
 	public editProduct(product: Product): void {
-		this.dialogRef = this.dialogService.open(AdminProductFormComponent, {
+		this.dialogRef = this.dialogService.open(UpdateProductComponent, {
 			header: 'Edit Product',
 			width: '90%',
 			style: { 'max-width': '1200px' },
@@ -387,7 +400,7 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 			header: 'Duplicate Product',
 			icon: 'pi pi-copy',
 			accept: () => {
-				this.dialogRef = this.dialogService.open(AdminProductFormComponent, {
+				this.dialogRef = this.dialogService.open(CreateProductComponent, {
 					header: 'Duplicate Product',
 					width: '90%',
 					style: { 'max-width': '1200px' },
@@ -454,26 +467,6 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 		this.selectedProducts = this.products.filter((p) => this.selected.includes(p.id));
 	}
 
-	public setActionMenu(productId: number, menu: TieredMenu): void {
-		this.actionMenus.set(productId, menu);
-	}
-
-	public toggleActionMenu(event: Event, productId: number): void {
-		event.stopPropagation();
-		const menuRef = this.actionMenus.get(productId);
-		if (menuRef) {
-			menuRef.toggle(event);
-		} else {
-			const menuIndex = this.getFilteredProducts().findIndex(p => p.id === productId);
-			if (menuIndex >= 0 && this.actionMenuList && this.actionMenuList.length > menuIndex) {
-				const foundMenu = this.actionMenuList.toArray()[menuIndex];
-				if (foundMenu) {
-					this.actionMenus.set(productId, foundMenu);
-					foundMenu.toggle(event);
-				}
-			}
-		}
-	}
 
 	public exportProducts(): void {
 		const csvContent = this.convertToCSV(this.products);
@@ -512,31 +505,6 @@ export class AdminListProductsComponent implements OnInit, AfterViewInit {
 		return csv;
 	}
 
-	public getActionMenuItems(product: Product): any[] {
-		return [
-			{
-				label: 'View More',
-				icon: 'pi pi-eye',
-				command: () => {
-					this.editProduct(product);
-				},
-			},
-			{
-				label: 'Edit Product',
-				icon: 'pi pi-pencil',
-				command: () => {
-					this.editProduct(product);
-				},
-			},
-			{
-				label: 'Delete',
-				icon: 'pi pi-trash',
-				command: () => {
-					this.deleteProduct(product);
-				},
-			},
-		];
-	}
 
 	public getStockStatusClasses(stockQuantity: number): string {
 		if (stockQuantity > 0) {

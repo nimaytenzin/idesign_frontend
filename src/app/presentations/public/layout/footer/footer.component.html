@@ -7,21 +7,12 @@
 			<div class="lg:col-span-2">
 				<!-- Logo and Brand -->
 				<div class="flex items-center space-x-3 mb-6">
-					<div *ngIf="company?.logo" class="relative">
+					<div class="relative">
 						<img
-						[src]="getLogoUrl(company?.logo)"
+							[src]="getLogoUrl()"
 							[alt]="getCompanyName()"
 							class="h-10 w-auto object-contain"
-							onerror="this.src='/assets/images/no-image.png'"
 						/>
-					</div>
-					<div *ngIf="!company?.logo" class="relative">
-						<div
-							class="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-300 transform rotate-12"
-						></div>
-						<div
-							class="absolute -top-1 -right-1 w-4 h-4 bg-teal-500 rounded-sm"
-						></div>
 					</div>
 					<div class="flex flex-col">
 						<span

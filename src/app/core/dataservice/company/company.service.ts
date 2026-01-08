@@ -55,5 +55,25 @@ export class CompanyService {
 	deleteCompany(): Observable<void> {
 		return this.http.delete<void>(this.apiUrl);
 	}
+
+	/**
+	 * Upload company logo
+	 * POST /company/logo
+	 * @param file File to upload (jpg, jpeg, png, gif, webp, max 5MB)
+	 */
+	uploadLogo(file: File): Observable<Company> {
+		const formData = new FormData();
+		formData.append('logo', file);
+		return this.http.post<Company>(`${this.apiUrl}/logo`, formData);
+	}
+
+	/**
+	 * Get company logo URL
+	 * GET /company/logo
+	 * Returns the logo URL or serves the file directly
+	 */
+	getLogoUrl(): string {
+		return `${this.apiUrl}/logo`;
+	}
 }
 

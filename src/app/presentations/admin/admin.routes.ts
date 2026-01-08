@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
-import { AdminProductFormComponent } from './product-management/admin-product-form/admin-product-form.component';
+import { CreateProductComponent } from './product-management/components/create-product/create-product.component';
+import { UpdateProductComponent } from './product-management/components/update-product/update-product.component';
 import { AdminListCategoriesComponent } from './product-management/admin-list-categories/admin-list-categories.component';
 import { AdminMasterOrdersComponent } from './order-management/admin-master-orders/admin-master-orders.component';
 import { AdminListOrdersComponent } from './order-management/admin-list-orders/admin-list-orders.component';
@@ -43,11 +44,11 @@ export const adminRoutes: Routes = [
 			},
 			{
 				path: 'products/new',
-				component: AdminProductFormComponent,
+				component: CreateProductComponent,
 			},
 			{
 				path: 'products/edit/:id',
-				component: AdminProductFormComponent,
+				component: UpdateProductComponent,
 			},
 			// Order Management Routes
 			{

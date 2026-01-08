@@ -18,16 +18,8 @@
 	flex-shrink: 0;
 }
 
-.logo-container {
-	background: linear-gradient(135deg, #017263 0%, #015b4f 100%);
-	box-shadow: 0 4px 12px rgba(1, 114, 99, 0.2);
-	transition: all 0.3s ease;
-}
 
-.logo-container:hover {
-	transform: scale(1.05);
-	box-shadow: 0 6px 16px rgba(1, 114, 99, 0.3);
-}
+
 
 /* Navigation */
 .sidebar-nav {
