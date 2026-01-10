@@ -1,0 +1,119 @@
+<div class="flex flex-col gap-6" *ngIf="employeeProfile">
+
+
+	<div class="flex flex-col gap-2">
+		<label for="department" class="text-sm font-medium text-gray-700">
+			Department
+		</label>
+		<input
+			id="department"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.department"
+			placeholder="Enter department"
+			class="w-full"
+			[class.ng-invalid]="
+				submitted && updateData.department !== undefined && !updateData.department
+			"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="
+				submitted &&
+				updateData.department !== undefined &&
+				!updateData.department
+			"
+			>Department cannot be empty</small
+		>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="position" class="text-sm font-medium text-gray-700">
+			Position
+		</label>
+		<input
+			id="position"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.position"
+			placeholder="Enter position"
+			class="w-full"
+			[class.ng-invalid]="
+				submitted && updateData.position !== undefined && !updateData.position
+			"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="
+				submitted &&
+				updateData.position !== undefined &&
+				!updateData.position
+			"
+			>Position cannot be empty</small
+		>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="hireDate" class="text-sm font-medium text-gray-700">
+			Hire Date
+		</label>
+		<p-calendar
+			id="hireDate"
+			[(ngModel)]="updateData.hireDate"
+			[showIcon]="true"
+			dateFormat="yy-mm-dd"
+			[showButtonBar]="true"
+			styleClass="w-full"
+			placeholder="Select hire date"
+		></p-calendar>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="terminationDate" class="text-sm font-medium text-gray-700">
+			Termination Date
+		</label>
+		<p-calendar
+			id="terminationDate"
+			[(ngModel)]="updateData.terminationDate"
+			[showIcon]="true"
+			dateFormat="yy-mm-dd"
+			[showButtonBar]="true"
+			styleClass="w-full"
+			placeholder="Select termination date"
+		></p-calendar>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="employeeStatus" class="text-sm font-medium text-gray-700">
+			Employee Status
+		</label>
+		<p-dropdown
+			id="employeeStatus"
+			[options]="statusOptions"
+			optionLabel="label"
+			optionValue="value"
+			[(ngModel)]="updateData.employeeStatus"
+			placeholder="Select status"
+			styleClass="w-full"
+		></p-dropdown>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-4">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Update Profile"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveEmployeeProfile()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

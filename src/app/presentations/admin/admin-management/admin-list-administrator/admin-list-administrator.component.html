@@ -1,0 +1,144 @@
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+	<div class="max-w-[95vw] mx-auto">
+		<p-toast></p-toast>
+
+		<!-- Header -->
+		<div class="flex items-center justify-between mb-6">
+			<div>
+				<h1 class="text-2xl font-semibold text-gray-900">
+					Administrator Management
+				</h1>
+				<p class="text-sm text-gray-500 mt-1">Manage system administrators</p>
+			</div>
+			<p-button
+				label="Create User"
+				icon="pi pi-plus"
+				size="small"
+				(onClick)="openCreateUserDialog()"
+			></p-button>
+		</div>
+
+		<!-- Table -->
+		<div class="bg-white rounded-lg border border-gray-200">
+			<div
+				class="px-4 py-3 border-b border-gray-200 flex items-center justify-between"
+			>
+				<h3 class="text-sm font-semibold text-gray-900">Administrators</h3>
+				<span class="text-xs text-gray-500"
+					>{{ totalRecords }} administrator(s)</span
+				>
+			</div>
+			<p-table
+				[value]="filteredAdmins"
+				[loading]="loading"
+				[rows]="pageSize"
+				[paginator]="true"
+				[rowsPerPageOptions]="[10, 25, 50, 100]"
+				[totalRecords]="totalRecords"
+				[lazy]="true"
+				[first]="(currentPage - 1) * pageSize"
+				(onLazyLoad)="onPageChange($event)"
+				styleClass="p-table-sm"
+			>
+				<ng-template pTemplate="header">
+					<tr>
+						<th>#</th>
+						<th>Profile</th>
+						<th>Name</th>
+						<th>CID</th>
+						<th>Email</th>
+						<th>Phone</th>
+						<th>Address</th>
+						<th>Status</th>
+						<th>Created At</th>
+						<th style="width: 100px">Actions</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-admin let-i="rowIndex">
+					<tr
+						class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+					>
+						<td class="py-3 px-4">
+							{{ i + 1 }}
+						</td>
+						<td class="py-3 px-4">
+							<div class="flex items-center gap-2">
+							 
+								<img
+									*ngIf="admin.profileImageUrl"
+									[src]="parseImageUrl(admin.profileImageUrl)"
+									alt="Profile"
+									class="w-10 h-10 rounded-full object-cover"
+ 								/>
+								<div
+									*ngIf="!admin.profileImageUrl"
+									class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer"
+									(click)="openUploadProfilePictureDialog(admin)"
+								></div>
+							</div>
+						</td>
+						<td class="py-3 px-4">
+							<p class="font-semibold text-gray-900">{{ admin.name }}</p>
+						</td>
+						<td class="py-3 px-4">
+							<p class="text-sm text-gray-700">{{ admin.cid || "N/A" }}</p>
+						</td>
+						<td class="py-3 px-4">
+							<p class="text-sm text-gray-700">{{ admin.emailAddress }}</p>
+						</td>
+						<td class="py-3 px-4">
+							<p class="text-sm text-gray-700">
+								{{ admin.phoneNumber || "N/A" }}
+							</p>
+						</td>
+						<td class="py-3 px-4">
+							<p class="text-sm text-gray-700">{{ admin.permanentAddress || "N/A" }}</p>
+							<p class="text-sm text-gray-700">{{ admin.currentAddress || "N/A" }}</p>
+							
+						</td>
+						<td class="py-3 px-4">
+							<p-tag
+								[value]="admin.isActive ? 'Active' : 'Inactive'"
+								[severity]="admin.isActive ? 'success' : 'danger'"
+								styleClass="text-xs"
+							></p-tag>
+						</td>
+						<td class="py-3 px-4">
+							<p class="text-xs text-gray-500">
+								{{ formatDate(admin.createdAt) }}
+							</p>
+						</td>
+						<td class="py-3 px-4">
+							<div class="flex items-center gap-2">
+								<p-button
+									icon="pi pi-pencil"
+									[text]="true"
+									severity="info"
+									size="small"
+									(onClick)="editAdmin(admin)"
+									pTooltip="Edit"
+								></p-button>
+								<p-button
+									icon="pi pi-key"
+									[text]="true"
+									severity="warn"
+									size="small"
+									(onClick)="openResetPasswordDialog(admin)"
+									pTooltip="Reset Password"
+								></p-button>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="9" class="text-center py-8">
+							<i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
+							<p class="text-gray-500">No administrators found</p>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
+</div>

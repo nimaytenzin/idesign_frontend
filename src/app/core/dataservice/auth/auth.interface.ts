@@ -1,51 +1,24 @@
 // Auth-related interfaces and types
 
+import { UserRole } from "../../constants/enums";
+import { User } from "../user/user.interface";
+
 export interface LoginDto {
-	phoneNumber: number;
+	email: string;
 	password: string;
 }
 
 export interface LoginResponse {
-	statusCode: number;
-	message: string;
 	token: string;
 	user: User;
 }
 
-export interface AdminResetPassword {
-	newPassword: string;
-	newPasswordAgain: string;
-}
-export interface User {
-	id: number;
-	email: string;
-	phoneNumber: number;
-	firstName: string;
-	lastName: string;
-	role: UserRole;
-	isVerified: boolean;
-	hasLoginAccess: boolean;
-	profileImage: string;
-	createdAt: Date;
-	updatedAt: Date;
-}
 
 export interface UserJwtPayload {
-	id: string;
+	sub: number;
+	cid: string;
 	email: string;
-	phoneNumber: number;
-	firstName: string;
-	lastName: string;
 	role: UserRole;
-	isVerified: boolean;
-}
-
-export enum UserRole {
-	ADMIN = 'ADMIN',
-	THEATRE_MANAGER = 'THEATRE_MANAGER',
-	EXECUTIVE_PRODUCER = 'EXECUTIVE_PRODUCER',
-	COUNTER_STAFF = 'COUNTER_STAFF',
-	CUSTOMER = 'CUSTOMER',
 }
 
 export interface AuthState {
@@ -60,20 +33,32 @@ export interface ApiError {
 	error?: string;
 }
 
-export interface AdminSignupDto {
-	firstName: string;
-	lastName: string;
-	email: string;
-	phoneNumber?: string;
-	password: string;
-	role: UserRole;
-	isVerified?: boolean;
-	hasLoginAccess?: boolean;
-	profileImage?: string;
+export interface ChangePasswordDto {
+	currentPassword: string;
+	newPassword: string;
 }
 
-export interface AdminSignupResponse {
-	statusCode: number;
-	message: string;
-	user: User;
+export interface ResetPasswordDto {
+	token: string;
+	newPassword: string;
 }
+
+export interface ChangePasswordResponse {
+	message: string;
+}
+
+export interface ResetPasswordResponse {
+	message: string;
+}
+
+export interface SignOutResponse {
+	message: string;
+}
+ 
+
+
+  
+  export interface AdminResetPasswordDto {
+	userId: number;
+	newPassword: string;
+  }

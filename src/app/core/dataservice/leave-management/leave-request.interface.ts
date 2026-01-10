@@ -1,7 +1,6 @@
 import { LeaveRequestStatus } from './leave-management.enums';
 import { LeaveType } from './leave-type.interface';
-import { User } from '../auth/auth.interface';
-
+import { User } from '../user/user.interface';
 export interface LeaveRequest {
 	id: number;
 	userId: number;

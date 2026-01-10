@@ -8,9 +8,9 @@ import { Table } from 'primeng/table';
 
 import { AdminTodoFormComponent } from './admin-todo-form/admin-todo-form.component';
 import { AdminPortfolioFormComponent } from './admin-portfolio-form/admin-portfolio-form.component';
-import { Todo, Portfolio, TodoStatus, StaffMember, TodoService, EmployeeManagementService, TodoQueryDto } from '../../../core/dataservice';
+import { Todo, Portfolio, TodoStatus, TodoService,  TodoQueryDto } from '../../../core/dataservice';
 import { PrimeNgModules } from '../../../primeng.modules';
-
+import { User } from '../../../core/dataservice/user/user.interface';
 @Component({
 	selector: 'app-admin-todo-management',
 	standalone: true,
@@ -46,7 +46,7 @@ export class AdminTodoManagementComponent implements OnInit {
 	endDateFilter: Date | null = null;
 
 	// Employees for dropdown
-	employees: StaffMember[] = [];
+	employees: User[] = [];
 
 	// Filter options
 	statusOptions = [
@@ -72,7 +72,6 @@ export class AdminTodoManagementComponent implements OnInit {
 
 	constructor(
 		private todoService: TodoService,
-		private employeeService: EmployeeManagementService,
 		private messageService: MessageService,
 		private confirmationService: ConfirmationService,
 		private dialogService: DialogService,
@@ -215,14 +214,7 @@ export class AdminTodoManagementComponent implements OnInit {
 	}
 
 	loadEmployees() {
-		this.employeeService.getAllStaffMembers().subscribe({
-			next: (data: StaffMember[]) => {
-				this.employees = data;
-			},
-			error: (error: any) => {
-				console.error('Failed to load employees:', error);
-			},
-		});
+		 
 	}
 
 	openNewTodo() {

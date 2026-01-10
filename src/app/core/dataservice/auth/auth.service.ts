@@ -1,25 +1,31 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { AuthDataService } from './auth.api';
 import {
 	AuthState,
 	LoginDto,
 	LoginResponse,
-	User,
-	UserRole,
-	AdminSignupDto,
-	AdminSignupResponse,
+	ChangePasswordDto,
+	ChangePasswordResponse,
+	ResetPasswordDto,
+	ResetPasswordResponse,
+	SignOutResponse,
+	ApiError,
+	AdminResetPasswordDto,
 } from './auth.interface';
+import { UserRole } from '../../constants/enums';
+import { BASEAPI_URL } from '../../constants/constants';
+import { User } from '../user/user.interface';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class AuthService {
+	private readonly apiUrl = BASEAPI_URL + '/auth';
 	private readonly TOKEN_KEY = 'auth_token';
 	private readonly USER_KEY = 'auth_user';
-	private readonly REFRESH_TOKEN_KEY = 'refresh_token';
 
 	private authStateSubject = new BehaviorSubject<AuthState>({
 		isAuthenticated: false,
@@ -30,7 +36,7 @@ export class AuthService {
 	public authState$ = this.authStateSubject.asObservable();
 
 	constructor(
-		private authDataService: AuthDataService,
+		private http: HttpClient,
 		private router: Router
 	) {
 		this.initializeAuthState();
@@ -53,12 +59,12 @@ export class AuthService {
 	}
 
 	/**
-	 * Login user
+	 * Login user with email and password
 	 * @param loginDto - Login credentials
 	 * @returns Observable<LoginResponse>
 	 */
 	login(loginDto: LoginDto): Observable<LoginResponse> {
-		return this.authDataService.login(loginDto).pipe(
+		return this.http.post<LoginResponse>(`${this.apiUrl}/login`, loginDto).pipe(
 			tap((response) => {
 				if (response.token && response.user) {
 					this.setAuthData(response.token, response.user);
@@ -69,21 +75,27 @@ export class AuthService {
 					});
 				}
 			}),
-			catchError((error) => throwError(() => error))
+			catchError(this.handleError)
 		);
 	}
 
 	/**
 	 * Logout user
-	 * @returns Observable<any>
+	 * @returns Observable<SignOutResponse>
 	 */
-	logout(): Observable<any> {
-		this.clearAuthData();
-		this.router.navigate(['/auth/login']);
-		return new Observable((observer) => {
-			observer.next(null);
-			observer.complete();
-		});
+	logout(): Observable<SignOutResponse> {
+		return this.http.post<SignOutResponse>(`${this.apiUrl}/signout`, {}).pipe(
+			tap(() => {
+				this.clearAuthData();
+				this.router.navigate(['/auth/login']);
+			}),
+			catchError((error) => {
+				// Even if API call fails, clear local auth data
+				this.clearAuthData();
+				this.router.navigate(['/auth/login']);
+				return throwError(() => error);
+			})
+		);
 	}
 
 	/**
@@ -147,99 +159,65 @@ export class AuthService {
 	}
 
 	/**
-	 * Check if user is manager
+	 * Check if user is staff
 	 * @returns boolean
 	 */
-	isTheatreManager(): boolean {
-		return this.hasRole(UserRole.THEATRE_MANAGER);
+	isStaff(): boolean {
+		return this.hasRole(UserRole.STAFF);
 	}
 
 	/**
-	 * Check if user is customer
+	 * Check if user is affiliate marketer
 	 * @returns boolean
 	 */
-	isCustomer(): boolean {
-		return this.hasRole(UserRole.CUSTOMER);
+	isAffiliateMarketer(): boolean {
+		return this.hasRole(UserRole.AFFILIATE_MARKETER);
 	}
 
 	/**
-	 * Check if user is customer
-	 * @returns boolean
+	 * Get authenticated user's profile
+	 * @returns Observable<User>
 	 */
-	isCounterStaff(): boolean {
-		return this.hasRole(UserRole.COUNTER_STAFF);
-	}
-
-	/**
-	 * Check if user is executive producer
-	 * @returns boolean
-	 */
-	isExecutiveProducer(): boolean {
-		return this.hasRole(UserRole.EXECUTIVE_PRODUCER);
-	}
-
-	/**
-	 * Refresh authentication token
-	 * @returns Observable<LoginResponse>
-	 */
-	refreshToken(): Observable<LoginResponse> {
-		return this.authDataService.refreshToken().pipe(
-			tap((response) => {
-				if (response.token && response.user) {
-					this.setAuthData(response.token, response.user);
+	getProfile(): Observable<User> {
+		return this.http.get<User>(`${this.apiUrl}/profile`).pipe(
+			tap((user) => {
+				// Update stored user data if profile is different
+				const currentUser = this.getCurrentUser();
+				if (currentUser && currentUser.id === user.id) {
+					this.setAuthData(this.getToken() || '', user);
 					this.authStateSubject.next({
 						isAuthenticated: true,
-						user: response.user,
-						token: response.token,
+						user,
+						token: this.getToken(),
 					});
 				}
 			}),
-			catchError((error) => {
-				this.forceLogout();
-				return throwError(() => error);
-			})
+			catchError(this.handleError)
 		);
 	}
 
 	/**
-	 * Verify token validity
-	 * @returns Observable<boolean>
+	 * Change password for authenticated user
+	 * @param changePasswordDto - Change password data
+	 * @returns Observable<ChangePasswordResponse>
 	 */
-	verifyToken(): Observable<boolean> {
-		return this.authDataService.verifyToken().pipe(
-			map(() => true),
-			catchError(() => {
-				this.forceLogout();
-				return throwError(() => false);
-			})
-		);
+	changePassword(changePasswordDto: ChangePasswordDto): Observable<ChangePasswordResponse> {
+		return this.http.post<ChangePasswordResponse>(
+			`${this.apiUrl}/change-password`,
+			changePasswordDto
+		).pipe(catchError(this.handleError));
 	}
 
 	/**
-	 * Admin signup - Create new user (admin only)
-	 * @param adminSignupDto - Admin signup data
-	 * @returns Observable<AdminSignupResponse>
+	 * Reset password using reset token
+	 * @param resetPasswordDto - Reset password data
+	 * @returns Observable<ResetPasswordResponse>
 	 */
-	adminSignup(adminSignupDto: AdminSignupDto): Observable<AdminSignupResponse> {
-		return this.authDataService.adminSignup(adminSignupDto).pipe(
-			tap((response) => {
-				// Admin signup doesn't automatically log in the new user
-				// The current admin remains logged in
-			}),
-			catchError((error) => throwError(() => error))
-		);
-	}
-
-	/**
-	 * Change password
-	 * @param changePasswordData - Change password data
-	 * @returns Observable<any>
-	 */
-	changePassword(changePasswordData: {
-		currentPassword: string;
-		newPassword: string;
-	}): Observable<any> {
-		return this.authDataService.changePassword(changePasswordData);
+	resetPassword(resetPasswordDto: ResetPasswordDto): Observable<ResetPasswordResponse> {
+		return this.http.post<ResetPasswordResponse>(
+			`${this.apiUrl}/reset-password`,
+			resetPasswordDto
+		).pipe(catchError(this.handleError));
 	}
 
 	/**
@@ -263,7 +241,6 @@ export class AuthService {
 		try {
 			localStorage.removeItem(this.TOKEN_KEY);
 			localStorage.removeItem(this.USER_KEY);
-			localStorage.removeItem(this.REFRESH_TOKEN_KEY);
 
 			this.authStateSubject.next({
 				isAuthenticated: false,
@@ -273,6 +250,57 @@ export class AuthService {
 		} catch (error) {
 			console.error('Error clearing auth data:', error);
 		}
+	}
+
+	/**
+	 * Handle HTTP errors
+	 * @param error - HttpErrorResponse
+	 * @returns Observable<never>
+	 */
+	private handleError(error: HttpErrorResponse): Observable<never> {
+		let errorMessage = 'An unexpected error occurred';
+
+		if (error.error instanceof ErrorEvent) {
+			// Client-side error
+			errorMessage = `Error: ${error.error.message}`;
+		} else {
+			// Server-side error
+			if (error.error && error.error.message) {
+				errorMessage = error.error.message;
+			} else {
+				switch (error.status) {
+					case 400:
+						errorMessage = 'Bad request. Please check your input.';
+						break;
+					case 401:
+						errorMessage = 'Invalid credentials. Please try again.';
+						break;
+					case 403:
+						errorMessage = 'Access denied. Please contact support.';
+						break;
+					case 404:
+						errorMessage = 'Service not found.';
+						break;
+					case 500:
+						errorMessage = 'Server error. Please try again later.';
+						break;
+					default:
+						errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+				}
+			}
+		}
+
+		console.error('Auth Service Error:', error);
+
+		// Return an observable with the error
+		return throwError(
+			() =>
+				({
+					statusCode: error.status || 500,
+					message: errorMessage,
+					error: error.error,
+				} as ApiError)
+		);
 	}
 
 	/**
@@ -301,4 +329,11 @@ export class AuthService {
 			return null;
 		}
 	}
+
+ 
+
+	 adminResetPassword(adminResetPasswordDto: AdminResetPasswordDto): Observable<ResetPasswordResponse> {
+		return this.http.post<ResetPasswordResponse>(`${this.apiUrl}/users/reset-password`, adminResetPasswordDto).pipe(catchError(this.handleError));
+	 }
+   
 }

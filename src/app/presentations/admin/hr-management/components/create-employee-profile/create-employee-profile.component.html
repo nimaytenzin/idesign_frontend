@@ -1,0 +1,105 @@
+<div class="flex flex-col gap-6">
+	<div class="flex flex-col gap-2">
+		<label for="department" class="text-sm font-medium text-gray-700">
+			Department <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="department"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.department"
+			placeholder="Enter department"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.department"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.department"
+			>Department is required</small
+		>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="position" class="text-sm font-medium text-gray-700">
+			Position <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="position"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.position"
+			placeholder="Enter position"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.position"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.position"
+			>Position is required</small
+		>
+	</div>
+
+	<div class="flex gap-2">
+		<div class="flex flex-col gap-2">
+			<label for="hireDate" class="text-sm font-medium text-gray-700">
+				Hire Date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				id="hireDate"
+				[(ngModel)]="createData.hireDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				[class.ng-invalid]="submitted && !createData.hireDate"
+				placeholder="Select hire date"
+			></p-calendar>
+			<small
+				class="text-xs text-red-500 mt-1"
+				*ngIf="submitted && !createData.hireDate"
+				>Hire date is required</small
+			>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="employeeStatus" class="text-sm font-medium text-gray-700">
+				Employee Status <span class="text-red-500">*</span>
+			</label>
+			<p-dropdown
+				id="employeeStatus"
+				[options]="statusOptions"
+				optionLabel="label"
+				optionValue="value"
+				[(ngModel)]="createData.employeeStatus"
+				placeholder="Select status"
+				styleClass="w-full"
+				[class.ng-invalid]="submitted && !createData.employeeStatus"
+			></p-dropdown>
+			<small
+				class="text-xs text-red-500 mt-1"
+				*ngIf="submitted && !createData.employeeStatus"
+				>Employee status is required</small
+			>
+		</div>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-4">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Create Profile"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveEmployeeProfile()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

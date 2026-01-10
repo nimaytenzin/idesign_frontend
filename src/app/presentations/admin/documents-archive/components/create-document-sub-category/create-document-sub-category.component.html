@@ -1,0 +1,73 @@
+<div class="p-6">
+	<form [formGroup]="subCategoryForm" (ngSubmit)="saveSubCategory()">
+		<div class="mb-5">
+			<label
+				for="categoryId"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Category <span class="text-red-500">*</span>
+			</label>
+			<div *ngIf="loadingCategories" class="flex items-center gap-2 p-3">
+				<p-progressSpinner [style]="{'width': '20px', 'height': '20px'}"></p-progressSpinner>
+				<span class="text-sm text-gray-500">Loading categories...</span>
+			</div>
+			<p-dropdown
+				*ngIf="!loadingCategories"
+				id="categoryId"
+				formControlName="categoryId"
+				[options]="categories"
+				optionLabel="categoryName"
+				optionValue="categoryId"
+				placeholder="Select a category"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('categoryId')"
+				[disabled]="categories.length === 0"
+			></p-dropdown>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('categoryId')">
+				{{ getFieldError('categoryId') }}
+			</small>
+			<small class="text-gray-500 dark:text-gray-400 block mt-1" *ngIf="!loadingCategories && categories.length === 0">
+				No categories found. Please create a category first.
+			</small>
+		</div>
+
+		<div class="mb-5">
+			<label
+				for="subCategoryName"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Sub-Category Name <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="subCategoryName"
+				type="text"
+				pInputText
+				formControlName="subCategoryName"
+				placeholder="Enter sub-category name"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('subCategoryName')"
+			/>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('subCategoryName')">
+				{{ getFieldError('subCategoryName') }}
+			</small>
+		</div>
+	</form>
+</div>
+
+<div class="flex justify-end gap-2 px-6 pb-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[outlined]="true"
+		severity="secondary"
+		(onClick)="close()"
+	></p-button>
+	<p-button
+		label="Create"
+		icon="pi pi-check"
+		(onClick)="saveSubCategory()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

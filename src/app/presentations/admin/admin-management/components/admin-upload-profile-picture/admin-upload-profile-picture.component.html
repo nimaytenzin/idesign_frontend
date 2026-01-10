@@ -1,0 +1,78 @@
+<div class="flex flex-col gap-6" *ngIf="user">
+	<div class="mb-4 p-3 bg-gray-50 rounded-lg">
+		<p class="text-sm text-gray-600 mb-1">Uploading profile picture for:</p>
+		<p class="font-semibold text-gray-900">{{ user.name }}</p>
+		<p class="text-xs text-gray-500">{{ user.emailAddress }}</p>
+		<p class="text-xs text-gray-500 mt-1">User ID: {{ user.id }}</p>
+	</div>
+
+	<!-- Current Profile Picture -->
+	<div class="flex flex-col gap-2" *ngIf="user.profileImageUrl">
+		<label class="text-sm font-medium text-gray-700">Current Profile Picture</label>
+		<div class="flex items-center gap-4">
+			<img 
+				[src]="user.profileImageUrl" 
+				alt="Current Profile" 
+				class="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+				onerror="this.src='/assets/images/no-image.png'"
+			>
+		</div>
+	</div>
+
+	<!-- File Upload -->
+	<div class="flex flex-col gap-2">
+		<label class="text-sm font-medium text-gray-700">Select New Profile Picture <span class="text-red-500">*</span></label>
+		<p-fileUpload
+			mode="basic"
+			name="profilePicture"
+			accept="image/*"
+			maxFileSize="5000000"
+			[auto]="false"
+			[showUploadButton]="false"
+			[showCancelButton]="false"
+			chooseLabel="Choose File"
+			(onSelect)="onFileSelect($event)"
+			(onClear)="onFileRemove()"
+			styleClass="w-full"
+		></p-fileUpload>
+		<small class="text-xs text-gray-500 mt-1">
+			Accepted formats: JPG, JPEG, PNG, GIF, WEBP (Max size: 5MB)
+		</small>
+	</div>
+
+	<!-- Preview -->
+	<div class="flex flex-col gap-2" *ngIf="previewUrl">
+		<label class="text-sm font-medium text-gray-700">Preview</label>
+		<div class="flex items-center gap-4">
+			<img 
+				[src]="previewUrl" 
+				alt="Preview" 
+				class="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+			>
+			<div class="flex flex-col gap-1">
+				<p class="text-sm font-medium text-gray-900">{{ selectedFile?.name }}</p>
+				<p class="text-xs text-gray-500">{{ ((selectedFile?.size || 0) / 1024 / 1024).toFixed(2) }} MB</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-4">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Upload"
+		icon="pi pi-upload"
+		severity="success"
+		(onClick)="uploadProfilePicture()"
+		[loading]="loading"
+		[disabled]="!selectedFile"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

@@ -9,6 +9,9 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CompanyService } from '../../../core/dataservice/company/company.service';
 import { Company } from '../../../core/dataservice/company/company.interface';
+import { AuthService } from '../../../core/dataservice/auth/auth.service';
+import { LoginDto } from '../../../core/dataservice/auth/auth.interface';
+import { UserRole } from '../../../core/constants/enums';
 
 @Component({
 	selector: 'app-login',
@@ -28,13 +31,20 @@ export class LoginComponent implements OnInit {
 		private fb: FormBuilder,
 		private router: Router,
 		private companyService: CompanyService,
-		private cdr: ChangeDetectorRef
+		private cdr: ChangeDetectorRef,
+		private authService: AuthService
 	) {}
 
 	ngOnInit(): void {
+		// Check if user is already authenticated
+		if (this.authService.isAuthenticated()) {
+			this.redirectBasedOnRole();
+			return;
+		}
+
 		this.loginForm = this.fb.group({
-			username: ['admin', [Validators.required]],
-			password: ['admin123', [Validators.required, Validators.minLength(3)]],
+			email: ['', [Validators.required, Validators.email]],
+			password: ['', [Validators.required, Validators.minLength(3)]],
 		});
 		
 		// Load company logo
@@ -76,23 +86,61 @@ export class LoginComponent implements OnInit {
 		this.isLoading = true;
 		this.errorMessage = '';
 
-		const { username, password } = this.loginForm.value;
+		const { email, password } = this.loginForm.value;
 
-		// Simple dummy authentication
-		setTimeout(() => {
-			if (username === 'admin' && password === 'admin123') {
-				// Store simple auth state in localStorage
-				localStorage.setItem('isAuthenticated', 'true');
-				localStorage.setItem('userRole', 'admin');
+		const loginDto: LoginDto = {
+			email: email.trim(),
+			password: password,
+		};
 
-				// Redirect to admin dashboard
-				this.router.navigate(['/admin']);
-			} else {
-				this.errorMessage =
-					'Invalid username or password. Please try: admin/admin123';
-			}
+		this.authService.login(loginDto).subscribe({
+			next: (response) => {
+				if (response.token && response.user) {
+ 					 
+
+ 					this.redirectBasedOnRole();
+				} else {
+					this.errorMessage = 'Invalid response from server. Please try again.';
+					this.isLoading = false;
+				}
+			},
+			error: (error) => {
+				console.error('Login error:', error);
+				if (error.statusCode === 401) {
+					this.errorMessage = error.message || 'Invalid email or password. Please try again.';
+				} else if (error.message) {
+					this.errorMessage = error.message;
+				} else {
+					this.errorMessage = 'An error occurred during login. Please try again.';
+				}
+				this.isLoading = false;
+			},
+		});
+	}
+
+	/**
+	 * Redirect user based on their role
+	 */
+	private redirectBasedOnRole(): void {
+		const user = this.authService.getCurrentUser();
+		
+		if (!user) {
+			this.errorMessage = 'Unable to retrieve user information.';
 			this.isLoading = false;
-		}, 1000); // Simulate API delay
+			return;
+		}
+
+		switch (user.role) {
+			case UserRole.ADMIN:
+				this.router.navigate(['/admin']);
+				break;
+ 			case UserRole.STAFF:
+				this.router.navigate(['/staff']);
+				break;
+ 			case UserRole.AFFILIATE_MARKETER:
+				this.router.navigate(['/affiliate-marketer']);
+				break;
+		}
 	}
 
 	/**
@@ -122,8 +170,11 @@ export class LoginComponent implements OnInit {
 		if (field && field.errors && field.touched) {
 			if (field.errors['required']) {
 				return `${
-					fieldName === 'username' ? 'Username' : 'Password'
+					fieldName === 'email' ? 'Email' : 'Password'
 				} is required`;
+			}
+			if (field.errors['email']) {
+				return 'Please enter a valid email address';
 			}
 			if (field.errors['minlength']) {
 				return `Password must be at least ${field.errors['minlength'].requiredLength} characters`;

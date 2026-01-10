@@ -23,22 +23,22 @@
 		<!-- Login Form -->
 		<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
 			<form [formGroup]="loginForm" (ngSubmit)="login()" class="space-y-6">
-				<!-- Username Field -->
+				<!-- Email Field -->
 				<div>
-					<label for="username" class="input-label"> Username </label>
+					<label for="email" class="input-label"> Email </label>
 					<input
-						id="username"
-						type="text"
-						formControlName="username"
-						placeholder="Enter your username"
+						id="email"
+						type="email"
+						formControlName="email"
+						placeholder="Enter your email"
 						class="input-field"
-						[class.error]="hasFieldError('username')"
+						[class.error]="hasFieldError('email')"
 					/>
 					<div
-						*ngIf="hasFieldError('username')"
+						*ngIf="hasFieldError('email')"
 						class="mt-1 text-sm text-red-600 "
 					>
-						{{ getFieldError("username") }}
+						{{ getFieldError("email") }}
 					</div>
 				</div>
 
@@ -129,8 +129,8 @@
 				Demo Credentials
 			</h3>
 			<div class="text-sm text-teal-700  space-y-1">
-				<p><strong>Username:</strong> admin</p>
-				<p><strong>Password:</strong> admin123</p>
+				<p><strong>Email:</strong> Enter your registered email address</p>
+				<p><strong>Password:</strong> Enter your password</p>
 			</div>
 		</div>
 	</div>

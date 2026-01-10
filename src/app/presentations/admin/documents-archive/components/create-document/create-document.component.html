@@ -1,0 +1,137 @@
+<div class="p-6">
+	<form [formGroup]="documentForm" (ngSubmit)="saveDocument()">
+		<div class="mb-5">
+			<label
+				for="subCategoryId"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Sub-Category <span class="text-red-500">*</span>
+			</label>
+			<p-dropdown
+				id="subCategoryId"
+				formControlName="subCategoryId"
+				[options]="subCategories"
+				optionLabel="subCategoryName"
+				optionValue="subCategoryId"
+				placeholder="Select a sub-category"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('subCategoryId')"
+			></p-dropdown>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('subCategoryId')">
+				{{ getFieldError('subCategoryId') }}
+			</small>
+		</div>
+
+		<div class="mb-5">
+			<label
+				for="documentTitle"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Document Title <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="documentTitle"
+				type="text"
+				pInputText
+				formControlName="documentTitle"
+				placeholder="Enter document title"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('documentTitle')"
+			/>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('documentTitle')">
+				{{ getFieldError('documentTitle') }}
+			</small>
+		</div>
+
+		<div class="mb-5">
+			<label
+				for="versionNumber"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Version Number <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="versionNumber"
+				formControlName="versionNumber"
+				[showButtons]="true"
+				[min]="1"
+				placeholder="Enter version number"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('versionNumber')"
+			></p-inputNumber>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('versionNumber')">
+				{{ getFieldError('versionNumber') }}
+			</small>
+		</div>
+
+		<div class="mb-5">
+			<label
+				for="file"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				File <span class="text-red-500">*</span>
+			</label>
+			<div class="file-upload-wrapper">
+				<input
+					type="file"
+					id="file"
+					#fileInput
+					(change)="onFileChange($event)"
+					accept="*/*"
+					class="hidden"
+				/>
+				<div class="flex gap-2 items-center">
+					<p-button
+						label="Choose File"
+						icon="pi pi-upload"
+						(onClick)="fileInput.click()"
+						[outlined]="true"
+						styleClass="w-auto"
+					></p-button>
+					<button
+						type="button"
+						*ngIf="selectedFile"
+						(onClick)="onFileRemove()"
+						pButton
+						icon="pi pi-times"
+						[rounded]="true"
+						severity="danger"
+						[text]="true"
+						[outlined]="true"
+						class="p-button-sm"
+					></button>
+				</div>
+			</div>
+			<small class="p-error block mt-1" *ngIf="submitted && !selectedFile">
+				File is required
+			</small>
+			<small class="p-error block mt-1" *ngIf="fileError">
+				{{ fileError }}
+			</small>
+			<small class="text-gray-500 dark:text-gray-400 block mt-1" *ngIf="selectedFile">
+				Selected: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+			</small>
+			<small class="text-gray-500 dark:text-gray-400 block mt-1">
+				Max file size: 10MB
+			</small>
+		</div>
+	</form>
+</div>
+
+<div class="flex justify-end gap-2 px-6 pb-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[outlined]="true"
+		severity="secondary"
+		(onClick)="close()"
+	></p-button>
+	<p-button
+		label="Create"
+		icon="pi pi-check"
+		(onClick)="saveDocument()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

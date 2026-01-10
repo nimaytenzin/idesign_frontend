@@ -1,0 +1,178 @@
+/* Sidebar - Modern Design */
+:host {
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: #FFFFFF;
+}
+
+.sidebar-container {
+	height: 100%;
+	background: #FFFFFF;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+	background: #FFFFFF;
+	border-bottom: 1px solid #E0E0E0;
+	flex-shrink: 0;
+}
+
+
+
+
+/* Navigation */
+.sidebar-nav {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 16px;
+}
+
+/* Custom Scrollbar */
+.sidebar-nav::-webkit-scrollbar {
+	width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+	background: #F5F5F5;
+	border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+	background: #BDBDBD;
+	border-radius: 3px;
+	transition: background 0.2s ease;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+	background: #9E9E9E;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+	flex-shrink: 0;
+	background: #FAFAFA;
+	border-top: 1px solid #E0E0E0;
+}
+
+/* PrimeNG Menu Overrides */
+:host ::ng-deep .p-menuitem {
+	margin-bottom: 4px;
+}
+
+:host ::ng-deep .p-menuitem-link {
+	padding: 12px 16px !important;
+	border-radius: 8px !important;
+	margin: 0 4px !important;
+	color: #616161 !important;
+	font-family: 'Roboto', sans-serif !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	text-decoration: none !important;
+	transition: all 0.2s ease !important;
+	border: none !important;
+	background: transparent !important;
+	display: flex !important;
+	align-items: center !important;
+}
+
+:host ::ng-deep .p-menuitem-link:hover {
+	background-color: #F5F5F5 !important;
+	color: #1A1A1A !important;
+	transform: translateX(2px);
+}
+
+:host ::ng-deep .p-menuitem-link:focus {
+	outline: 2px solid #017263 !important;
+	outline-offset: 2px;
+}
+
+/* Active Menu Item */
+:host ::ng-deep .p-menuitem-link.active,
+:host ::ng-deep .p-menuitem-link[aria-expanded="true"] {
+	background-color: #E0F2F1 !important;
+	color: #017263 !important;
+	box-shadow: 0 0 0 3px rgba(1, 114, 99, 0.1) !important;
+}
+
+:host ::ng-deep .p-menuitem-link.active {
+	border-left: 3px solid #017263 !important;
+}
+
+/* Menu Item Icon */
+:host ::ng-deep .p-menuitem-icon {
+	color: inherit !important;
+	margin-right: 12px !important;
+	font-size: 18px !important;
+	width: 20px !important;
+	text-align: center !important;
+}
+
+/* Menu Item Text */
+:host ::ng-deep .p-menuitem-text {
+	color: inherit !important;
+	font-weight: inherit !important;
+}
+
+/* Submenu Styling */
+:host ::ng-deep .p-submenu-list {
+	padding: 8px 0 !important;
+	background-color: #FAFAFA !important;
+	border-radius: 8px !important;
+	margin: 4px 8px !important;
+	border: 1px solid #E0E0E0 !important;
+}
+
+:host ::ng-deep .p-submenu-list .p-menuitem-link {
+	padding: 10px 16px 10px 48px !important;
+	font-size: 13px !important;
+	color: #616161 !important;
+}
+
+:host ::ng-deep .p-submenu-list .p-menuitem-link:hover {
+	background-color: #F5F5F5 !important;
+	color: #1A1A1A !important;
+	transform: translateX(2px);
+}
+
+:host ::ng-deep .p-submenu-list .p-menuitem-link.active {
+	background-color: #E0F2F1 !important;
+	color: #017263 !important;
+}
+
+/* Menu Group Headers */
+:host ::ng-deep .p-menu-separator {
+	border-top: 1px solid #E0E0E0 !important;
+	margin: 16px 8px !important;
+}
+
+/* Badge/Label Styling */
+:host ::ng-deep .p-badge {
+	background: #017263 !important;
+	color: #FFFFFF !important;
+	font-size: 11px !important;
+	border-radius: 12px !important;
+	padding: 2px 8px !important;
+	font-weight: 600 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.sidebar-header {
+		padding: 16px;
+	}
+
+	.sidebar-nav {
+		padding: 12px;
+	}
+
+	:host ::ng-deep .p-menuitem-link {
+		padding: 10px 12px !important;
+		margin: 0 2px !important;
+	}
+
+	:host ::ng-deep .p-submenu-list .p-menuitem-link {
+		padding: 8px 12px 8px 36px !important;
+	}
+}

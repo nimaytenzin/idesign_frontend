@@ -1,0 +1,130 @@
+<div class="flex flex-col gap-6">
+	<div class="flex flex-col gap-2">
+		<label for="name" class="text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
+		<input
+			id="name"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.name"
+			placeholder="Enter name"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.name"
+		/>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && !createData.name">Name is required</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="cid" class="text-sm font-medium text-gray-700">CID <span class="text-red-500">*</span></label>
+		<input
+			id="cid"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.cid"
+			placeholder="Enter CID"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.cid"
+		/>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && !createData.cid">CID is required</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="emailAddress" class="text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+		<input
+			id="emailAddress"
+			type="email"
+			pInputText
+			[(ngModel)]="createData.emailAddress"
+			placeholder="Enter email address"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.emailAddress"
+		/>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && !createData.emailAddress">Email is required</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="phoneNumber" class="text-sm font-medium text-gray-700">Phone Number</label>
+		<input
+			id="phoneNumber"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.phoneNumber"
+			placeholder="Enter phone number"
+			class="w-full"
+		/>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="password" class="text-sm font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
+		<p-password
+			id="password"
+			[(ngModel)]="createData.password"
+			placeholder="Enter password"
+			[feedback]="true"
+			[toggleMask]="true"
+			styleClass="w-full"
+			[class.ng-invalid]="submitted && (!createData.password || createData.password.length < 6)"
+			[inputStyleClass]="'w-full'"
+		></p-password>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && (!createData.password || createData.password.length < 6)">
+			Password must be at least 6 characters long
+		</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="role" class="text-sm font-medium text-gray-700">Role <span class="text-red-500">*</span></label>
+		<p-dropdown
+			id="role"
+			[options]="roleOptions"
+			optionLabel="label"
+			optionValue="value"
+			[(ngModel)]="createData.role"
+			placeholder="Select role"
+			styleClass="w-full"
+			[class.ng-invalid]="submitted && !createData.role"
+		></p-dropdown>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && !createData.role">Role is required</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="currentAddress" class="text-sm font-medium text-gray-700">Current Address</label>
+		<textarea
+			id="currentAddress"
+			pInputTextarea
+			[(ngModel)]="createData.currentAddress"
+			placeholder="Enter current address"
+			rows="3"
+			class="w-full"
+		></textarea>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="permanentAddress" class="text-sm font-medium text-gray-700">Permanent Address</label>
+		<textarea
+			id="permanentAddress"
+			pInputTextarea
+			[(ngModel)]="createData.permanentAddress"
+			placeholder="Enter permanent address"
+			rows="3"
+			class="w-full"
+		></textarea>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-4">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Create User"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveUser()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

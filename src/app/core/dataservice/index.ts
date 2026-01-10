@@ -59,8 +59,6 @@ export * from './sms-template/sms-template.interface';
 export * from './sms-template/sms-template.service';
 
 // Employee Management exports
-export * from './employee-management/employee-management.interface';
-export * from './employee-management/employee-management.service';
 
 // Calendar exports
 export * from './calendar/calendar.interface';
@@ -70,8 +68,27 @@ export * from './calendar/calendar.service';
 export * from './todo/todo.interface';
 export * from './todo/todo.service';
 
+// Document Category exports
+export * from './documents/document-category/document-category.interface';
+export * from './documents/document-category/document-category.service';
+
+// Document Sub-Category exports
+export * from './documents/document-sub-category/document-sub-category.interface';
+export * from './documents/document-sub-category/document-sub-category.service';
+
+// Document exports
+export * from './documents/document/document.interface';
+export * from './documents/document/document.service';
+
+// Delivery Location exports
+export * from './delivery-location/delivery-location.interface';
+export * from './delivery-location/delivery-location.service';
+
+// Delivery Rate exports
+export * from './delivery-rate/delivery-rate.interface';
+export * from './delivery-rate/delivery-rate.service';
+
 // Existing exports
 export * from './auth/auth.service';
-export * from './auth/auth.api';
 export * from './session.service';
 export * from './config.service';

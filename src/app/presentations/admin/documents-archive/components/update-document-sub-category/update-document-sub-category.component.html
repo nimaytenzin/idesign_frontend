@@ -1,0 +1,64 @@
+<div class="p-6">
+	<form [formGroup]="subCategoryForm" (ngSubmit)="saveSubCategory()">
+		<div class="mb-5">
+			<label
+				for="categoryId"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Category <span class="text-red-500">*</span>
+			</label>
+			<p-dropdown
+				id="categoryId"
+				formControlName="categoryId"
+				[options]="categories"
+				optionLabel="categoryName"
+				optionValue="categoryId"
+				placeholder="Select a category"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('categoryId')"
+			></p-dropdown>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('categoryId')">
+				{{ getFieldError('categoryId') }}
+			</small>
+		</div>
+
+		<div class="mb-5">
+			<label
+				for="subCategoryName"
+				class="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
+			>
+				Sub-Category Name <span class="text-red-500">*</span>
+			</label>
+			<input
+				id="subCategoryName"
+				type="text"
+				pInputText
+				formControlName="subCategoryName"
+				placeholder="Enter sub-category name"
+				class="w-full"
+				[class.ng-invalid]="isFieldInvalid('subCategoryName')"
+			/>
+			<small class="p-error block mt-1" *ngIf="isFieldInvalid('subCategoryName')">
+				{{ getFieldError('subCategoryName') }}
+			</small>
+		</div>
+	</form>
+</div>
+
+<div class="flex justify-end gap-2 px-6 pb-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[outlined]="true"
+		severity="secondary"
+		(onClick)="close()"
+	></p-button>
+	<p-button
+		label="Update"
+		icon="pi pi-check"
+		(onClick)="saveSubCategory()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

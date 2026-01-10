@@ -6,12 +6,17 @@ import {
 	ActivatedRouteSnapshot,
 	RouterStateSnapshot,
 } from '@angular/router';
+import { AuthService } from '../dataservice/auth/auth.service';
+import { UserRole } from '../constants/enums';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class AuthGuard implements CanActivate, CanActivateChild {
-	constructor(private router: Router) {}
+	constructor(
+		private router: Router,
+		private authService: AuthService
+	) {}
 
 	canActivate(
 		route: ActivatedRouteSnapshot,
@@ -28,7 +33,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 	}
 
 	private checkAuth(state: RouterStateSnapshot): boolean {
-		const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+		const isAuthenticated = this.authService.isAuthenticated();
 
 		if (!isAuthenticated) {
 			this.router.navigate(['/auth/login'], {
@@ -45,18 +50,56 @@ export class AuthGuard implements CanActivate, CanActivateChild {
 	providedIn: 'root',
 })
 export class AdminGuard implements CanActivate {
-	constructor(private router: Router) {}
+	constructor(
+		private router: Router,
+		private authService: AuthService
+	) {}
 
-	canActivate(): boolean {
-		const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-		const userRole = localStorage.getItem('userRole');
-
-		if (!isAuthenticated) {
-			this.router.navigate(['/auth/login']);
+	canActivate(
+		route: ActivatedRouteSnapshot,
+		state: RouterStateSnapshot
+	): boolean {
+		if (!this.authService.isAuthenticated()) {
+			this.router.navigate(['/auth/login'], {
+				queryParams: { returnUrl: state.url },
+			});
 			return false;
 		}
 
-		if (userRole !== 'admin') {
+		if (!this.authService.isAdmin()) {
+			this.router.navigate(['/']);
+			return false;
+		}
+
+		return true;
+	}
+}
+
+@Injectable({
+	providedIn: 'root',
+})
+export class StaffGuard implements CanActivate {
+	constructor(
+		private router: Router,
+		private authService: AuthService
+	) {}
+
+	canActivate(
+		route: ActivatedRouteSnapshot,
+		state: RouterStateSnapshot
+	): boolean {
+		if (!this.authService.isAuthenticated()) {
+			this.router.navigate(['/auth/login'], {
+				queryParams: { returnUrl: state.url },
+			});
+			return false;
+		}
+
+		const hasStaffRole = this.authService.hasAnyRole([
+			UserRole.STAFF,
+		]);
+
+		if (!hasStaffRole) {
 			this.router.navigate(['/']);
 			return false;
 		}

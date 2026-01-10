@@ -17,7 +17,7 @@ import {
 } from '@angular/animations';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { AdminLayoutService } from '../../service/admin-layout.service';
+import { LayoutService } from '../../service/layout.service';
 import { AdminMenuService } from '../../service/admin-menu.service';
 import { CommonModule } from '@angular/common';
 
@@ -130,7 +130,7 @@ export class AdminMenuitemComponent implements OnInit, OnDestroy {
 	key: string = '';
 
 	constructor(
-		public layoutService: AdminLayoutService,
+		public layoutService: LayoutService,
 		private cd: ChangeDetectorRef,
 		public router: Router,
 		private menuService: AdminMenuService

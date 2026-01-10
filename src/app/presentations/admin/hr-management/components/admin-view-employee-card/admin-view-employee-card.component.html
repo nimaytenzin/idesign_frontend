@@ -1,0 +1,217 @@
+<div class="flex flex-col gap-6" *ngIf="staff">
+	<!-- Profile Header -->
+	<div class="flex items-start gap-4 pb-6 border-b border-gray-200">
+		<div class="flex-shrink-0">
+			<img
+				[src]="parseImageUrl(staff.profileImageUrl)"
+				[alt]="staff.name"
+				class="w-24 h-24 rounded-full object-cover border-4 border-gray-100"
+			/>
+		</div>
+		<div class="flex-1">
+			<h2 class="text-2xl font-bold text-gray-900">{{ staff.name }}</h2>
+			<p class="text-sm text-gray-600 mt-1">{{ staff.emailAddress }}</p>
+			<div class="flex items-center gap-4 mt-3">
+				<p-tag
+					[value]="staff.isActive ? 'Active' : 'Inactive'"
+					[severity]="staff.isActive ? 'success' : 'danger'"
+					styleClass="text-xs"
+				></p-tag>
+				<p-tag
+					*ngIf="staff.employeeProfile"
+					[value]="getStatusLabel(staff.employeeProfile.employeeStatus)"
+					[severity]="getStatusSeverity(staff.employeeProfile.employeeStatus)"
+					styleClass="text-xs"
+				></p-tag>
+			</div>
+		</div>
+	</div>
+
+	<!-- User Information Section -->
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+		<!-- Personal Information Card -->
+		<p-card styleClass="shadow-sm">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b">
+					<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+						<i class="pi pi-user text-blue-500"></i>
+						Personal Information
+					</h3>
+				</div>
+			</ng-template>
+			<div class="p-4 space-y-4">
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>CID</label
+					>
+					<p class="text-sm text-gray-900 mt-1">{{ staff.cid || 'N/A' }}</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Email Address</label
+					>
+					<p class="text-sm text-gray-900 mt-1">{{ staff.emailAddress }}</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Phone Number</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{ staff.phoneNumber || 'N/A' }}
+					</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Role</label
+					>
+					<p class="text-sm text-gray-900 mt-1">{{ staff.role }}</p>
+				</div>
+				<div *ngIf="staff.dateOfBirth">
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Date of Birth</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{ formatDate(staff.dateOfBirth) }}
+					</p>
+				</div>
+			</div>
+		</p-card>
+
+		<!-- Address Information Card -->
+		<p-card styleClass="shadow-sm">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b">
+					<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+						<i class="pi pi-map-marker text-green-500"></i>
+						Address Information
+					</h3>
+				</div>
+			</ng-template>
+			<div class="p-4 space-y-4">
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Current Address</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{ staff.currentAddress || 'N/A' }}
+					</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Permanent Address</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{ staff.permanentAddress || 'N/A' }}
+					</p>
+				</div>
+			</div>
+		</p-card>
+	</div>
+
+	<!-- Employee Profile Section -->
+	<p-card
+		*ngIf="staff.employeeProfile"
+		styleClass="shadow-sm"
+	>
+		<ng-template pTemplate="header">
+			<div class="p-4 border-b">
+				<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+					<i class="pi pi-briefcase text-purple-500"></i>
+					Employee Profile
+				</h3>
+			</div>
+		</ng-template>
+		<div class="p-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Department</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{ staff.employeeProfile.department || 'N/A' }}
+					</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Position</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{ staff.employeeProfile.position || 'N/A' }}
+					</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Hire Date</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{
+							staff.employeeProfile.hireDate
+								? formatDate(staff.employeeProfile.hireDate)
+								: 'N/A'
+						}}
+					</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Termination Date</label
+					>
+					<p class="text-sm text-gray-900 mt-1">
+						{{
+							staff.employeeProfile.terminationDate
+								? formatDate(staff.employeeProfile.terminationDate)
+								: 'N/A'
+						}}
+					</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase"
+						>Employee Status</label
+					>
+					<div class="mt-1">
+						<p-tag
+							[value]="getStatusLabel(staff.employeeProfile.employeeStatus)"
+							[severity]="getStatusSeverity(staff.employeeProfile.employeeStatus)"
+							styleClass="text-xs"
+						></p-tag>
+					</div>
+				</div>
+			</div>
+		</div>
+	</p-card>
+
+	<!-- No Employee Profile Message -->
+	<div
+		*ngIf="!staff.employeeProfile"
+		class="p-6 bg-gray-50 border border-gray-200 rounded-lg text-center"
+	>
+		<i class="pi pi-info-circle text-3xl text-gray-400 mb-3"></i>
+		<p class="text-gray-600 font-medium">No Employee Profile</p>
+		<p class="text-sm text-gray-500 mt-1">
+			This staff member does not have an employee profile yet.
+		</p>
+	</div>
+
+	<!-- Timestamps -->
+	<div class="pt-4 border-t border-gray-200">
+		<div class="flex flex-wrap gap-6 text-xs text-gray-500">
+			<div>
+				<span class="font-medium">Created:</span>
+				{{ formatDate(staff.createdAt) }}
+			</div>
+			<div>
+				<span class="font-medium">Last Updated:</span>
+				{{ formatDate(staff.updatedAt) }}
+			</div>
+		</div>
+	</div>
+
+	<!-- Close Button -->
+	<div class="flex justify-end mt-4">
+		<p-button
+			label="Close"
+			icon="pi pi-times"
+			(onClick)="close()"
+			[text]="true"
+		></p-button>
+	</div>
+</div>

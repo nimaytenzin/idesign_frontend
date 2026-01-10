@@ -2,11 +2,11 @@ import { Component, OnInit, Renderer2, ViewChild, OnDestroy } from '@angular/cor
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter, Subscription } from 'rxjs';
-import { AdminSidebarComponent } from './admin-sidebar/admin-sidebar.component';
-import { AdminTopbarComponent } from './admin-topbar/admin-topbar.component';
-import { AdminLayoutService } from './service/admin-layout.service';
-import { User } from '../core/dataservice/auth/auth.interface';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { TopbarComponent } from './topbar/topbar.component';
+import { LayoutService } from './service/layout.service';
 import { AuthService } from '../core/dataservice/auth/auth.service';
+import { User } from '../core/dataservice/user/user.interface';
 
 @Component({
 	selector: 'app-layout',
@@ -16,8 +16,8 @@ import { AuthService } from '../core/dataservice/auth/auth.service';
 	imports: [
 		CommonModule,
 		RouterModule,
-		AdminTopbarComponent,
-		AdminSidebarComponent,
+		TopbarComponent,
+		SidebarComponent,
 	],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
@@ -26,11 +26,11 @@ export class LayoutComponent implements OnInit, OnDestroy {
 	menuOutsideClickListener: any;
 	profileMenuOutsideClickListener: any;
 
-	@ViewChild(AdminSidebarComponent) appSidebar!: AdminSidebarComponent;
-	@ViewChild(AdminTopbarComponent) appTopbar!: AdminTopbarComponent;
+	@ViewChild(SidebarComponent) appSidebar!: SidebarComponent;
+	@ViewChild(TopbarComponent) appTopbar!: TopbarComponent;
 
 	constructor(
-		public layoutService: AdminLayoutService,
+		public layoutService: LayoutService,
 		public renderer: Renderer2,
 		public router: Router,
 		private authService: AuthService

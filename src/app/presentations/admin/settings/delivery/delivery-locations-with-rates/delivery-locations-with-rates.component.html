@@ -1,0 +1,223 @@
+<div class="p-4 mx-auto max-w-7xl md:p-6">
+	<!-- Breadcrumb Start -->
+	<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+		<h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+			Delivery Locations with Rates
+		</h2>
+		<nav>
+			<ol class="flex items-center gap-1.5">
+				<li>
+					<a
+						routerLink="/admin"
+						class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+					>
+						Home
+						<svg
+							class="stroke-current"
+							width="17"
+							height="16"
+							viewBox="0 0 17 16"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
+								stroke=""
+								stroke-width="1.2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							></path>
+						</svg>
+					</a>
+				</li>
+				<li class="text-sm text-gray-800 dark:text-white/90">Delivery Settings</li>
+			</ol>
+		</nav>
+	</div>
+	<!-- Breadcrumb End -->
+
+	<!-- Location Selector Section -->
+	<div class="mb-6">
+		<div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
+			<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+				<div class="flex-1 min-w-[300px]">
+					<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Select Delivery Location
+					</label>
+					<p-dropdown
+						[options]="locations"
+						optionLabel="name"
+						[(ngModel)]="selectedLocation"
+						placeholder="Select a location"
+						[showClear]="true"
+						(onChange)="onLocationChange()"
+						class="w-full"
+						[loading]="loading"
+					>
+						<ng-template let-location pTemplate="item">
+							<div class="flex items-center gap-2">
+								<i class="pi pi-map-marker text-blue-500"></i>
+								<span>{{ location.name }}</span>
+								<p-tag
+									[value]="getLocationTypeLabel(location.type)"
+									severity="info"
+									styleClass="ml-auto"
+								></p-tag>
+							</div>
+						</ng-template>
+					</p-dropdown>
+				</div>
+				<div class="flex gap-2">
+					<p-button
+						icon="pi pi-plus"
+						label="Add Location"
+						(onClick)="openNewLocation()"
+						[outlined]="true"
+					></p-button>
+					<p-button
+						*ngIf="selectedLocation"
+						icon="pi pi-pencil"
+						label="Edit Location"
+						(onClick)="editLocation(selectedLocation!)"
+						[outlined]="true"
+						severity="secondary"
+					></p-button>
+					<p-button
+						*ngIf="selectedLocation"
+						icon="pi pi-trash"
+						label="Delete Location"
+						(onClick)="deleteLocation(selectedLocation!)"
+						[outlined]="true"
+						severity="danger"
+					></p-button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Rates Section -->
+	<div *ngIf="selectedLocation" class="mb-6">
+		<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+			<h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+				Rates for {{ selectedLocation.name }}
+			</h3>
+			<p-button
+				icon="pi pi-plus"
+				label="Add Rate"
+				(onClick)="openNewRate()"
+			></p-button>
+		</div>
+
+		<div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+			<div *ngIf="loadingRates" class="flex items-center justify-center p-12">
+				<p-progressSpinner></p-progressSpinner>
+			</div>
+
+			<div *ngIf="!loadingRates && filteredRates.length === 0" class="p-12 text-center">
+				<i class="pi pi-inbox text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+				<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+					No Rates Found
+				</h3>
+				<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+					Get started by creating your first delivery rate for this location
+				</p>
+				<p-button
+					icon="pi pi-plus"
+					label="Add First Rate"
+					(onClick)="openNewRate()"
+				></p-button>
+			</div>
+
+			<div *ngIf="!loadingRates && filteredRates.length > 0" class="overflow-x-auto">
+				<p-table
+					[value]="filteredRates"
+					[paginator]="true"
+					[rows]="10"
+					[rowsPerPageOptions]="[10, 25, 50]"
+					styleClass="p-datatable-striped"
+					[tableStyle]="{ 'min-width': '50rem' }"
+				>
+					<ng-template pTemplate="header">
+						<tr>
+							<th>Transport Mode</th>
+							<th>Rate</th>
+							<th>Created</th>
+							<th>Updated</th>
+							<th style="width: 150px;">Actions</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-rate>
+						<tr>
+							<td>
+								<div class="flex items-center gap-2">
+									<i 
+										class="pi"
+										[ngClass]="rate.transportMode === 'BUS' ? 'pi-bus text-blue-500' : 'pi-car text-orange-500'"
+									></i>
+									<p-tag
+										[value]="getTransportModeLabel(rate.transportMode)"
+										[severity]="rate.transportMode === 'BUS' ? 'info' : 'warning'"
+									></p-tag>
+								</div>
+							</td>
+							<td>
+								<span class="font-semibold text-gray-700 dark:text-gray-300">
+									Nu. {{ rate.rate | number:'1.2-2' }}
+								</span>
+							</td>
+							<td>
+								<span class="text-sm text-gray-600 dark:text-gray-400">
+									{{ rate.createdAt | date:'short' }}
+								</span>
+							</td>
+							<td>
+								<span class="text-sm text-gray-600 dark:text-gray-400">
+									{{ rate.updatedAt | date:'short' }}
+								</span>
+							</td>
+							<td>
+								<div class="flex items-center gap-2">
+									<p-button
+										icon="pi pi-pencil"
+										[text]="true"
+										severity="info"
+										size="small"
+										(onClick)="editRate(rate)"
+										pTooltip="Edit Rate"
+									></p-button>
+									<p-button
+										icon="pi pi-trash"
+										[text]="true"
+										severity="danger"
+										size="small"
+										(onClick)="deleteRate(rate)"
+										pTooltip="Delete Rate"
+									></p-button>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+		</div>
+	</div>
+
+	<!-- No Location Selected Message -->
+	<div *ngIf="!selectedLocation && !loading" class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-12 text-center">
+		<i class="pi pi-map-marker text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+		<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+			No Location Selected
+		</h3>
+		<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+			Please select a delivery location to view and manage rates
+		</p>
+		<p-button
+			icon="pi pi-plus"
+			label="Add First Location"
+			(onClick)="openNewLocation()"
+		></p-button>
+	</div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

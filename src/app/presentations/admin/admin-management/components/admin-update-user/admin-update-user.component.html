@@ -1,0 +1,116 @@
+<div class="flex flex-col gap-6" *ngIf="user">
+	<div class="flex flex-col gap-2">
+		<label for="name" class="text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
+		<input
+			id="name"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.name"
+			placeholder="Enter name"
+			class="w-full"
+			[class.ng-invalid]="submitted && !updateData.name"
+		/>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && !updateData.name">Name is required</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="cid" class="text-sm font-medium text-gray-700">CID</label>
+		<input
+			id="cid"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.cid"
+			placeholder="Enter CID"
+			class="w-full"
+		/>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="emailAddress" class="text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+		<input
+			id="emailAddress"
+			type="email"
+			pInputText
+			[(ngModel)]="updateData.emailAddress"
+			placeholder="Enter email address"
+			class="w-full"
+			[class.ng-invalid]="submitted && !updateData.emailAddress"
+		/>
+		<small class="text-xs text-red-500 mt-1" *ngIf="submitted && !updateData.emailAddress">Email is required</small>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="phoneNumber" class="text-sm font-medium text-gray-700">Phone Number</label>
+		<input
+			id="phoneNumber"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.phoneNumber"
+			placeholder="Enter phone number"
+			class="w-full"
+		/>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="role" class="text-sm font-medium text-gray-700">Role</label>
+		<p-dropdown
+			id="role"
+			[options]="roleOptions"
+			optionLabel="label"
+			optionValue="value"
+			[(ngModel)]="updateData.role"
+			placeholder="Select role"
+			styleClass="w-full"
+		></p-dropdown>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="currentAddress" class="text-sm font-medium text-gray-700">Current Address</label>
+		<textarea
+			id="currentAddress"
+			pInputTextarea
+			[(ngModel)]="updateData.currentAddress"
+			placeholder="Enter current address"
+			rows="3"
+			class="w-full"
+		></textarea>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="permanentAddress" class="text-sm font-medium text-gray-700">Permanent Address</label>
+		<textarea
+			id="permanentAddress"
+			pInputTextarea
+			[(ngModel)]="updateData.permanentAddress"
+			placeholder="Enter permanent address"
+			rows="3"
+			class="w-full"
+		></textarea>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="isActive" class="flex items-center gap-2 text-sm font-medium text-gray-700">
+			<p-inputSwitch [(ngModel)]="updateData.isActive" id="isActive"></p-inputSwitch>
+			<span>Active Status</span>
+		</label>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-4">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Update User"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveUser()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

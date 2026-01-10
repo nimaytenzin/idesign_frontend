@@ -1,0 +1,45 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import {
+	EmployeeProfile,
+	CreateEmployeeProfileDto,
+	UpdateEmployeeProfileDto,
+} from './employee.profile.interface';
+import { environment } from '../../../../../environments/environment';
+
+@Injectable({
+	providedIn: 'root',
+})
+export class EmployeeProfileService {
+	private readonly apiUrl = `${environment.BASEAPI_URL}/employee-profile`;
+
+	constructor(private http: HttpClient) {}
+
+	/**
+	 * Create a new employee profile for a user
+	 * @param profileData - Employee profile data
+	 * @returns Observable of created employee profile
+	 */
+	createEmployeeProfile(
+		profileData: CreateEmployeeProfileDto
+	): Observable<EmployeeProfile> {
+		return this.http.post<EmployeeProfile>(this.apiUrl, profileData);
+	}
+
+	/**
+	 * Update an existing employee profile
+	 * @param id - Employee profile ID
+	 * @param profileData - Partial employee profile data to update
+	 * @returns Observable of updated employee profile
+	 */
+	updateEmployeeProfile(
+		id: number,
+		profileData: UpdateEmployeeProfileDto
+	): Observable<EmployeeProfile> {
+		return this.http.patch<EmployeeProfile>(
+			`${this.apiUrl}/${id}`,
+			profileData
+		);
+	}
+}

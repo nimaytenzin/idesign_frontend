@@ -4,7 +4,7 @@ import {
 	ADMINSIDEBARITEMS,
 	USERROLESENUM,
 } from '../sidebarmenu';
-import { UserRole } from '../../core/dataservice/auth/auth.interface';
+import { UserRole } from '../../core/constants/enums';
 
 @Injectable({
 	providedIn: 'root',

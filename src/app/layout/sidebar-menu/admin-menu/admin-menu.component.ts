@@ -1,6 +1,6 @@
 import { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { AdminLayoutService } from '../../service/admin-layout.service';
+import { LayoutService } from '../../service/layout.service';
 import { RoleBasedMenuService } from '../../service/role-based-menu.service';
 import { ADMINSIDEBARITEMS, USERROLESENUM } from '../../sidebarmenu';
 import { RouterModule } from '@angular/router';
@@ -21,7 +21,7 @@ export class AdminMenuComponent implements OnInit, OnDestroy {
 	private destroy$ = new Subject<void>();
 
 	constructor(
-		public layoutService: AdminLayoutService,
+		public layoutService: LayoutService,
 		private roleBasedMenuService: RoleBasedMenuService,
 		private authService: AuthService
 	) {}

@@ -11,8 +11,8 @@ import {
 	UpdateTodoDto,
 	TodoStatus,
 } from '../../../../core/dataservice';
-import { StaffMember } from '../../../../core/dataservice';
 import { PrimeNgModules } from '../../../../primeng.modules';
+import { User } from '../../../../core/dataservice/user/user.interface';
 
 @Component({
 	selector: 'app-admin-todo-form',
@@ -25,7 +25,7 @@ import { PrimeNgModules } from '../../../../primeng.modules';
 export class AdminTodoFormComponent implements OnInit {
 	todo: Todo | null = null;
 	portfolios: Portfolio[] = [];
-	employees: StaffMember[] = [];
+	employees: User[] = [];
 
 	// Form fields
 	task: string = '';

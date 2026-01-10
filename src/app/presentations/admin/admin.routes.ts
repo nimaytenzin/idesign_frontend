@@ -20,19 +20,27 @@ import { AdminAnalyticsComponent } from './analytics/admin-analytics.component';
 import { AdminSmsTemplateListComponent } from './sms-template-management/admin-sms-template-list/admin-sms-template-list.component';
 import { AdminListProductsComponent } from './product-management/admin-list-products/admin-list-products.component';
 import { AdminDiscountListComponent } from './discount-management/admin-discount-list/admin-discount-list.component';
-import { AdminListEmployeesComponent } from './employee-management/admin-list-employees/admin-list-employees.component';
 import { AdminCalendarComponent } from './calendar/admin-calendar.component';
 import { AdminTodoManagementComponent } from './todo-management/admin-todo-management.component';
-import { AdminListAffiliateMarketersComponent } from './affiliate-marketer-management/admin-list-affiliate-marketers/admin-list-affiliate-marketers.component';
+import { AdminListDocumentsComponent } from './documents-archive/admin-list-documents/admin-list-documents.component';
+import { DeliveryLocationsWithRatesComponent } from './settings/delivery/delivery-locations-with-rates/delivery-locations-with-rates.component';
+import { AdminGuard } from '../../core/guards/auth.guard';
+import { AdminListAdministratorComponent } from './admin-management/admin-list-administrator/admin-list-administrator.component';
+import { AdminListStaffsComponent } from './hr-management/admin-list-staffs/admin-list-staffs.component';
 
 export const adminRoutes: Routes = [
 	{
 		path: 'admin',
 		component: LayoutComponent,
+		canActivate: [AdminGuard],
 		children: [
 			{
 				path: '',
 				component: AdminDashboardComponent,
+			},
+			{
+				path: 'admins',
+				component: AdminListAdministratorComponent,
 			},
 			{
 				path: 'categories',
@@ -97,6 +105,10 @@ export const adminRoutes: Routes = [
 				component: AdminHeroSlideListComponent,
 			},
 			// HR Management Routes
+			{
+				path: 'staffs',
+				component: AdminListStaffsComponent,
+			},
 			
 			// Analytics Route
 			{
@@ -108,11 +120,7 @@ export const adminRoutes: Routes = [
 				path: 'discounts',
 				component: AdminDiscountListComponent,
 			},
-			// Employee Management Route
-			{
-				path: 'employees',
-				component: AdminListEmployeesComponent,
-			},
+			
 			// Calendar Route
 			{
 				path: 'calendar',
@@ -123,10 +131,23 @@ export const adminRoutes: Routes = [
 				path: 'todos',
 				component: AdminTodoManagementComponent,
 			},
-			// Affiliate Marketer Management Route
+			
+			//HR MANAGEMENT ROUTES
 			{
-				path: 'affiliate-marketers',
-				component: AdminListAffiliateMarketersComponent,
+				path:'staffs',
+				component: AdminListStaffsComponent,
+			},
+		
+
+			// Settings Routes
+			{
+				path: 'settings/delivery',
+				component: DeliveryLocationsWithRatesComponent,
+			},
+			// Document Archive Route
+			{
+				path: 'documents-archive',
+				component: AdminListDocumentsComponent,
 			},
 		],
 	},

@@ -21,22 +21,23 @@ export const ADMINSIDEBARITEMS = [
 				roles: [USERROLESENUM.ADMIN],
 			},
 			{
-				label: 'Services & Clients',
-				icon: 'pi pi-fw pi-users',
-				routerLink: ['/admin/company-clients'],
-				roles: [USERROLESENUM.ADMIN],
+				label: 'Document Archive',
+				icon: 'pi pi-fw pi-folder',
+				routerLink: ['/admin/documents-archive'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
 			{
-				label: 'Advertisements',
-				icon: 'pi pi-fw pi-images',
-				routerLink: ['/admin/advertisements'],
+				label: 'Administrators',
+				icon: 'pi pi-fw pi-user',
+				routerLink: ['/admin/admins'],
 				roles: [USERROLESENUM.ADMIN],
 			},
 		],
 	},
-		{
-			label: 'Task Management',
-			items: [
+	 
+	{
+		label: 'Task Management',
+		items: [
 			{
 				label: 'Todo Management',
 				icon: 'pi pi-fw pi-list',
@@ -75,7 +76,7 @@ export const ADMINSIDEBARITEMS = [
 		],
 	},
 	{
-		label: 'Orders & Sales',
+		label: 'Sales',
 		items: [
 			{
 				label: 'Orders',
@@ -137,15 +138,9 @@ export const ADMINSIDEBARITEMS = [
 		label: 'HR Management',
 		items: [
 			{
-				label: 'Employees',
+				label: 'Staffs',
 				icon: 'pi pi-fw pi-user',
-				routerLink: ['/admin/employees'],
-				roles: [USERROLESENUM.ADMIN],
-			},
-			{
-				label: 'Affiliate Marketers',
-				icon: 'pi pi-fw pi-user',
-				routerLink: ['/admin/affiliate-marketers'],
+				routerLink: ['/admin/staffs'],
 				roles: [USERROLESENUM.ADMIN],
 			},
 			{
@@ -162,9 +157,36 @@ export const ADMINSIDEBARITEMS = [
 			},
 		],
 	},
+
+	{
+		label: 'Affiliate Marketers',
+		items: [
+			{
+				label: 'List Affiliate Marketers',
+				icon: 'pi pi-fw pi-user',
+				routerLink: ['/admin/affiliate-marketers'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			
+		 
+		],
+	},
 	{
 		label: 'Content Management',
-		items: [],
+		items: [
+			{
+				label: 'Services & Clients',
+				icon: 'pi pi-fw pi-users',
+				routerLink: ['/admin/company-clients'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Advertisements',
+				icon: 'pi pi-fw pi-images',
+				routerLink: ['/admin/advertisements'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+		],
 	},
 	{
 		label: 'Settings',
@@ -173,6 +195,12 @@ export const ADMINSIDEBARITEMS = [
 				label: 'General Settings',
 				icon: 'pi pi-fw pi-cog',
 				routerLink: ['/admin/settings'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Delivery Locations & Rates',
+				icon: 'pi pi-fw pi-map-marker',
+				routerLink: ['/admin/settings/delivery'],
 				roles: [USERROLESENUM.ADMIN],
 			},
 			{

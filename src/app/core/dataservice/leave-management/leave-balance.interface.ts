@@ -1,5 +1,5 @@
+import { User } from '../user/user.interface';
 import { LeaveType } from './leave-type.interface';
-import { User } from '../auth/auth.interface';
 
 export interface LeaveBalance {
 	id: number;
