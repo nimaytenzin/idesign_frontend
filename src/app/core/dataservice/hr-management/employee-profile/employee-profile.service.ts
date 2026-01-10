@@ -7,6 +7,7 @@ import {
 	UpdateEmployeeProfileDto,
 } from './employee.profile.interface';
 import { environment } from '../../../../../environments/environment';
+import { User } from '../../user/user.interface';
 
 @Injectable({
 	providedIn: 'root',
@@ -41,5 +42,13 @@ export class EmployeeProfileService {
 			`${this.apiUrl}/${id}`,
 			profileData
 		);
+	}
+
+	/**
+	 * Get all staff for public page display
+	 * @returns Observable of public staff list containing name, department, position, and bio
+	 */
+	getPublicStaffList(): Observable<User[]> {
+		return this.http.get<User[]>(`${this.apiUrl}/public/staff`);
 	}
 }

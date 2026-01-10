@@ -1,386 +1,379 @@
-<div class="place-order-dialog">
-	<!-- Header -->
-	<div class="dialog-header">
-		<div class="header-content">
-			<div>
-				<h2>Place New Order</h2>
-				<p>Create a new customer order</p>
-			</div>
-		</div>
-		<button
-			type="button"
-			class="close-button"
-			(onClick)="cancel()"
-			*ngIf="ref"
-		>
-			<i class="pi pi-times"></i>
-		</button>
-	</div>
-
+<div class="flex flex-col h-full max-h-[90vh] bg-white">
 	<!-- Steps -->
-	<div class="steps-container">
+	<div class="px-6 py-4 border-b border-gray-200">
 		<p-steps [model]="steps" [(activeIndex)]="activeStep" [readonly]="false"></p-steps>
 	</div>
 
 	<!-- Step Content -->
-	<div class="dialog-content">
-		<!-- Step 1: Customer Details -->
-		<div *ngIf="activeStep === 0" class="step-content">
-			<div class="step-header">
-				<div class="step-icon">
-					<i class="pi pi-user"></i>
-				</div>
-				<div>
-					<h3 class="step-title">Customer Information</h3>
-					<p class="step-subtitle">Enter customer details (at least name or email required)</p>
-				</div>
-			</div>
-			<div class="form-grid">
-				<div>
-					<label class="form-label">
-						Name <span class="text-gray-400 text-xs">(Optional)</span>
-					</label>
-					<input
-						type="text"
-						pInputText
-						[(ngModel)]="customer.name"
-						placeholder="Customer name"
-						class="form-input"
-					/>
-				</div>
-
-				<div>
-					<label class="form-label">
-						Email <span class="text-gray-400 text-xs">(Optional)</span>
-					</label>
-					<input
-						type="email"
-						pInputText
-						[(ngModel)]="customer.email"
-						placeholder="customer@example.com"
-						class="form-input"
-					/>
-				</div>
-
-				<div>
-					<label class="form-label">
-						Phone Number <span class="text-gray-400 text-xs">(Optional)</span>
-					</label>
-					<input
-						type="text"
-						pInputText
-						[(ngModel)]="customer.phoneNumber"
-						placeholder="1234567890"
-						class="form-input"
-					/>
-				</div>
-
-				<div class="col-span-2">
-					<label class="form-label">
-						Shipping Address <span class="text-gray-400 text-xs">(Optional)</span>
-					</label>
-					<textarea
-						pInputTextarea
-						[(ngModel)]="customer.shippingAddress"
-						placeholder="Enter shipping address"
-						rows="3"
-						class="form-input"
-					></textarea>
-				</div>
-
-				<div class="col-span-2">
-					<label class="form-label">
-						Billing Address <span class="text-gray-400 text-xs">(Optional)</span>
-					</label>
-					<textarea
-						pInputTextarea
-						[(ngModel)]="customer.billingAddress"
-						placeholder="Enter billing address"
-						rows="3"
-						class="form-input"
-					></textarea>
-				</div>
-			</div>
-		</div>
-
-		<!-- Step 2: Products -->
-		<div *ngIf="activeStep === 1" class="step-content">
-			<div class="step-header">
-				<div class="step-icon">
-					<i class="pi pi-shopping-cart"></i>
-				</div>
-				<div>
-					<h3 class="step-title">Add Products</h3>
-					<p class="step-subtitle">Select products and quantities for this order</p>
-				</div>
-			</div>
-
-			<!-- Add Product Form -->
-			<div class="add-product-card">
-				<div class="product-select-grid">
-					<div class="col-span-2">
-						<label class="form-label">Product</label>
-						<p-dropdown
-							[options]="products"
-							optionLabel="title"
-							[(ngModel)]="selectedProduct"
-							placeholder="Select product"
-							(onChange)="onProductSelect()"
-							styleClass="w-full"
-							[filter]="true"
-							filterBy="title"
-						>
-							<ng-template let-product pTemplate="item">
-								<div class="flex items-center justify-between">
-									<span>{{ product.title }}</span>
-									<span class="text-xs text-gray-500 ml-2">{{ formatCurrency(product.price) }}</span>
-								</div>
-							</ng-template>
-						</p-dropdown>
+	<div class="flex-1 overflow-y-auto p-6">
+		<!-- Step 1: Product Confirmation -->
+		<div *ngIf="activeStep === 0" class="mx-auto">
+			<div class="mb-6 flex items-center justify-between">
+				<div class="flex items-center gap-3">
+					<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+						<i class="pi pi-shopping-cart text-blue-600"></i>
 					</div>
-
 					<div>
-						<label class="form-label">Quantity</label>
-						<p-inputnumber
-							[(ngModel)]="quantity"
-							[showButtons]="true"
-							[min]="1"
-							(onInput)="onDiscountPercentageChange()"
-							styleClass="w-full"
-						></p-inputnumber>
-					</div>
-
-					<div>
-						<label class="form-label">
-							Unit Price
-							<span class="text-xs text-gray-500 font-normal ml-1">(from product)</span>
-						</label>
-						<p-inputnumber
-							[(ngModel)]="unitPrice"
-							mode="currency"
-							currency="BTN"
-							locale="en-US"
-							styleClass="w-full"
-							[readonly]="!selectedProduct"
-						></p-inputnumber>
-						<small class="text-xs text-gray-500 mt-1 block" *ngIf="selectedProduct">
-							Product price: {{ formatCurrency(selectedProduct.price) }}
-						</small>
+						<h3 class="text-xl font-semibold text-gray-900 m-0">Product Confirmation</h3>
+						<p class="text-sm text-gray-500 m-0">Select products and quantities for this order</p>
 					</div>
 				</div>
-
-				<div class="discount-section">
-					<div class="flex-1">
-						<label class="form-label">Discount</label>
-						<div class="flex items-center gap-2 mb-2">
-							<p-selectButton
-								[options]="[
-									{ label: 'Amount', value: 'amount' },
-									{ label: 'Percentage', value: 'percentage' }
-								]"
-								[(ngModel)]="discountMode"
-								(onChange)="onDiscountModeChange()"
-								styleClass="text-xs"
-							></p-selectButton>
-						</div>
-						<p-inputnumber
-							*ngIf="discountMode === 'amount'"
-							[(ngModel)]="discountApplied"
-							mode="currency"
-							currency="BTN"
-							locale="en-US"
-							[min]="0"
-							[max]="unitPrice * quantity"
-							styleClass="w-full"
-						></p-inputnumber>
-						<div *ngIf="discountMode === 'percentage'" class="flex items-center gap-2">
-							<p-inputnumber
-								[(ngModel)]="discountPercentage"
-								[showButtons]="true"
-								[min]="0"
-								[max]="100"
-								(onInput)="onDiscountPercentageChange()"
-								styleClass="flex-1"
-							></p-inputnumber>
-							<span class="text-sm text-gray-600">%</span>
-							<span class="text-xs text-gray-500" *ngIf="selectedProduct && quantity > 0">
-								= {{ formatCurrency((unitPrice * quantity * discountPercentage) / 100) }}
-							</span>
-						</div>
-					</div>
-					<div class="flex items-end">
-						<p-button
-							label="Add to Order"
-							icon="pi pi-plus"
-							size="small"
-							severity="success"
-							(onClick)="addLineItem()"
-							class="w-full"
-						></p-button>
-					</div>
-				</div>
+				<p-button
+					label="Add Product"
+					icon="pi pi-plus"
+ 					(onClick)="openAddProductDialog()"
+				></p-button>
 			</div>
 
-			<!-- Order Line Items -->
-			<div class="order-items-card" *ngIf="orderItems.length > 0">
-				<h4 class="card-title">Order Items</h4>
-				<div class="table-container">
-					<table class="order-items-table">
-						<thead>
-							<tr>
-								<th>Product</th>
-								<th class="text-center">Quantity</th>
-								<th class="text-right">Unit Price</th>
-								<th class="text-right">Discount</th>
-								<th class="text-right">Total</th>
-								<th class="text-center">Action</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr *ngFor="let item of orderItems; let i = index">
-								<td>
-									<div class="font-medium text-gray-900">{{ item.product?.title || 'N/A' }}</div>
-								</td>
-								<td class="text-center text-gray-600">{{ item.quantity }}</td>
-								<td class="text-right text-gray-600">{{ formatCurrency(item.unitPrice) }}</td>
-								<td class="text-right text-gray-600">{{ formatCurrency(item.discountApplied || 0) }}</td>
-								<td class="text-right font-semibold text-gray-900">{{ formatCurrency(item.lineTotal) }}</td>
-								<td class="text-center">
-									<p-button
-										icon="pi pi-trash"
-										[text]="true"
-										size="small"
-										severity="danger"
-										(onClick)="removeLineItem(i)"
-										pTooltip="Remove"
-									></p-button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-
-		<!-- Step 3: Review & Submit -->
-		<div *ngIf="activeStep === 2" class="step-content">
-			<div class="step-header">
-				<div class="step-icon">
-					<i class="pi pi-check-circle"></i>
-				</div>
-				<div>
-					<h3 class="step-title">Review & Confirm</h3>
-					<p class="step-subtitle">Review order details before submitting</p>
-				</div>
-			</div>
-
-			<div class="review-sections">
-				<!-- Customer Info -->
-				<div class="review-card">
-					<h4 class="card-title">Customer Information</h4>
-					<div class="info-grid">
-						<div *ngIf="customer.name">
-							<span class="info-label">Name:</span>
-							<span class="info-value">{{ customer.name }}</span>
-						</div>
-						<div *ngIf="customer.email">
-							<span class="info-label">Email:</span>
-							<span class="info-value">{{ customer.email }}</span>
-						</div>
-						<div *ngIf="customer.phoneNumber">
-							<span class="info-label">Phone:</span>
-							<span class="info-value">{{ customer.phoneNumber }}</span>
-						</div>
-						<div *ngIf="customer.shippingAddress" class="col-span-2">
-							<span class="info-label">Shipping Address:</span>
-							<p class="info-value">{{ customer.shippingAddress }}</p>
-						</div>
-						<div *ngIf="customer.billingAddress" class="col-span-2">
-							<span class="info-label">Billing Address:</span>
-							<p class="info-value">{{ customer.billingAddress }}</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- Order Items -->
-				<div class="review-card">
-					<h4 class="card-title">Order Items</h4>
-					<div class="table-container">
-						<table class="order-items-table">
+			<!-- Order Items Table -->
+			<p-card>
+				<ng-template pTemplate="content">
+					<div class="overflow-x-auto">
+						<table class="w-full">
 							<thead>
-								<tr>
-									<th>Product</th>
-									<th class="text-center">Qty</th>
-									<th class="text-right">Price</th>
-									<th class="text-right">Total</th>
+								<tr class="border-b border-gray-200">
+									<th class="text-left p-3 text-sm font-semibold text-gray-700">Product</th>
+									<th class="text-center p-3 text-sm font-semibold text-gray-700">Quantity</th>
+									<th class="text-right p-3 text-sm font-semibold text-gray-700">Unit Price</th>
+									<th class="text-right p-3 text-sm font-semibold text-gray-700">Discount</th>
+									<th class="text-right p-3 text-sm font-semibold text-gray-700">Total</th>
+									<th class="text-center p-3 text-sm font-semibold text-gray-700">Action</th>
 								</tr>
 							</thead>
 							<tbody>
-         <tr *ngFor="let item of orderItems">
-									<td class="text-sm text-gray-900">{{ item.product?.title }}</td>
-									<td class="text-center text-gray-600">{{ item.quantity }}</td>
-									<td class="text-right text-gray-600">{{ formatCurrency(item.unitPrice) }}</td>
-									<td class="text-right font-medium text-gray-900">{{ formatCurrency(item.lineTotal) }}</td>
+								<!-- Order Items Rows -->
+								<tr *ngFor="let item of orderItems; let i = index">
+									<td class="p-3">
+										<div class="font-medium text-gray-900">{{ item.product?.title || 'N/A' }}</div>
+									</td>
+									<td class="p-3 text-center text-gray-600">{{ item.quantity }}</td>
+									<td class="p-3 text-right text-gray-600">{{ formatCurrency(item.unitPrice) }}</td>
+									<td class="p-3 text-right text-red-600">{{ formatCurrency(item.discountApplied || 0) }}</td>
+									<td class="p-3 text-right font-semibold text-gray-900">{{ formatCurrency(item.lineTotal) }}</td>
+									<td class="p-3 text-center">
+										<p-button
+											icon="pi pi-trash"
+											[text]="true"
+											severity="danger"
+											size="small"
+											(onClick)="removeLineItem(i)"
+											pTooltip="Remove"
+										></p-button>
+									</td>
+								</tr>
+
+								<!-- Summary Rows -->
+								<tr *ngIf="orderItems.length > 0" class="border-t-2 border-gray-300 bg-gray-50">
+									<td colspan="4" class="p-3 text-right font-semibold text-gray-700">Subtotal:</td>
+ 									<td class="p-3 text-right font-semibold text-gray-900">{{ formatCurrency(getSubtotalBeforeDiscount()) }}</td>
+									<td class="p-3"></td>
+								</tr>
+								<tr *ngIf="orderItems.length > 0  " class="bg-gray-50">
+									<td colspan="4" class="p-3 text-right font-semibold text-gray-700">Total Discount:</td>
+ 									<td class="p-3 text-right font-semibold text-red-600">-{{ formatCurrency(getTotalDiscount()) }}</td>
+									<td class="p-3"></td>
+								</tr>
+								 
+								<tr *ngIf="orderItems.length > 0" class="bg-gray-50">
+									<!-- //net payable -->
+									<td colspan="4" class="p-3 text-right font-semibold text-gray-700">Net Payable:</td>
+ 									<td class="p-3 text-right font-semibold text-blue-600 text-lg">{{ formatCurrency(getNetPayable()) }}</td>
+									<td class="p-3"></td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
-				</div>
 
-				<!-- Order Details -->
-				<div class="review-card">
-					<h4 class="card-title">Order Details</h4>
-					<div class="form-grid">
+					<!-- Empty State -->
+					<div *ngIf="orderItems.length === 0" class="text-center py-12">
+						<i class="pi pi-shopping-cart text-6xl text-gray-300 mb-4"></i>
+						<p class="text-gray-500 text-lg">No products added yet</p>
+						<p class="text-gray-400 text-sm mb-4">Click "Add Product" button to start adding items</p>
+						<p-button
+							label="Add Product"
+							icon="pi pi-plus"
+							(onClick)="openAddProductDialog()"
+						></p-button>
+					</div>
+				</ng-template>
+			</p-card>
+		</div>
+
+		<!-- Step 2: Customer Details -->
+		<div *ngIf="activeStep === 1" class="mx-auto">
+			<div class="mb-6">
+				<div class="flex items-center gap-3 mb-2">
+					<div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+						<i class="pi pi-user text-green-600"></i>
+					</div>
+					<div>
+						<h3 class="text-xl font-semibold text-gray-900 m-0">Customer Information</h3>
+						<p class="text-sm text-gray-500 m-0">Enter customer details (at least name or email required)</p>
+					</div>
+				</div>
+			</div>
+
+			<p-card>
+				<ng-template pTemplate="content">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div>
-							<label class="form-label">Shipping Cost</label>
-							<p-inputnumber
-								[(ngModel)]="shippingCost"
-								mode="currency"
-								currency="BTN"
-								locale="en-US"
-								[min]="0"
-								(onInput)="onShippingCostChange()"
-								styleClass="w-full"
-							></p-inputnumber>
+							<label class="block text-sm font-medium text-gray-700 mb-2">
+								Name <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+							</label>
+							<input
+								type="text"
+								pInputText
+								[(ngModel)]="customer.name"
+								placeholder="Customer name"
+								class="w-full"
+							/>
 						</div>
-						<div class="col-span-2">
-							<label class="form-label">Internal Notes</label>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">
+								Email <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+							</label>
+							<input
+								type="email"
+								pInputText
+								[(ngModel)]="customer.email"
+								placeholder="customer@example.com"
+								class="w-full"
+							/>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">
+								Phone Number <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+							</label>
+							<input
+								type="text"
+								pInputText
+								[(ngModel)]="customer.phoneNumber"
+								placeholder="1234567890"
+								class="w-full"
+							/>
+						</div>
+
+						<div class="md:col-span-2">
+							<label class="block text-sm font-medium text-gray-700 mb-2">
+								Shipping Address <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+							</label>
+							<textarea
+								pInputTextarea
+								[(ngModel)]="customer.shippingAddress"
+								placeholder="Enter shipping address"
+								rows="3"
+								class="w-full"
+							></textarea>
+						</div>
+
+						<div class="md:col-span-2">
+							<label class="block text-sm font-medium text-gray-700 mb-2">
+								Billing Address <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+							</label>
+							<textarea
+								pInputTextarea
+								[(ngModel)]="customer.billingAddress"
+								placeholder="Enter billing address"
+								rows="3"
+								class="w-full"
+							></textarea>
+						</div>
+					</div>
+				</ng-template>
+			</p-card>
+		</div>
+
+		<!-- Step 3: Fulfillment Type -->
+		<div *ngIf="activeStep === 2" class="mx-auto">
+			<div class="mb-6">
+				<div class="flex items-center gap-3 mb-2">
+					<div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+						<i class="pi pi-truck text-purple-600"></i>
+					</div>
+					<div>
+						<h3 class="text-xl font-semibold text-gray-900 m-0">Fulfillment Type</h3>
+						<p class="text-sm text-gray-500 m-0">Select how the customer will receive this order</p>
+					</div>
+				</div>
+			</div>
+
+			<p-card class="mb-6">
+				<ng-template pTemplate="content">
+					<div class="space-y-6">
+						<!-- Fulfillment Type Selection -->
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-3">How will the customer receive this order?</label>
+							<p-selectButton
+								[options]="[
+									{ label: 'In Store', value: FulfillmentType.INSTORE, icon: 'pi pi-home' },
+									{ label: 'Delivery', value: FulfillmentType.DELIVERY, icon: 'pi pi-truck' }
+								]"
+								[(ngModel)]="fulfillmentType"
+								(onChange)="onFulfillmentTypeChange()"
+								styleClass="w-full"
+							></p-selectButton>
+						</div>
+
+						<!-- Delivery Options (only shown when DELIVERY is selected) -->
+						<div *ngIf="fulfillmentType === FulfillmentType.DELIVERY" class="space-y-4 pt-4 border-t border-gray-200">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-2">
+									Delivery Rate <span class="text-red-500">*</span>
+								</label>
+								<p-dropdown
+									[options]="deliveryRates"
+									[(ngModel)]="selectedDeliveryRate"
+									placeholder="Select delivery rate"
+									(onChange)="onDeliveryRateChange()"
+									styleClass="w-full"
+									[filter]="true"
+									[loading]="deliveryRates.length === 0"
+								>
+									<ng-template let-rate pTemplate="item">
+										<div class="flex items-center justify-between py-2">
+											<span>{{ getDeliveryRateDisplay(rate) }}</span>
+											<span class="text-xs text-gray-500 ml-2">
+												{{ formatCurrency(rate.rate) }} - {{ rate.transportMode }}
+											</span>
+										</div>
+									</ng-template>
+									<ng-template let-rate pTemplate="selectedItem">
+										<span>{{ getDeliveryRateDisplay(rate) }}</span>
+									</ng-template>
+								</p-dropdown>
+							</div>
+
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-2">
+									Shipping Address <span class="text-red-500">*</span>
+								</label>
+								<textarea
+									pInputTextarea
+									[(ngModel)]="shippingAddress"
+									placeholder="Enter shipping address"
+									rows="4"
+									class="w-full"
+									required
+								></textarea>
+							</div>
+
+							<div *ngIf="selectedDeliveryRate" class="p-3 bg-blue-50 rounded-lg">
+								<div class="flex items-center gap-2 text-sm text-blue-700">
+									<i class="pi pi-info-circle"></i>
+									<span>Delivery cost: <strong>{{ formatCurrency(selectedDeliveryRate.rate) }}</strong></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</ng-template>
+			</p-card>
+
+			<!-- Order Summary & Payment -->
+			<p-card>
+				<ng-template pTemplate="header">
+					<div class="p-4 border-b border-gray-200">
+						<h4 class="text-lg font-semibold text-gray-900 m-0">Order Summary & Payment</h4>
+					</div>
+				</ng-template>
+				<ng-template pTemplate="content">
+					<div class="space-y-4">
+						<!-- Order Items Summary -->
+						<div>
+							<h5 class="text-sm font-medium text-gray-700 mb-2">Order Items</h5>
+							<div class="space-y-2">
+								<div *ngFor="let item of orderItems" class="flex justify-between text-sm">
+									<span class="text-gray-600">{{ item.product?.title }} x{{ item.quantity }}</span>
+									<span class="font-medium text-gray-900">{{ formatCurrency(item.lineTotal) }}</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="border-t border-gray-200 pt-4 space-y-2">
+							<div class="flex justify-between text-sm">
+								<span class="text-gray-600">Subtotal</span>
+								<span class="font-medium text-gray-900">{{ formatCurrency(subtotal) }}</span>
+							</div>
+							<div *ngIf="deliveryCost > 0" class="flex justify-between text-sm">
+								<span class="text-gray-600">Delivery Cost</span>
+								<span class="font-medium text-gray-900">{{ formatCurrency(deliveryCost) }}</span>
+							</div>
+							<div class="flex justify-between text-base font-semibold pt-2 border-t border-gray-200">
+								<span class="text-gray-900">Total</span>
+								<span class="text-blue-600">{{ formatCurrency(totalAmount) }}</span>
+							</div>
+						</div>
+
+						<!-- Payment Method -->
+						<div class="pt-4 border-t border-gray-200">
+							<label class="block text-sm font-medium text-gray-700 mb-2">
+								Payment Method <span class="text-red-500">*</span>
+							</label>
+							<p-dropdown
+								[options]="[
+									{ label: 'Cash', value: 'CASH' },
+									{ label: 'MBOB', value: 'MBOB' },
+									{ label: 'BDB EPay', value: 'BDB_EPAY' },
+									{ label: 'TPay', value: 'TPAY' },
+									{ label: 'BNB MPay', value: 'BNB_MPAY' },
+									{ label: 'ZPSS', value: 'ZPSS' }
+								]"
+								optionLabel="label"
+								optionValue="value"
+								[(ngModel)]="paymentMethod"
+								placeholder="Select payment method"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
+
+
+						<!-- Additional Fields -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-2">Order Discount</label>
+								<p-inputnumber
+									[(ngModel)]="discount"
+									mode="currency"
+									currency="BTN"
+									locale="en-US"
+									[min]="0"
+									styleClass="w-full"
+								></p-inputnumber>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-2">Voucher Code</label>
+								<input
+									type="text"
+									pInputText
+									[(ngModel)]="voucherCode"
+									placeholder="Enter voucher code"
+									class="w-full"
+								/>
+							</div>
+						</div>
+
+						<div class="pt-4 border-t border-gray-200">
+							<label class="block text-sm font-medium text-gray-700 mb-2">Internal Notes</label>
 							<textarea
 								pInputTextarea
 								[(ngModel)]="internalNotes"
 								placeholder="Add internal notes (optional)"
 								rows="3"
-								class="form-input"
+								class="w-full"
 							></textarea>
 						</div>
 					</div>
-				</div>
-
-				<!-- Totals -->
-				<div class="totals-card">
-					<div class="total-row">
-						<span class="total-label">Subtotal:</span>
-						<span class="total-value">{{ formatCurrency(subtotal) }}</span>
-					</div>
-					<div class="total-row">
-						<span class="total-label">Shipping:</span>
-						<span class="total-value">{{ formatCurrency(shippingCost || 0) }}</span>
-					</div>
-					<div class="total-row final-total">
-						<span class="total-label">Total:</span>
-						<span class="total-value-large">{{ formatCurrency(totalAmount) }}</span>
-					</div>
-				</div>
-			</div>
+				</ng-template>
+			</p-card>
 		</div>
 	</div>
 
 	<!-- Footer Actions -->
-	<div class="dialog-footer">
+	<div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
 		<p-button
 			label="Cancel"
 			icon="pi pi-times"
-			size="small"
 			severity="secondary"
 			[outlined]="true"
 			(onClick)="cancel()"
@@ -390,7 +383,6 @@
 				*ngIf="activeStep > 0"
 				label="Back"
 				icon="pi pi-arrow-left"
-				size="small"
 				severity="secondary"
 				[outlined]="true"
 				(onClick)="prevStep()"
@@ -400,21 +392,163 @@
 				label="Next"
 				icon="pi pi-arrow-right"
 				iconPos="right"
-				size="small"
-				severity="success"
 				(onClick)="nextStep()"
 			></p-button>
 			<p-button
 				*ngIf="activeStep === 2"
 				label="Place Order"
 				icon="pi pi-check"
-				size="small"
-				severity="success"
 				[loading]="loading"
 				(onClick)="submitOrder()"
 			></p-button>
 		</div>
 	</div>
 </div>
+
+<!-- Add Product Dialog -->
+<p-dialog
+	[(visible)]="showAddProductDialog"
+	header="Add Product to Order"
+	[modal]="true"
+	[style]="{ width: '600px' }"
+	[closable]="true"
+	[draggable]="false"
+	[resizable]="false"
+	(onHide)="closeAddProductDialog()"
+>
+	<div class="space-y-4">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div class="md:col-span-2">
+				<label class="block text-sm font-medium text-gray-700 mb-2">Product <span class="text-red-500">*</span></label>
+				<p-dropdown
+					[options]="products"
+					optionLabel="title"
+					[(ngModel)]="selectedProduct"
+					placeholder="Select product"
+					(onChange)="onProductSelect()"
+					styleClass="w-full"
+					[filter]="true"
+					filterBy="title"
+				>
+					<ng-template let-product pTemplate="item">
+						<div class="flex items-center justify-between py-2">
+							<span class="font-medium">{{ product.title }}</span>
+							<span class="text-xs text-gray-500 ml-2">{{ formatCurrency(product.price) }}</span>
+						</div>
+					</ng-template>
+				</p-dropdown>
+			</div>
+
+			<div>
+				<label class="block text-sm font-medium text-gray-700 mb-2">Quantity <span class="text-red-500">*</span></label>
+				<p-inputnumber
+					[(ngModel)]="quantity"
+					[showButtons]="true"
+					[min]="1"
+					(onInput)="onDiscountPercentageChange()"
+					styleClass="w-full"
+				></p-inputnumber>
+			</div>
+
+			<div>
+				<label class="block text-sm font-medium text-gray-700 mb-2">
+					Unit Price
+					<span class="text-xs text-gray-500 font-normal">(from product)</span>
+				</label>
+				<p-inputnumber
+					[(ngModel)]="unitPrice"
+					mode="currency"
+					currency="BTN"
+					locale="en-US"
+					styleClass="w-full"
+					[readonly]="!selectedProduct"
+				></p-inputnumber>
+			</div>
+		</div>
+
+		<!-- Discount Section -->
+		<div class="pt-4 border-t border-gray-200">
+			<label class="block text-sm font-medium text-gray-700 mb-2">Discount</label>
+			<div class="flex justify-between items-center gap-2">
+				<div>
+					<p-selectButton
+						[options]="[
+							{ label: 'Amount', value: 'amount' },
+							{ label: 'Percentage', value: 'percentage' }
+						]"
+						[(ngModel)]="discountMode"
+						(onChange)="onDiscountModeChange()"
+						styleClass="w-full"
+					></p-selectButton>
+				</div>
+				<div class="flex-1">
+					<p-inputnumber
+						*ngIf="discountMode === 'amount'"
+						[(ngModel)]="discountApplied"
+						mode="currency"
+						currency="BTN"
+						locale="en-US"
+						[min]="0"
+						[max]="unitPrice * quantity"
+						styleClass="w-full"
+					></p-inputnumber>
+					<div *ngIf="discountMode === 'percentage'" class="flex items-center gap-2">
+						<p-inputnumber
+							[(ngModel)]="discountPercentage"
+							[showButtons]="true"
+							[min]="0"
+							[max]="100"
+							(onInput)="onDiscountPercentageChange()"
+							styleClass="flex-1"
+						></p-inputnumber>
+						<span class="text-sm text-gray-600">%</span>
+						<span class="text-xs text-gray-500" *ngIf="selectedProduct && quantity > 0">
+							= {{ formatCurrency((unitPrice * quantity * discountPercentage) / 100) }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Summary -->
+		<div *ngIf="selectedProduct && quantity > 0" class="pt-4 border-t border-gray-200">
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<span class="text-sm text-gray-600">Subtotal:</span>
+					<span class="text-sm font-semibold text-gray-900 ml-2">
+						{{ formatCurrency(unitPrice * quantity) }}
+					</span>
+				</div>
+				<div>
+					<span class="text-sm text-gray-600">Discount:</span>
+					<span class="text-sm font-semibold text-red-600 ml-2">
+						{{ formatCurrency(discountMode === 'percentage' ? (unitPrice * quantity * discountPercentage / 100) : discountApplied) }}
+					</span>
+				</div>
+				<div class="col-span-2 pt-2 border-t border-gray-200">
+					<span class="text-base font-bold text-gray-900">Net Payable:</span>
+					<span class="text-base font-bold text-blue-600 ml-2">
+						{{ formatCurrency((unitPrice * quantity) - (discountMode === 'percentage' ? (unitPrice * quantity * discountPercentage / 100) : discountApplied)) }}
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<ng-template pTemplate="footer">
+		<p-button
+			label="Cancel"
+			icon="pi pi-times"
+			severity="secondary"
+			[outlined]="true"
+			(onClick)="closeAddProductDialog()"
+		></p-button>
+		<p-button
+			label="Add to Order"
+			icon="pi pi-check"
+ 			(onClick)="addLineItem()"
+			[disabled]="!selectedProduct || quantity <= 0"
+		></p-button>
+	</ng-template>
+</p-dialog>
 
 <p-toast></p-toast>

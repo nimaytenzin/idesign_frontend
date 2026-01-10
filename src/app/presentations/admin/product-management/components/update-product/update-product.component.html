@@ -267,9 +267,7 @@
 						</div>
 					</div>
 					<!-- Existing Product Images -->
-					<div *ngFor="let image of productImages" class="bg-white rounded-lg border-2 overflow-hidden"
-						[class.border-green-500]="image.isPrimary"
-						[class.border-gray-300]="!image.isPrimary">
+					<div *ngFor="let image of productImages" class="bg-white rounded-lg border-2 border-gray-300 overflow-hidden">
 						<div class="aspect-square relative">
 							<img [src]="getImageUrl(image.imagePath)" [alt]="image.altText || 'Product image'" class="w-full h-full object-cover" />
 							<p-tag
@@ -280,30 +278,20 @@
 							></p-tag>
 						</div>
 						<div class="p-3 bg-gray-50 border-t border-gray-200 space-y-2">
-							<div class="flex items-center justify-between gap-2">
+							<div class="flex items-center justify-end gap-2">
 								<p-button
-									*ngIf="!image.isPrimary"
 									label="Set as Primary"
 									icon="pi pi-star"
 									severity="primary"
 									size="small"
 									(onClick)="setAsPrimaryImage(image.id)"
-									styleClass="flex-1"
+									[disabled]="image.isPrimary"
+									styleClass="flex-1 w-full"
 								></p-button>
 								<p-button
-									*ngIf="image.isPrimary"
-									label="Primary"
-									icon="pi pi-check-circle"
-									severity="primary"
-									size="small"
-									[disabled]="true"
-									styleClass="flex-1"
-								></p-button>
-								<p-button
-									label="Delete"
-									icon="pi pi-trash"
+ 									icon="pi pi-trash"
 									severity="danger"
-									size="small"
+ 									size="small"
 									(onClick)="deleteExistingImage(image.id)"
 									styleClass="flex-1"
 								></p-button>

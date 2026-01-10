@@ -9,11 +9,11 @@ import {
 	CreateSmsTemplateDto,
 	UpdateSmsTemplateDto,
 	SmsTriggerEvent,
-	OrderType,
 	TriggerInfo,
 	PlaceholderInfo,
 	TestSmsTemplateDto,
 } from '../../../../core/dataservice/sms-template/sms-template.interface';
+import { OrderSource } from '../../../../core/dataservice/order/order.interface';
 import { OrderService } from '../../../../core/dataservice/order/order.service';
 import { Order } from '../../../../core/dataservice/order/order.interface';
 import { PrimeNgModules } from '../../../../primeng.modules';
@@ -38,8 +38,8 @@ export class AdminSmsTemplateCreateComponent implements OnInit {
 	placeholderOptions: PlaceholderInfo[] = [];
 	orderTypeOptions = [
 		{ label: 'Both (Counter & Online)', value: null },
-		{ label: 'Counter', value: OrderType.COUNTER },
-		{ label: 'Online', value: OrderType.ONLINE },
+		{ label: 'Counter', value: OrderSource.COUNTER },
+		{ label: 'Online', value: OrderSource.ONLINE },
 	];
 
 	// Test template
@@ -48,7 +48,7 @@ export class AdminSmsTemplateCreateComponent implements OnInit {
 	availableOrders: Order[] = [];
 
 	SmsTriggerEvent = SmsTriggerEvent;
-	OrderType = OrderType;
+	OrderSource = OrderSource;
 	placeholderExample = '{{customerName}}, {{orderNumber}}, etc.';
 
 	constructor(

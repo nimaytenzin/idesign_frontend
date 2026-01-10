@@ -28,6 +28,7 @@ export class AdminCreateUserComponent implements OnInit {
 		role: UserRole.ADMIN,
 		currentAddress: '',
 		permanentAddress: '',
+		dateOfBirth: undefined,
 	};
 
 	roleOptions = [
@@ -120,6 +121,7 @@ export class AdminCreateUserComponent implements OnInit {
 			role: UserRole.ADMIN,
 			currentAddress: '',
 			permanentAddress: '',
+			dateOfBirth: undefined,
 		};
 		this.submitted = false;
 	}

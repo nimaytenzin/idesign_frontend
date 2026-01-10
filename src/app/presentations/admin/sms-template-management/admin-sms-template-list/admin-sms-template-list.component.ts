@@ -8,9 +8,9 @@ import { SmsTemplateService } from '../../../../core/dataservice/sms-template/sm
 import {
 	SmsTemplate,
 	SmsTriggerEvent,
-	OrderType,
 	SmsTemplateQueryDto,
 } from '../../../../core/dataservice/sms-template/sms-template.interface';
+import { OrderSource } from '../../../../core/dataservice/order/order.interface';
 import { PrimeNgModules } from '../../../../primeng.modules';
 import { AdminSmsTemplateCreateComponent } from '../admin-sms-template-create/admin-sms-template-create.component';
 import { Table } from 'primeng/table';
@@ -33,15 +33,15 @@ export class AdminSmsTemplateListComponent implements OnInit {
 
 	// Filters
 	triggerEventFilter: SmsTriggerEvent | null = null;
-	orderTypeFilter: OrderType | null = null;
+	orderTypeFilter: OrderSource | null = null;
 	isActiveFilter: boolean | null = null;
 
 	// Filter options
 	triggerEventOptions: { label: string; value: SmsTriggerEvent | null }[] = [];
 	orderTypeOptions = [
 		{ label: 'All Types', value: null },
-		{ label: 'Counter', value: OrderType.COUNTER },
-		{ label: 'Online', value: OrderType.ONLINE },
+		{ label: 'Counter', value: OrderSource.COUNTER },
+		{ label: 'Online', value: OrderSource.ONLINE },
 	];
 
 	activeStatusOptions = [
@@ -56,7 +56,7 @@ export class AdminSmsTemplateListComponent implements OnInit {
 	totalRecords: number = 0;
 
 	SmsTriggerEvent = SmsTriggerEvent;
-	OrderType = OrderType;
+	OrderSource = OrderSource;
 
 	constructor(
 		private smsTemplateService: SmsTemplateService,
@@ -243,9 +243,9 @@ export class AdminSmsTemplateListComponent implements OnInit {
 		return trigger?.label || event;
 	}
 
-	getOrderTypeLabel(orderType: OrderType | null): string {
+	getOrderTypeLabel(orderType: OrderSource | null): string {
 		if (!orderType) return 'Both';
-		return orderType === OrderType.COUNTER ? 'Counter' : 'Online';
+		return orderType === OrderSource.COUNTER ? 'Counter' : 'Online';
 	}
 
 	getStatusClasses(isActive: boolean): string {

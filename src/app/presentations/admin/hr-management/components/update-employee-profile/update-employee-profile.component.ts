@@ -30,6 +30,7 @@ export class UpdateEmployeeProfileComponent implements OnInit {
 		userId?: number;
 		department?: string;
 		position?: string;
+		bio?: string;
 		hireDate?: Date | string;
 		terminationDate?: Date | string | null;
 		employeeStatus?: EmployeeStatus;
@@ -66,6 +67,7 @@ export class UpdateEmployeeProfileComponent implements OnInit {
 					userId: this.employeeProfile.userId,
 					department: this.employeeProfile.department,
 					position: this.employeeProfile.position,
+					bio: this.employeeProfile.bio || '',
 					hireDate: hireDate || undefined,
 					terminationDate: terminationDate || undefined,
 					employeeStatus: this.employeeProfile.employeeStatus,
@@ -120,6 +122,7 @@ export class UpdateEmployeeProfileComponent implements OnInit {
 			userId: this.updateData.userId,
 			department: this.updateData.department,
 			position: this.updateData.position,
+			bio: this.updateData.bio,
 			hireDate: this.updateData.hireDate ? new Date(this.updateData.hireDate) : new Date(),
 			terminationDate: this.updateData.terminationDate ? new Date(this.updateData.terminationDate) : null,
 			employeeStatus: this.updateData.employeeStatus,
@@ -131,6 +134,9 @@ export class UpdateEmployeeProfileComponent implements OnInit {
 		}
 		if (dto.position) {
 			dto.position = dto.position.trim();
+		}
+		if (dto.bio) {
+			dto.bio = dto.bio.trim();
 		}
 
 		this.employeeProfileService

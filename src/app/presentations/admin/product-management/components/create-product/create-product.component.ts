@@ -23,6 +23,13 @@ import { environment } from '../../../../../../environments/environment';
 export class CreateProductComponent implements OnInit {
 	loading: boolean = false;
 	submitted: boolean = false;
+	activeStep: number = 0;
+	createdProductId: number | null = null;
+
+	steps = [
+		{ label: 'Product Information' },
+		{ label: 'Product Images' },
+	];
 
 	// Form Data
 	product: Partial<CreateProductDto> = {
@@ -148,6 +155,9 @@ export class CreateProductComponent implements OnInit {
 					);
 				}
 				
+				// Reset to step 1 for duplicate products
+				this.activeStep = 0;
+				this.createdProductId = null;
 				this.loading = false;
 				this.cdr.markForCheck();
 			},
@@ -181,45 +191,103 @@ export class CreateProductComponent implements OnInit {
 		this.uploadedFiles.splice(index, 1);
 	}
 
-	saveProduct() {
-		this.submitted = true;
+	nextStep() {
+		if (this.activeStep === 0) {
+			// Validate and save product info, then move to step 2
+			this.submitted = true;
+			if (!this.isFormValid()) {
+				return;
+			}
 
-		if (!this.isFormValid()) {
-			return;
+			this.loading = true;
+			const createData: CreateProductDto = this.product as CreateProductDto;
+			this.productService.createProduct(createData).subscribe({
+				next: (createdProduct) => {
+					this.createdProductId = createdProduct.id;
+					this.activeStep = 1;
+					this.loading = false;
+					this.submitted = false; // Reset for step 2
+					this.messageService.add({
+						severity: 'success',
+						summary: 'Success',
+						detail: 'Product information saved. Now add images.',
+					});
+					this.cdr.markForCheck();
+				},
+				error: () => {
+					this.messageService.add({
+						severity: 'error',
+						summary: 'Error',
+						detail: 'Failed to create product',
+					});
+					this.loading = false;
+					this.cdr.markForCheck();
+				},
+			});
 		}
+	}
 
-		this.loading = true;
+	prevStep() {
+		if (this.activeStep > 0) {
+			this.activeStep--;
+			this.cdr.markForCheck();
+		}
+	}
 
-		// Create new product
-		const createData: CreateProductDto = this.product as CreateProductDto;
-		this.productService.createProduct(createData).subscribe({
-			next: (createdProduct) => {
-				// Upload images if any were selected
-				if (this.uploadedFiles.length > 0) {
-					this.uploadImages(createdProduct.id, true);
-				} else {
+	skipImages() {
+		// Skip image upload and finish
+		if (this.createdProductId) {
+			this.productService.getProductById(this.createdProductId).subscribe({
+				next: (fullProduct) => {
 					this.messageService.add({
 						severity: 'success',
 						summary: 'Success',
 						detail: 'Product created successfully',
 					});
 					if (this.ref) {
-						this.ref.close(createdProduct);
+						this.ref.close(fullProduct);
 					} else if (this.router) {
 						this.router.navigate(['/admin/products']);
 					}
-				}
-			},
-			error: () => {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'Error',
-					detail: 'Failed to create product',
-				});
-				this.loading = false;
-				this.cdr.markForCheck();
-			},
-		});
+				},
+				error: () => {
+					if (this.ref) {
+						this.ref.close();
+					} else if (this.router) {
+						this.router.navigate(['/admin/products']);
+					}
+				},
+			});
+		}
+	}
+
+	finish() {
+		// Upload images and finish
+		if (!this.createdProductId) {
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Error',
+				detail: 'Product ID not found. Please go back and try again.',
+			});
+			return;
+		}
+
+		if (this.uploadedFiles.length === 0) {
+			this.skipImages();
+			return;
+		}
+
+		this.loading = true;
+		this.uploadImages(this.createdProductId, true);
+	}
+
+	saveProduct() {
+		// Legacy method - redirects to nextStep for step 1
+		if (this.activeStep === 0) {
+			this.nextStep();
+		} else {
+			this.finish();
+		}
 	}
 
 	uploadImages(productId: number, isNewProduct: boolean) {
@@ -272,7 +340,7 @@ export class CreateProductComponent implements OnInit {
 		});
 	}
 
-	isFormValid(): boolean {
+	isStep1Valid(): boolean {
 		return !!(
 			this.product.title &&
 			this.product.shortDescription &&
@@ -281,6 +349,10 @@ export class CreateProductComponent implements OnInit {
 			this.product.productSubCategoryId &&
 			this.selectedCategoryId
 		);
+	}
+
+	isFormValid(): boolean {
+		return this.isStep1Valid();
 	}
 
 	cancel() {

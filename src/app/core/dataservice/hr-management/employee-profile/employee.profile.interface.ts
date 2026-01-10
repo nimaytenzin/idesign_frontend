@@ -11,6 +11,7 @@ export interface EmployeeProfile {
 	hireDate: string | Date;
 	terminationDate: string | Date;
 	employeeStatus: EmployeeStatus;
+	bio:string;
 	createdAt: string | Date;
 	updatedAt: string | Date;
 }
@@ -23,6 +24,7 @@ export interface CreateEmployeeProfileDto {
 	department: string;
 	position: string;
 	hireDate: Date;  
+	bio:string;
 	employeeStatus: EmployeeStatus;
 }
 
@@ -34,7 +36,9 @@ export interface UpdateEmployeeProfileDto {
 	userId?: number;
 	department?: string;
 	position?: string;
+	bio?: string;
 	hireDate?: Date; // ISO 8601 format
 	terminationDate?: Date | null; // ISO 8601 format
 	employeeStatus?: EmployeeStatus;
 }
+

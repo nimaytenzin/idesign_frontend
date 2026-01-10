@@ -1,0 +1,30 @@
+/* Toast z-index fix - ensure it appears above navbar */
+:host ::ng-deep .p-toast {
+	z-index: 9999 !important;
+}
+
+:host ::ng-deep .p-toast-message {
+	z-index: 9999 !important;
+}
+
+/* Carousel hover effects */
+.carousel {
+	.carousel-prev,
+	.carousel-next {
+		transition: all 0.3s ease;
+	}
+
+	.carousel-prev:hover:not(:disabled),
+	.carousel-next:hover:not(:disabled) {
+		transform: translateY(-50%) scale(1.1);
+	}
+}
+
+/* Image thumbnail hover effect */
+img[class*="rounded-lg"] {
+	transition: transform 0.2s ease;
+}
+
+img[class*="rounded-lg"]:hover {
+	transform: scale(1.05);
+}

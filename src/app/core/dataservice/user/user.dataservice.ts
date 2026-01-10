@@ -65,4 +65,17 @@ export class UserDataService {
 
         return this.http.post<User>(url, formData);
     }
+
+    /**
+     * Get Admin and Staff Users
+     * 
+     * Endpoint: GET /auth/users/admin-staff
+     * Authentication: Required (JWT token in Authorization header)
+     * Roles: ADMIN, STAFF
+     * 
+     * @returns Observable<User[]> - Array of admin and staff users
+     */
+    getAdminAndStaffUsers(): Observable<User[]> {
+        return this.http.get<User[]>(`${this.apiUrl}/users/admin-staff`);
+    }
 }

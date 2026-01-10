@@ -1,0 +1,286 @@
+<div class="min-h-screen bg-slate-50 py-8">
+	<p-toast></p-toast>
+
+	<!-- Loading State -->
+	<div *ngIf="loading" class="flex flex-col items-center justify-center py-24">
+		<p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+		<p class="text-gray-600 mt-4">Loading product...</p>
+	</div>
+
+	<!-- Product View Content -->
+	<div *ngIf="!loading && product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<!-- Back Button -->
+		<button
+			type="button"
+			(click)="navigateToCatalog()"
+			class="mb-6 flex items-center gap-2 text-teal-600 hover:text-teal-700 transition-colors duration-200"
+		>
+			<i class="pi pi-arrow-left"></i>
+			<span class="font-medium">Back to Products</span>
+		</button>
+
+		<div class="md:grid md:grid-cols-2 md:gap-10 xl:gap-24">
+			<!-- Carousel -->
+			<div class="relative w-full max-md:mb-12">
+				<div class="carousel flex flex-col gap-4">
+					<div class="rounded-lg relative overflow-hidden group aspect-square bg-white shadow-lg">
+						<!-- Main Image Container -->
+						<div class="relative w-full h-full">
+							<div class="w-full h-full">
+								<div class="flex w-full h-full justify-center items-center">
+									<img
+										[src]="getAllImages()[selectedImageIndex] ? getImageUrl(getAllImages()[selectedImageIndex].imagePath) : getPrimaryImage()"
+										[alt]="product.title"
+										class="w-full h-full object-cover rounded-lg"
+									/>
+								</div>
+							</div>
+						</div>
+
+						<!-- Previous Slide -->
+						<button
+							type="button"
+							class="carousel-prev bg-white shadow-lg flex items-center justify-center rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 hover:bg-gray-50"
+							[disabled]="selectedImageIndex === 0 || getAllImages().length <= 1"
+							(click)="previousImage()"
+						>
+							<i class="pi pi-chevron-left text-lg text-gray-700"></i>
+							<span class="sr-only">Previous</span>
+						</button>
+
+						<!-- Next Slide -->
+						<button
+							type="button"
+							class="carousel-next bg-white shadow-lg flex items-center justify-center rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 hover:bg-gray-50"
+							[disabled]="selectedImageIndex >= getAllImages().length - 1 || getAllImages().length <= 1"
+							(click)="nextImage()"
+						>
+							<span class="sr-only">Next</span>
+							<i class="pi pi-chevron-right text-lg text-gray-700"></i>
+						</button>
+
+						<!-- Discount Badge -->
+						<div class="absolute top-4 left-4" *ngIf="hasDiscount(product)">
+							<span
+								class="px-3 py-1.5 bg-red-500 text-white rounded-full text-sm font-semibold shadow-md"
+							>
+								{{ getDiscountBadgeText(product) }}
+							</span>
+						</div>
+					</div>
+
+					<!-- Thumbnail Pagination -->
+					<div *ngIf="getAllImages().length > 1" class="flex gap-2 justify-start overflow-x-auto cursor-pointer">
+						<img
+							*ngFor="let image of getAllImages(); let i = index"
+							[src]="getImageUrl(image.imagePath)"
+							[alt]="image.altText || product.title"
+							class="rounded-lg w-20 h-20 object-cover max-sm:h-16 transition-opacity border-2 flex-shrink-0 cursor-pointer hover:opacity-80"
+							[class.opacity-100]="selectedImageIndex === i"
+							[class.opacity-50]="selectedImageIndex !== i"
+							[class.border-teal-500]="selectedImageIndex === i"
+							[class.border-gray-300]="selectedImageIndex !== i"
+							(click)="selectImage(i)"
+						/>
+					</div>
+				</div>
+			</div>
+
+			<!-- Product Details -->
+			<div class="space-y-6">
+				<!-- Breadcrumbs -->
+				<div class="mb-4">
+					<ul class="flex items-center flex-wrap gap-2 text-sm">
+						<li>
+							<a [routerLink]="['/']" class="text-gray-600 hover:text-gray-900">Home</a>
+						</li>
+						<li>
+							<i class="pi pi-chevron-right text-xs text-gray-400"></i>
+						</li>
+						<li>
+							<a [routerLink]="['/products']" class="text-gray-600 hover:text-gray-900">
+								{{ product.productSubCategory ? getCategoryName(product.productSubCategory.productCategoryId) : 'Category' }}
+							</a>
+						</li>
+						<li>
+							<i class="pi pi-chevron-right text-xs text-gray-400"></i>
+						</li>
+						<li>
+							<a [routerLink]="['/products']" [queryParams]="{ subCategory: product.productSubCategoryId }" class="text-gray-600 hover:text-gray-900">
+								{{ product.productSubCategory?.name || getSubCategoryName(product.productSubCategoryId) }}
+							</a>
+						</li>
+						<li>
+							<i class="pi pi-chevron-right text-xs text-gray-400"></i>
+						</li>
+						<li aria-current="page">
+							<span class="text-teal-600 font-medium">{{ product.title }}</span>
+						</li>
+					</ul>
+				</div>
+
+				<div class="space-y-6">
+					<!-- Title -->
+					<h1 class="font-bold text-3xl md:text-4xl text-gray-900">{{ product.title }}</h1>
+
+					<!-- Rating -->
+					<div *ngIf="product.rating !== undefined && product.rating !== null" class="flex items-center gap-3 border border-gray-200 rounded-lg px-4 py-2 bg-white">
+						<span class="flex items-center gap-1 font-medium text-gray-900">
+							{{ product.rating.toFixed(1) }}
+							<i class="pi pi-star-fill text-lg shrink-0 text-yellow-400"></i>
+						</span>
+						<div class="w-px h-4 bg-gray-300"></div>
+						<p class="text-gray-600 font-medium">
+							{{ product.salesCount || 0 }} {{ (product.salesCount || 0) === 1 ? 'Sale' : 'Sales' }}
+						</p>
+					</div>
+
+					<!-- Price -->
+					<div class="flex items-center gap-3 flex-wrap">
+						<p 
+							class="text-gray-900 text-4xl font-bold"
+							[ngClass]="{
+								'text-red-600': hasDiscount(product) && getDiscountInfo(product, quantity).canApply,
+								'text-gray-900': !hasDiscount(product) || !getDiscountInfo(product, quantity).canApply
+							}"
+						>
+							{{ formatCurrency((hasDiscount(product) && getDiscountInfo(product, quantity).canApply) ? getDiscountInfo(product, quantity).discountedPrice : product.price) }}
+						</p>
+						<span
+							*ngIf="hasDiscount(product) && getDiscountInfo(product, quantity).canApply"
+							class="text-lg text-gray-500 line-through"
+						>
+							{{ formatCurrency(getDiscountInfo(product, quantity).originalPrice) }}
+						</span>
+					</div>
+
+					<!-- Discount Constraint Message -->
+					<div 
+						class="bg-amber-50 border border-amber-200 rounded-lg p-3" 
+						*ngIf="getDiscountConstraintMessage(product)"
+					>
+						<p class="text-amber-700 text-sm font-medium">
+							<i class="pi pi-info-circle mr-2"></i>
+							{{ getDiscountConstraintMessage(product) }}
+						</p>
+					</div>
+
+					<!-- Description -->
+					<div class="space-y-3">
+						<p class="text-gray-700 text-base leading-relaxed">
+							{{ product.shortDescription }}
+						</p>
+
+						<div *ngIf="product.detailedDescription" class="text-gray-700 text-base leading-relaxed">
+							<p class="font-medium mb-2 text-gray-900">Detailed Description:</p>
+							<p class="whitespace-pre-wrap">{{ product.detailedDescription }}</p>
+						</div>
+					</div>
+
+					<div class="border-t border-gray-200 my-6"></div>
+
+					<!-- Product Details Grid -->
+					<div class="space-y-4 bg-white rounded-lg p-4 border border-gray-200">
+						<!-- Material -->
+						<div class="flex items-center gap-4">
+							<h4 class="text-gray-900 font-medium min-w-[120px]">Material:</h4>
+							<p class="text-gray-700">{{ product.material }}</p>
+						</div>
+
+						<!-- Weight -->
+						<div *ngIf="product.weight" class="flex items-center gap-4">
+							<h4 class="text-gray-900 font-medium min-w-[120px]">Weight:</h4>
+							<p class="text-gray-700">{{ product.weight }} grams</p>
+						</div>
+
+						<!-- Dimensions -->
+						<div *ngIf="product.dimensions" class="flex items-center gap-4">
+							<h4 class="text-gray-900 font-medium min-w-[120px]">Dimensions:</h4>
+							<p class="text-gray-700">{{ product.dimensions }}</p>
+						</div>
+
+						<!-- Stock Quantity -->
+						<div class="flex items-center gap-4">
+							<h4 class="text-gray-900 font-medium min-w-[120px]">Stock:</h4>
+							<p class="text-gray-700">{{ product.stockQuantity || 0 }} units</p>
+						</div>
+
+						<!-- Availability -->
+						<div class="flex items-center gap-4">
+							<h4 class="text-gray-900 font-medium min-w-[120px]">Status:</h4>
+							<p-tag
+								[value]="product.isAvailable ? 'Available' : 'Unavailable'"
+								[severity]="product.isAvailable ? 'success' : 'danger'"
+							></p-tag>
+						</div>
+					</div>
+
+					<!-- Stock Message -->
+					<div *ngIf="!product.stockQuantity || product.stockQuantity === 0" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+						<p class="text-blue-700 text-sm font-medium">
+							<i class="pi pi-info-circle mr-2"></i>
+							This item is out of stock. It may take 1-2 weeks to complete the order.
+						</p>
+					</div>
+
+					<!-- Quantity Selector and Add to Cart -->
+					<div class="space-y-4 pt-6 border-t border-gray-200">
+						<!-- Quantity Selector -->
+						<div class="flex items-center gap-4">
+							<label class="text-gray-900 font-medium min-w-[120px]">Quantity:</label>
+							<div class="flex items-center gap-2 border border-gray-300 rounded-lg">
+								<button
+									type="button"
+									class="px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+									(click)="decrementQuantity()"
+									[disabled]="quantity <= 1"
+								>
+									<i class="pi pi-minus"></i>
+								</button>
+								<span class="px-4 py-2 text-gray-900 font-medium min-w-[3rem] text-center">{{ quantity }}</span>
+								<button
+									type="button"
+									class="px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+									(click)="incrementQuantity()"
+									[disabled]="product.stockQuantity ? quantity >= product.stockQuantity : false"
+								>
+									<i class="pi pi-plus"></i>
+								</button>
+							</div>
+							<span *ngIf="product.stockQuantity" class="text-sm text-gray-500">
+								({{ product.stockQuantity }} available)
+							</span>
+						</div>
+
+						<!-- Add to Cart Button -->
+						<button
+							type="button"
+							class="w-full px-6 py-4 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors duration-200 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							(click)="addToCart()"
+							[disabled]="!product.isAvailable"
+						>
+							<i class="pi pi-shopping-cart"></i>
+							<span>Add to Cart</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Product Not Found -->
+	<div *ngIf="!loading && !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+		<div class="bg-white rounded-lg border border-gray-200 p-12">
+			<i class="pi pi-exclamation-triangle text-6xl text-gray-400 mb-4"></i>
+			<h2 class="text-2xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
+			<p class="text-gray-600 mb-6">The product you're looking for doesn't exist or has been removed.</p>
+			<button
+				type="button"
+				(click)="navigateToCatalog()"
+				class="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors duration-200 font-medium"
+			>
+				Back to Products
+			</button>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,81 @@
+<div class="deliver-order-dialog" *ngIf="order">
+	<!-- Content -->
+	<div class="p-6 bg-gray-50">
+		<!-- Order Summary -->
+		<p-card styleClass="mb-4">
+			<ng-template pTemplate="content">
+				<div class="space-y-4">
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-gray-700">Order Number</span>
+						<span class="text-lg font-semibold text-gray-900">{{ order.orderNumber }}</span>
+					</div>
+					<div class="flex items-center justify-between">
+						<span class="text-sm font-medium text-gray-700">Total Payable</span>
+						<span class="text-xl font-semibold text-gray-900">{{ formatCurrency(order.totalPayable) }}</span>
+					</div>
+					
+					<div *ngIf="order.fulfillmentType === 'DELIVERY'" class="pt-4 border-t border-gray-200">
+						<div class="text-xs text-gray-600 space-y-1">
+							<p><span class="font-medium text-gray-700">Delivery Address:</span> {{ order.shippingAddress || 'N/A' }}</p>
+							<p><span class="font-medium text-gray-700">Delivery Location:</span> {{ order.deliveryLocation || 'N/A' }}</p>
+							<p><span class="font-medium text-gray-700">Delivery Mode:</span> {{ order.deliveryMode || 'N/A' }}</p>
+							<p *ngIf="order.expectedDeliveryDate"><span class="font-medium text-gray-700">Expected Delivery:</span> {{ order.expectedDeliveryDate | date: 'short' }}</p>
+						</div>
+					</div>
+					
+					<div class="pt-4 border-t border-gray-200">
+						<div class="text-xs text-gray-600 space-y-1">
+							<p><span class="font-medium text-gray-700">Customer:</span> {{ order.customer?.name || 'N/A' }}</p>
+							<p><span class="font-medium text-gray-700">Phone:</span> {{ order.customer?.phoneNumber || 'N/A' }}</p>
+						</div>
+					</div>
+				</div>
+			</ng-template>
+		</p-card>
+
+		<!-- Delivery Form -->
+		<p-card>
+			<ng-template pTemplate="header">
+				<div class="p-4">
+					<h4 class="text-lg font-semibold text-gray-900 m-0">Mark as Delivered</h4>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="content">
+				<div class="space-y-4">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Internal Notes (Optional)</label>
+						<textarea
+							pInputTextarea
+							[(ngModel)]="internalNotes"
+							placeholder="Add any internal notes about this delivery..."
+							rows="4"
+							class="w-full"
+						></textarea>
+					</div>
+				</div>
+			</ng-template>
+		</p-card>
+	</div>
+
+	<!-- Footer -->
+	<div class="bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-2">
+		<p-button
+			label="Cancel"
+			icon="pi pi-times"
+			size="small"
+			severity="primary"
+			[outlined]="true"
+			(onClick)="cancel()"
+		></p-button>
+		<p-button
+			label="Mark as Delivered"
+			icon="pi pi-check-circle"
+			size="small"
+			severity="primary"
+			[loading]="loading"
+			(onClick)="deliverOrder()"
+		></p-button>
+	</div>
+</div>
+
+<p-toast></p-toast>

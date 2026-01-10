@@ -12,7 +12,11 @@ import {
 	VerifyOrderDto,
 	CancelOrderDto,
 	DeliverOrderDto,
+	ConfirmOrderDto,
+	ShipOrderDto,
 	OrderQueryDto,
+	GetOrdersPaginatedQueryDto,
+	PaginatedResponseDto,
 	MonthQueryDto,
 	OrdersByMonthResponseDto,
 	OrderStatisticsByMonthResponseDto,
@@ -55,24 +59,58 @@ export class OrderService {
 		return this.http.post<Order>(this.apiUrl, orderData);
 	}
 
-	/**
-	 * Get all orders with optional filters
-	 * Query Parameters (all optional):
-	 * - customerId: number
-	 * - fulfillmentStatus: FulfillmentStatus
-	 * - startDate: ISO date string
-	 * - endDate: ISO date string
-	 */
+
+	instorePlaceOrder(orderData: CreateOrderDto): Observable<Order> {
+		return this.http.post<Order>(`${this.apiUrl}/instore/place-order`, orderData);
+	}
+
 	getOrders(query?: OrderQueryDto): Observable<Order[]> {
 		let params = new HttpParams();
 		if (query) {
 			if (query.customerId) params = params.set('customerId', query.customerId.toString());
 			if (query.fulfillmentStatus) params = params.set('fulfillmentStatus', query.fulfillmentStatus);
-			if (query.startDate) params = params.set('startDate', query.startDate);
-			if (query.endDate) params = params.set('endDate', query.endDate);
 		}
-		return this.http.get<Order[]>(this.apiUrl, { params });
+		return this.http.get<Order[]>(`${this.apiUrl}`, { params });
 	}
+	 
+
+
+	/**
+	 * Get orders paginated by fulfillment status
+	 * 
+	 * @description Retrieves a paginated list of orders, optionally filtered by fulfillment status.
+	 * This endpoint is restricted to ADMIN and STAFF roles only. Orders are returned with full
+	 * details including customer information, order items with products, and applied discounts.
+	 * Results are ordered by placement date (most recent first).
+	 * 
+	 * @route GET /orders/paginated
+	 * @access Private (Admin, Staff)
+	 * 
+	 * @query {number} [page=1] - Page number (minimum: 1)
+	 * @query {number} [limit=10] - Number of items per page (minimum: 1, maximum: 100)
+	 * @query {FulfillmentStatus} [fulfillmentStatus] - Optional filter by fulfillment status
+	 *   - PLACED: Order has been placed but not yet confirmed
+	 *   - CONFIRMED: Order has been confirmed and is ready for processing
+	 *   - PROCESSING: Order is being prepared/processed
+	 *   - SHIPPING: Order is out for delivery
+	 *   - DELIVERED: Order has been successfully delivered
+	 *   - CANCELED: Order has been canceled
+	 * 
+	 * @returns {PaginatedResponseDto<Order>} Paginated response containing:
+	 *   - data: Array of Order objects with customer, orderItems, and orderDiscounts
+	 *   - meta: Pagination metadata (total, page, limit, totalPages, hasNextPage, hasPreviousPage)
+	 */
+	getOrdersPaginated(query?: GetOrdersPaginatedQueryDto): Observable<PaginatedResponseDto<Order>> {
+		let params = new HttpParams();
+		if (query) {
+			if (query.page !== undefined) params = params.set('page', query.page.toString());
+			if (query.limit !== undefined) params = params.set('limit', query.limit.toString());
+			if (query.fulfillmentStatus) params = params.set('fulfillmentStatus', query.fulfillmentStatus);
+		}
+		return this.http.get<PaginatedResponseDto<Order>>(`${this.apiUrl}/paginated`, { params });
+	}
+
+	
 
 	/**
 	 * Get order by ID
@@ -197,6 +235,25 @@ export class OrderService {
 	 */
 	markOrderAsDelivered(id: number, deliverData?: DeliverOrderDto): Observable<Order> {
 		return this.http.post<Order>(`${this.apiUrl}/${id}/deliver`, deliverData || {});
+	}
+
+	/**
+	 * Confirm order
+	 * Updates payment status to PAID and fulfillment status from PLACED to CONFIRMED
+	 * Requires payment method and optional transaction ID and internal notes
+	 */
+	confirmOrder(id: number, confirmData: ConfirmOrderDto): Observable<Order> {
+		return this.http.post<Order>(`${this.apiUrl}/${id}/confirm`, confirmData);
+	}
+
+	/**
+	 * Ship order
+	 * Updates fulfillment status from PROCESSING to SHIPPING
+	 * Requires driver name, vehicle number, and expected delivery date
+	 * Optional driver phone number
+	 */
+	shipOrder(id: number, shipData: ShipOrderDto): Observable<Order> {
+		return this.http.post<Order>(`${this.apiUrl}/${id}/ship`, shipData);
 	}
 
 	/**

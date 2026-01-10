@@ -4,7 +4,6 @@
 		<div class="flex items-center justify-between">
 			<div>
 				<h2 class="text-lg font-semibold text-gray-900">{{ order.orderNumber }}</h2>
-				<p class="text-sm text-gray-500 mt-0.5">Ordered on {{ formatDate(order.orderDate) }}</p>
 			</div>
 			<div>
 				<p-tag
@@ -54,19 +53,15 @@
 					<div class="space-y-3">
 						<div>
 							<p class="text-xs font-medium text-gray-500 uppercase mb-1">Order Type</p>
-							<p-tag
-								[value]="order.orderType === OrderType.ONLINE ? 'Online' : 'Counter'"
-								[severity]="order.orderType === OrderType.ONLINE ? 'info' : 'warning'"
-								styleClass="text-xs"
-							></p-tag>
+							 
 						</div>
 						<div>
 							<p class="text-xs font-medium text-gray-500 uppercase mb-1">Payment Method</p>
 							<p class="text-sm text-gray-900">{{ getPaymentMethodLabel(order.paymentMethod) }}</p>
 						</div>
-						<div *ngIf="order.paymentDate">
+						<div *ngIf="order.confirmedAt">
 							<p class="text-xs font-medium text-gray-500 uppercase mb-1">Payment Date</p>
-							<p class="text-sm text-gray-900">{{ formatDate(order.paymentDate) }}</p>
+							<p class="text-sm text-gray-900">{{ formatDate(order.confirmedAt) }}</p>
 						</div>
 						<div>
 							<p class="text-xs font-medium text-gray-500 uppercase mb-1">Receipt Generated</p>
@@ -127,16 +122,16 @@
 					<div class="space-y-2">
 						<div class="flex justify-between items-center">
 							<span class="text-sm text-gray-600">Subtotal</span>
-							<span class="text-sm font-medium text-gray-900">{{ formatCurrency(order.totalAmount - (order.shippingCost || 0)) }}</span>
+							<span class="text-sm font-medium text-gray-900">{{ formatCurrency(order.totalPayable) }}</span>
 						</div>
-						<div class="flex justify-between items-center" *ngIf="order.shippingCost">
+						<div class="flex justify-between items-center" *ngIf="order.deliveryCost">
 							<span class="text-sm text-gray-600">Shipping Cost</span>
-							<span class="text-sm font-medium text-gray-900">{{ formatCurrency(order.shippingCost) }}</span>
+							<span class="text-sm font-medium text-gray-900">{{ formatCurrency(order.deliveryCost) }}</span>
 						</div>
 						<div class="border-t border-gray-200 my-2"></div>
 						<div class="flex justify-between items-center pt-2">
 							<span class="text-sm font-semibold text-gray-900">Total Amount</span>
-							<span class="text-base font-bold text-gray-900">{{ formatCurrency(order.totalAmount) }}</span>
+							<span class="text-base font-bold text-gray-900">{{ formatCurrency(order.subTotal) }}</span>
 						</div>
 					</div>
 				</div>
@@ -203,7 +198,6 @@
 									<span class="text-xs text-gray-600">Status</span>
 									<p-tag
 										[value]="order.paymentStatus"
-										[severity]="order.paymentStatus === 'PAID' ? 'success' : order.paymentStatus === 'PENDING' ? 'warning' : 'danger'"
 										styleClass="text-xs"
 									></p-tag>
 								</div>

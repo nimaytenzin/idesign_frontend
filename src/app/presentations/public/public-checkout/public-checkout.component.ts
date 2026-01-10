@@ -19,12 +19,13 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 // Services
 import { CartService, CartItem } from '../../../core/services/cart.service';
 import { OrderService } from '../../../core/dataservice/order/order.service';
-import { CreateOrderDto, Order, OrderType } from '../../../core/dataservice/order/order.interface';
 import { PaymentMethod } from '../../../core/dataservice/account/account.interface';
 import { MessageService } from 'primeng/api';
 import { ImageUtilityService } from '../../../core/utility/image-utility.service';
 import { Discount, DiscountValueType, DiscountCalculationResult } from '../../../core/dataservice/discount/discount.interface';
 import { DiscountService } from '../../../core/dataservice/discount/discount.service';
+import { CreateOrderDto, Order } from '../../../core/dataservice';
+import { OrderSource } from '../../../core/constants/enums';
 
 @Component({
 	selector: 'app-public-checkout',
@@ -389,7 +390,7 @@ export class PublicCheckoutComponent implements OnInit {
 					discountApplied: discountAmount,
 				};
 			}),
-			orderType: OrderType.ONLINE, // Public orders are always ONLINE
+			orderSource: OrderSource.ONLINE, // Public orders are always ONLINE
 			paymentMethod: this.customerForm.paymentMethod!,
 			internalNotes: this.customerForm.remarks || undefined,
 			voucherCode: this.customerForm.voucherCode?.trim().toUpperCase() || undefined,

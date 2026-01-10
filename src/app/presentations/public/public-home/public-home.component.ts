@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductCarouselComponent } from '../../../shared/components/product-carousel/product-carousel.component';
 import { OrderService } from '../../../core/dataservice/order/order.service';
-import { Order, TrackOrderDto, FulfillmentStatus } from '../../../core/dataservice/order/order.interface';
+import { Order, TrackOrderDto,  } from '../../../core/dataservice/order/order.interface';
 import { MessageService } from 'primeng/api';
 import { PrimeNgModules } from '../../../primeng.modules';
 import { CompanyService } from '../../../core/dataservice/company/company.service';
@@ -147,30 +147,9 @@ export class PublicHomeComponent implements OnInit {
 		return null;
 	}
 
-	getStatusClass(status: FulfillmentStatus): string {
-		const statusClasses: { [key in FulfillmentStatus]: string } = {
-			PLACED: 'bg-slate-100 text-slate-800',
-			CONFIRMED: 'bg-teal-100 text-teal-800',
-			PROCESSING: 'bg-amber-100 text-amber-800',
-			SHIPPING: 'bg-teal-100 text-teal-800',
-			DELIVERED: 'bg-green-100 text-green-800',
-			CANCELED: 'bg-red-100 text-red-800',
-		};
-		return statusClasses[status] || 'bg-slate-100 text-slate-800';
-	}
+	
 
-	formatDate(date: Date | string): string {
-		const d = typeof date === 'string' ? new Date(date) : date;
-		return d.toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-		});
-	}
-
-	formatCurrency(amount: number): string {
-		return `Nu. ${amount.toFixed(2)}`;
-	}
+	
 
 	resetTracking(): void {
 		this.trackingForm = {

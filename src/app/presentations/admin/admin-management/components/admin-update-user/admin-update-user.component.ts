@@ -40,6 +40,11 @@ export class AdminUpdateUserComponent implements OnInit {
 		if (this.config?.data) {
 			this.user = this.config.data.user;
 			if (this.user) {
+				// Convert dateOfBirth string to Date object if it exists
+				const dateOfBirth = this.user.dateOfBirth
+					? new Date(this.user.dateOfBirth)
+					: undefined;
+
 				this.updateData = {
 					name: this.user.name,
 					cid: this.user.cid,
@@ -49,7 +54,7 @@ export class AdminUpdateUserComponent implements OnInit {
 					isActive: this.user.isActive,
 					currentAddress: this.user.currentAddress,
 					permanentAddress: this.user.permanentAddress,
-					dateOfBirth: this.user.dateOfBirth,
+					dateOfBirth: dateOfBirth,
 				};
 			}
 		}
@@ -69,7 +74,14 @@ export class AdminUpdateUserComponent implements OnInit {
 
 		this.loading = true;
 
-		this.userDataService.updateUser(this.user.id, this.updateData).subscribe({
+		// Prepare update data with proper date handling
+		const updatePayload: UpdateUserDto = { ...this.updateData };
+		if (updatePayload.dateOfBirth instanceof Date) {
+			// Keep as Date object - the service will handle serialization
+			updatePayload.dateOfBirth = updatePayload.dateOfBirth;
+		}
+
+		this.userDataService.updateUser(this.user.id, updatePayload).subscribe({
 			next: (updatedUser: User) => {
 				this.messageService.add({
 					severity: 'success',

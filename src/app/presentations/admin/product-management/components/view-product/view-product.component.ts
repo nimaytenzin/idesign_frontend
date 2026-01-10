@@ -16,7 +16,6 @@ import { environment } from '../../../../../../environments/environment';
 	imports: [CommonModule, PrimeNgModules],
 	providers: [MessageService],
 	templateUrl: './view-product.component.html',
-	styleUrls: ['./view-product.component.scss'],
 })
 export class ViewProductComponent implements OnInit {
 	productId: number | null = null;

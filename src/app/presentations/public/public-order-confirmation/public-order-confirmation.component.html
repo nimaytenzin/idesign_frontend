@@ -2,33 +2,14 @@
 	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="text-center mb-8">
 			<div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
-				[class.bg-green-100]="order?.paymentStatus === PaymentStatus.PAID"
-				[class.bg-teal-100]="order?.paymentStatus === PaymentStatus.PENDING"
+			
 			>
-				<i class="pi text-3xl"
-					[class.pi-check]="order?.paymentStatus === PaymentStatus.PAID"
-					[class.pi-info-circle]="order?.paymentStatus === PaymentStatus.PENDING"
-					[class.text-green-600]="order?.paymentStatus === PaymentStatus.PAID"
-					[class.text-teal-600]="order?.paymentStatus === PaymentStatus.PENDING"
-				></i>
+				
 			</div>
 			<h1 class="text-3xl font-bold text-slate-900 mb-2">
-				<span *ngIf="order?.paymentStatus === PaymentStatus.PAID">Order Confirmed!</span>
-				<span *ngIf="order?.paymentStatus === PaymentStatus.PENDING">Order Received!</span>
-				<span *ngIf="!order || order?.paymentStatus === PaymentStatus.FAILED">Order Status</span>
+				
 			</h1>
-			<p class="text-slate-600" *ngIf="order?.paymentStatus === PaymentStatus.PAID">
-				Thank you for your purchase. Your payment has been processed and your order is confirmed.
-			</p>
-			<p class="text-slate-600" *ngIf="order?.paymentStatus === PaymentStatus.PENDING && order?.paymentMethod === 'ZPSS'">
-				Thank you for your order. Please complete the payment to confirm your order.
-			</p>
-			<p class="text-slate-600" *ngIf="order?.paymentStatus === PaymentStatus.PENDING && order?.paymentMethod !== 'ZPSS'">
-				Thank you for your order. Your order will be confirmed after payment verification.
-			</p>
-			<p class="text-slate-600" *ngIf="!order">
-				Thank you for your purchase. Your order has been received.
-			</p>
+			
 		</div>
 
 		<div class="bg-white rounded-lg border border-slate-200 p-8 mb-8">
@@ -47,51 +28,15 @@
 							<i class="pi pi-tag text-teal-600"></i>
 							<span class="text-sm font-semibold text-teal-900">Voucher Code Applied</span>
 						</div>
-						<div class="flex items-center gap-2">
-							<span class="text-lg font-mono font-bold text-teal-700">{{ order.voucherCode }}</span>
-							<span *ngIf="order.orderDiscount > 0" class="text-sm text-teal-600">
-								({{ formatPrice(order.orderDiscount) }} discount)
-							</span>
-						</div>
+						
 					</div>
 
-					<!-- Order Discount Display -->
-					<div *ngIf="order.orderDiscount > 0" class="flex justify-between items-center py-2 border-b border-slate-200">
-						<span class="text-slate-600">Subtotal:</span>
-						<span class="text-base font-semibold text-slate-900">{{ formatPrice(order.totalAmount + order.orderDiscount) }}</span>
-					</div>
-					<div *ngIf="order.orderDiscount > 0" class="flex justify-between items-center py-2 border-b border-slate-200">
-						<span class="text-green-600">
-							<i class="pi pi-tag mr-1"></i>
-							Discount:
-						</span>
-						<span class="text-base font-semibold text-green-600">-{{ formatPrice(order.orderDiscount) }}</span>
-					</div>
-
-					<div class="flex justify-between">
-						<span class="text-slate-600">Total Amount:</span>
-						<span class="text-xl font-bold text-slate-900">{{ formatPrice(order.totalAmount) }}</span>
-					</div>
-					<div class="flex justify-between text-sm text-slate-500">
-						<span>Payment Status:</span>
-						<span class="font-medium"
-							[class.text-green-600]="order.paymentStatus === PaymentStatus.PAID"
-							[class.text-amber-600]="order.paymentStatus === PaymentStatus.PENDING"
-							[class.text-red-600]="order.paymentStatus === PaymentStatus.FAILED"
-						>
-							{{ order.paymentStatus }}
-						</span>
-					</div>
-					<div class="flex justify-between text-sm text-slate-500">
-						<span>Order Status:</span>
-						<span class="font-medium">{{ order.fulfillmentStatus }}</span>
-					</div>
-				</div>
+	
 			</div>
 		</div>
 
 		<div class="flex flex-col sm:flex-row gap-4 justify-center">
-			<button
+			<!-- <button
 				*ngIf="order && order.paymentStatus === PaymentStatus.PENDING && order.paymentMethod === 'ZPSS'"
 				type="button"
 				class="inline-flex items-center justify-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
@@ -99,7 +44,7 @@
 			>
 				<i class="pi pi-credit-card mr-2"></i>
 				Pay Now
-			</button>
+			</button> -->
 			<button
 				*ngIf="order && order.orderItems && order.orderItems.length > 0"
 				type="button"

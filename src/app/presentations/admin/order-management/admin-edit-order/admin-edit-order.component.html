@@ -197,14 +197,14 @@
 			<div class="details-card">
 				<div class="form-grid">
 					<div>
-						<label class="form-label">Shipping Cost</label>
+						<label class="form-label">Delivery Cost</label>
 						<p-inputnumber
-							[(ngModel)]="shippingCost"
+							[(ngModel)]="deliveryCost"
 							mode="currency"
 							currency="BTN"
 							locale="en-US"
 							[min]="0"
-							(onInput)="onShippingCostChange()"
+							(onInput)="onDeliveryCostChange()"
 							styleClass="w-full"
 						></p-inputnumber>
 					</div>
@@ -269,8 +269,8 @@
 							<span class="summary-value">{{ formatCurrency(subtotal) }}</span>
 						</div>
 						<div class="summary-row">
-							<span class="summary-label">Shipping</span>
-							<span class="summary-value">{{ formatCurrency(shippingCost || 0) }}</span>
+							<span class="summary-label">Delivery</span>
+							<span class="summary-value">{{ formatCurrency(deliveryCost || 0) }}</span>
 						</div>
 						<div class="summary-divider"></div>
 						<div class="summary-row total-row">

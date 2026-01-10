@@ -6,8 +6,7 @@ import { OrderService } from '../../../core/dataservice/order/order.service';
 import {
 	Order,
 	TrackOrderDto,
-	FulfillmentStatus,
-	PaymentStatus,
+	
 	OrderTimelineEvent,
 } from '../../../core/dataservice/order/order.interface';
 import { PaymentMethod } from '../../../core/dataservice/account/account.interface';
@@ -18,6 +17,7 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { FulfillmentStatus, PaymentStatus } from '../../../core/constants/enums';
 
 @Component({
 	selector: 'app-public-order-tracking',

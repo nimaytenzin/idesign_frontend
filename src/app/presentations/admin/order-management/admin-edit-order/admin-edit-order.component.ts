@@ -7,11 +7,11 @@ import { OrderService } from '../../../../core/dataservice/order/order.service';
 import { ProductService } from '../../../../core/dataservice/product/product.service';
 import {
 	Order,
-	FulfillmentStatus,
 	UpdateOrderDto,
 	UpdateOrderStatusDto,
 	CreateOrderItemDto,
 } from '../../../../core/dataservice/order/order.interface';
+import { FulfillmentStatus } from '../../../../core/constants/enums';
 import { Product } from '../../../../core/dataservice/product/product.interface';
 import { PrimeNgModules } from '../../../../primeng.modules';
 
@@ -40,7 +40,7 @@ export class AdminEditOrderComponent implements OnInit {
 	discountPercentage: number = 0;
 
 	// Order Details
-	shippingCost: number = 0;
+	deliveryCost: number = 0;
 	internalNotes: string = '';
 	fulfillmentStatus: FulfillmentStatus = FulfillmentStatus.PLACED;
 
@@ -110,7 +110,7 @@ export class AdminEditOrderComponent implements OnInit {
 	initializeForm() {
 		if (!this.order) return;
 
-		this.shippingCost = this.order.shippingCost;
+		this.deliveryCost = this.order.deliveryCost || 0;
 		this.internalNotes = this.order.internalNotes || '';
 		this.fulfillmentStatus = this.order.fulfillmentStatus;
 
@@ -219,10 +219,10 @@ export class AdminEditOrderComponent implements OnInit {
 
 	calculateTotals() {
 		this.subtotal = this.orderItems.reduce((sum, item) => sum + item.lineTotal, 0);
-		this.totalAmount = this.subtotal + this.shippingCost;
+		this.totalAmount = this.subtotal + this.deliveryCost;
 	}
 
-	onShippingCostChange() {
+	onDeliveryCostChange() {
 		this.calculateTotals();
 	}
 
@@ -259,7 +259,7 @@ export class AdminEditOrderComponent implements OnInit {
 				unitPrice: item.unitPrice,
 				discountApplied: item.discountApplied,
 			})),
-			shippingCost: this.shippingCost || undefined,
+			deliveryCost: this.deliveryCost || undefined,
 			internalNotes: this.internalNotes || undefined,
 		};
 

@@ -4,8 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { OrderService } from '../../../core/dataservice/order/order.service';
-import { Order, PaymentStatus } from '../../../core/dataservice/order/order.interface';
 import { ProductRatingDialogComponent } from './product-rating-dialog/product-rating-dialog.component';
+import { PaymentStatus } from '../../../core/constants/enums';
+import { Order } from '../../../core/dataservice';
 
 @Component({
 	selector: 'app-public-order-confirmation',

@@ -54,6 +54,20 @@
 	</div>
 
 	<div class="flex flex-col gap-2">
+		<label for="bio" class="text-sm font-medium text-gray-700">
+			Bio
+		</label>
+		<textarea
+			id="bio"
+			pInputTextarea
+			[(ngModel)]="updateData.bio"
+			placeholder="Enter employee bio"
+			rows="4"
+			class="w-full"
+		></textarea>
+	</div>
+
+	<div class="flex flex-col gap-2">
 		<label for="hireDate" class="text-sm font-medium text-gray-700">
 			Hire Date
 		</label>

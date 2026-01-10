@@ -1,6 +1,8 @@
-// Import OrderType from order instead
-import { OrderType } from '../order/order.interface';
-export { OrderType };
+// Import OrderSource from order instead (OrderType is deprecated)
+import { OrderSource } from '../order/order.interface';
+export { OrderSource };
+// Backward compatibility type alias
+export type OrderType = OrderSource;
 
 // SMS Template Enums
 export enum SmsTriggerEvent {

@@ -331,10 +331,11 @@ export class AdminListProductsComponent implements OnInit {
 			header: 'View Product',
 			width: '90%',
 			style: { 'max-width': '1200px' },
-			contentStyle: { overflow: 'visible' },
+			contentStyle: { overflow: 'auto' },
 			baseZIndex: 10000,
 			modal: true,
 			dismissableMask: true,
+			focusOnShow: false,
 			data: {
 				product: product,
 			},

@@ -1,21 +1,22 @@
-<div class="receive-payment-dialog" *ngIf="order">
-	
+<div class="confirm-order-dialog" *ngIf="order">
 	<!-- Content -->
 	<div class="p-6 bg-gray-50">
 		<!-- Order Summary -->
 		<div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
 			<div class="flex items-center justify-between mb-3">
-				<span class="text-sm font-medium text-gray-700">Order Amount</span>
-				<span class="text-xl font-semibold text-gray-900">{{ formatCurrency(order.totalAmount) }}</span>
+				<span class="text-sm font-medium text-gray-700">Order Number</span>
+				<span class="text-lg font-semibold text-gray-900">{{ order.orderNumber }}</span>
 			</div>
 			<div class="flex items-center justify-between mb-3">
-				<span class="text-sm font-medium text-gray-700">Order Id</span>
-				<span class="text-xl font-semibold text-gray-900">{{ order.orderNumber }}</span>
+				<span class="text-sm font-medium text-gray-700">Total Payable</span>
+				<span class="text-xl font-semibold text-gray-900">{{ formatCurrency(order.totalPayable) }}</span>
 			</div>
 			<div class="pt-3 border-t border-gray-200">
-				<div class="text-xs text-gray-500">
+				<div class="text-xs text-gray-500 space-y-1">
 					<p>Customer: {{ order.customer?.name || 'N/A' }}</p>
-					<p class="mt-1">Date: {{ order.orderDate | date: 'short' }}</p>
+					<p>Email: {{ order.customer?.email || 'N/A' }}</p>
+					<p>Phone: {{ order.customer?.phoneNumber || 'N/A' }}</p>
+					<p class="mt-1">Placed: {{ order.placedAt | date: 'short' }}</p>
 				</div>
 			</div>
 		</div>
@@ -24,7 +25,9 @@
 		<div class="bg-white rounded-lg border border-gray-200 p-4">
 			<div class="space-y-4">
 				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+					<label class="block text-sm font-medium text-gray-700 mb-2">
+						Payment Method <span class="text-red-500">*</span>
+					</label>
 					<p-dropdown
 						[options]="paymentMethods"
 						optionLabel="label"
@@ -36,14 +39,14 @@
 				</div>
 
 				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">Payment Date</label>
-					<p-calendar
-						[(ngModel)]="paymentDate"
-						[showTime]="true"
-						dateFormat="yy-mm-dd"
-						[showIcon]="true"
-						styleClass="w-full"
-					></p-calendar>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Transaction ID (Optional)</label>
+					<input
+						type="text"
+						pInputText
+						[(ngModel)]="transactionId"
+						placeholder="Enter transaction ID"
+						class="w-full"
+					/>
 				</div>
 
 				<div>
@@ -51,7 +54,7 @@
 					<textarea
 						pInputTextarea
 						[(ngModel)]="internalNotes"
-						placeholder="Add any internal notes about this payment..."
+						placeholder="Add any internal notes about this confirmation..."
 						rows="3"
 						class="w-full"
 					></textarea>
@@ -71,15 +74,15 @@
 			(onClick)="cancel()"
 		></p-button>
 		<p-button
-			label="Record Payment"
+			label="Confirm Order"
 			icon="pi pi-check"
 			size="small"
 			severity="success"
 			[loading]="loading"
-			(onClick)="submitPayment()"
+			[disabled]="!paymentMethod"
+			(onClick)="confirmOrder()"
 		></p-button>
 	</div>
 </div>
 
 <p-toast></p-toast>
-

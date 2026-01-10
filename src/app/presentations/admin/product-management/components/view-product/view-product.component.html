@@ -11,7 +11,7 @@
 	<div *ngIf="!loading && product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 		<div class="md:grid md:grid-cols-2 md:gap-10 xl:gap-24">
 			<!-- Carousel -->
-			<div id="vertical-thumbnails" class="relative w-full max-md:mb-12">
+			<div class="relative w-full max-md:mb-12">
 				<div class="carousel flex flex-col gap-4">
 					<div class="rounded-lg relative overflow-hidden group aspect-square">
 						<!-- Main Image Container -->
@@ -51,12 +51,12 @@
 					</div>
 
 					<!-- Thumbnail Pagination -->
-					<div *ngIf="getAllImages().length > 1" class="carousel-pagination flex gap-2 justify-between overflow-x-auto cursor-pointer">
+					<div *ngIf="getAllImages().length > 1" class="flex gap-2 justify-start overflow-x-auto cursor-pointer">
 						<img
 							*ngFor="let image of getAllImages(); let i = index"
-									[src]="getImageUrl(image.imagePath)"
-									[alt]="image.altText || product.title"
-							class="rounded-lg w-20 h-20 object-cover max-sm:h-16 transition-opacity border-2 flex-shrink-0"
+							[src]="getImageUrl(image.imagePath)"
+							[alt]="image.altText || product.title"
+							class="rounded-lg w-20 h-20 object-cover max-sm:h-16 transition-opacity border-2 flex-shrink-0 cursor-pointer hover:opacity-80"
 							[class.opacity-100]="selectedImageIndex === i"
 							[class.opacity-50]="selectedImageIndex !== i"
 							[class.border-primary]="selectedImageIndex === i"

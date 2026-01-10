@@ -28,10 +28,10 @@
 						<span class="font-medium text-slate-500">Order Number:</span>
 						<span class="text-slate-800 font-medium">{{ order.orderNumber }}</span>
 					</div>
-					<div class="flex gap-2">
-						<span class="font-medium text-slate-500">Invoice Date:</span>
-						<span class="text-slate-800 font-medium">{{ formatDate(order.orderDate) }}</span>
-					</div>
+				<div class="flex gap-2">
+					<span class="font-medium text-slate-500">Invoice Date:</span>
+					<span class="text-slate-800 font-medium">{{ formatDate(order.placedAt) }}</span>
+				</div>
 				</div>
 			</div>
 
@@ -74,15 +74,99 @@
 			<div class="mt-6 pt-6 border-t-2 border-gray-200">
 				<div class="flex justify-between items-center py-2">
 					<span class="text-sm font-medium text-slate-500">Subtotal:</span>
-					<span class="text-sm font-semibold text-slate-800">{{ formatCurrency(order.totalAmount - (order.shippingCost || 0)) }}</span>
+					<span class="text-sm font-semibold text-slate-800">{{ formatCurrency(order.subTotal) }}</span>
 				</div>
-				<div class="flex justify-between items-center py-2" *ngIf="order.shippingCost">
-					<span class="text-sm font-medium text-slate-500">Shipping:</span>
-					<span class="text-sm font-semibold text-slate-800">{{ formatCurrency(order.shippingCost) }}</span>
+				<div class="flex justify-between items-center py-2" *ngIf="order.discount && order.discount > 0">
+					<span class="text-sm font-medium text-slate-500">Discount:</span>
+					<span class="text-sm font-semibold text-slate-800">-{{ formatCurrency(order.discount) }}</span>
+				</div>
+				<div class="flex justify-between items-center py-2" *ngIf="order.deliveryCost && order.deliveryCost > 0">
+					<span class="text-sm font-medium text-slate-500">Delivery:</span>
+					<span class="text-sm font-semibold text-slate-800">{{ formatCurrency(order.deliveryCost) }}</span>
 				</div>
 				<div class="flex justify-between items-center border-t-2 border-slate-800 mt-2 pt-4">
-					<span class="text-lg font-bold text-slate-800">Total Amount Due:</span>
-					<span class="text-lg font-bold text-red-600">{{ formatCurrency(order.totalAmount) }}</span>
+					<span class="text-lg font-bold text-slate-800">Total Payable:</span>
+					<span class="text-lg font-bold" [ngClass]="order.paymentStatus === PaymentStatus.PAID ? 'text-green-600' : 'text-red-600'">{{ formatCurrency(order.totalPayable) }}</span>
+				</div>
+			</div>
+
+			<!-- Delivery Notes -->
+			<div class="mt-8 pt-6 border-t border-gray-200" *ngIf="hasDeliveryInfo()">
+				<h3 class="text-base font-semibold text-slate-800 mb-3 uppercase tracking-wide">Delivery Information</h3>
+				<div class="space-y-2">
+					<div *ngIf="order.shippingAddress" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Shipping Address:</span>
+						<span class="text-sm text-slate-800">{{ order.shippingAddress }}</span>
+					</div>
+					<div *ngIf="order.deliveryLocation" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Delivery Location:</span>
+						<span class="text-sm text-slate-800">{{ order.deliveryLocation }}</span>
+					</div>
+					<div *ngIf="order.deliveryMode" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Delivery Mode:</span>
+						<span class="text-sm text-slate-800">{{ order.deliveryMode }}</span>
+					</div>
+					<div *ngIf="order.driverName" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Driver Name:</span>
+						<span class="text-sm text-slate-800">{{ order.driverName }}</span>
+					</div>
+					<div *ngIf="order.driverPhone" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Driver Phone:</span>
+						<span class="text-sm text-slate-800">{{ order.driverPhone }}</span>
+					</div>
+					<div *ngIf="order.vehicleNumber" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Vehicle Number:</span>
+						<span class="text-sm text-slate-800">{{ order.vehicleNumber }}</span>
+					</div>
+					<div *ngIf="order.expectedDeliveryDate" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Expected Delivery:</span>
+						<span class="text-sm text-slate-800">{{ formatDate(order.expectedDeliveryDate) }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Payment Details -->
+			<div class="mt-8 pt-6 border-t border-gray-200">
+				<h3 class="text-base font-semibold text-slate-800 mb-3 uppercase tracking-wide">Payment Details</h3>
+				<div class="space-y-2">
+					<div class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Payment Status:</span>
+						<p-tag
+							[value]="order.paymentStatus"
+							[severity]="order.paymentStatus === PaymentStatus.PAID ? 'success' : order.paymentStatus === PaymentStatus.PENDING ? 'warning' : 'danger'"
+						></p-tag>
+					</div>
+					<div *ngIf="order.paymentMethod" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Payment Method:</span>
+						<span class="text-sm text-slate-800">{{ formatPaymentMethod(order.paymentMethod) }}</span>
+					</div>
+					<div *ngIf="order.paidAt" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Paid At:</span>
+						<span class="text-sm text-slate-800">{{ formatDate(order.paidAt) }}</span>
+					</div>
+					<div *ngIf="order.receiptNumber" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Receipt Number:</span>
+						<span class="text-sm text-slate-800 font-medium">{{ order.receiptNumber }}</span>
+					</div>
+					<div *ngIf="order.transactions && order.transactions.length > 0" class="mt-3">
+						<span class="text-sm font-medium text-slate-500 block mb-2">Transaction References:</span>
+						<div class="space-y-1">
+							<div *ngFor="let transaction of order.transactions" class="flex gap-2 text-sm text-slate-800">
+								<span *ngIf="transaction.referenceNumber" class="ml-4">
+									• {{ transaction.referenceNumber }}
+									<span *ngIf="transaction.description" class="text-slate-500"> - {{ transaction.description }}</span>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Internal Notes -->
+			<div class="mt-8 pt-6 border-t border-gray-200" *ngIf="order.internalNotes">
+				<h3 class="text-base font-semibold text-slate-800 mb-3 uppercase tracking-wide">Internal Notes</h3>
+				<div class="bg-slate-50 p-4 rounded-lg">
+					<p class="text-sm text-slate-700 whitespace-pre-wrap m-0">{{ order.internalNotes }}</p>
 				</div>
 			</div>
 

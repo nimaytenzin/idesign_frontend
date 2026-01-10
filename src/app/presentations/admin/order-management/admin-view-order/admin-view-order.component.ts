@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { OrderService } from '../../../../core/dataservice/order/order.service';
-import { Order, FulfillmentStatus, OrderType, PaymentStatus } from '../../../../core/dataservice/order/order.interface';
 import { PaymentMethod } from '../../../../core/dataservice/account/account.interface';
 import { PrimeNgModules } from '../../../../primeng.modules';
+import { FulfillmentStatus, PaymentStatus, OrderSource } from '../../../../core/constants/enums';
+import { Order } from '../../../../core/dataservice';
 @Component({
 	selector: 'app-admin-view-order',
 	standalone: true,
@@ -19,7 +20,7 @@ export class AdminViewOrderComponent implements OnInit {
 	order: Order | null = null;
 	loading: boolean = false;
 	FulfillmentStatus = FulfillmentStatus;
-	OrderType = OrderType;
+	OrderSource = OrderSource;
 	PaymentStatus = PaymentStatus;
 
 	constructor(

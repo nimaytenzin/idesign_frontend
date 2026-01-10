@@ -226,9 +226,9 @@
 							</span>
 						</td>
 						<td class="px-5 py-4 whitespace-nowrap">
-							<span [class]="template.orderType === OrderType.ONLINE 
+							<span [class]="template.orderType === OrderSource.ONLINE 
 								? 'text-xs rounded-full px-2 py-0.5 font-medium bg-blue-50 text-blue-700 dark:bg-blue-500 dark:bg-opacity-15 dark:text-blue-500'
-								: template.orderType === OrderType.COUNTER
+								: template.orderType === OrderSource.COUNTER
 								? 'text-xs rounded-full px-2 py-0.5 font-medium bg-amber-50 text-amber-700 dark:bg-amber-500 dark:bg-opacity-15 dark:text-amber-500'
 								: 'text-xs rounded-full px-2 py-0.5 font-medium bg-gray-50 text-gray-700 dark:bg-gray-500 dark:bg-opacity-15 dark:text-gray-500'">
 								{{ getOrderTypeLabel(template.orderType) }}

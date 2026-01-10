@@ -30,6 +30,7 @@ export class CreateEmployeeProfileComponent implements OnInit {
 		department: '',
 		position: '',
 		hireDate: new Date(),
+		bio: '',
  		employeeStatus: EmployeeStatus.ACTIVE,
 	};
 
@@ -85,7 +86,8 @@ export class CreateEmployeeProfileComponent implements OnInit {
 			department: this.createData.department.trim(),
 			position: this.createData.position.trim(),
 			hireDate: new Date(this.createData.hireDate),
- 			employeeStatus: this.createData.employeeStatus,
+			bio: this.createData.bio?.trim() || '',
+			employeeStatus: this.createData.employeeStatus,
 		};
 
 		this.employeeProfileService.createEmployeeProfile(dto).subscribe({
@@ -127,7 +129,8 @@ export class CreateEmployeeProfileComponent implements OnInit {
 			userId: 0,
 			department: '',
 			position: '',
-			hireDate:new Date(),
+			hireDate: new Date(),
+			bio: '',
 			employeeStatus: EmployeeStatus.ACTIVE,
 		};
 		this.submitted = false;

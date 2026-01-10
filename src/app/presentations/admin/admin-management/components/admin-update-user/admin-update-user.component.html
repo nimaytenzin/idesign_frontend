@@ -52,6 +52,21 @@
 	</div>
 
 	<div class="flex flex-col gap-2">
+		<label for="dateOfBirth" class="text-sm font-medium text-gray-700">Date of Birth</label>
+		<p-calendar
+			id="dateOfBirth"
+			[(ngModel)]="updateData.dateOfBirth"
+			[showIcon]="true"
+			dateFormat="yy-mm-dd"
+			[showButtonBar]="true"
+			[showOnFocus]="false"
+			[yearRange]="'1900:2100'"
+			placeholder="Select date of birth"
+			styleClass="w-full"
+		></p-calendar>
+	</div>
+
+	<div class="flex flex-col gap-2">
 		<label for="role" class="text-sm font-medium text-gray-700">Role</label>
 		<p-dropdown
 			id="role"

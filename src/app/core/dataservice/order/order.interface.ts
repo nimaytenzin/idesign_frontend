@@ -1,104 +1,115 @@
-// Enums
-export enum FulfillmentStatus {
-	PLACED = 'PLACED',
-	CONFIRMED = 'CONFIRMED',
-	PROCESSING = 'PROCESSING',
-	SHIPPING = 'SHIPPING',
-	DELIVERED = 'DELIVERED',
-	CANCELED = 'CANCELED',
-}
 
-export enum PaymentStatus {
-	PENDING = 'PENDING',
-	PAID = 'PAID',
-	FAILED = 'FAILED',
-}
-
-// Import PaymentMethod from account (not re-exported to avoid conflicts with account.interface.ts)
-// Components should import PaymentMethod from account.interface.ts or from the index.ts barrel export
-import type { PaymentMethod } from '../account/account.interface';
 
 // Import AccountType from chart-of-accounts instead
 import { AccountType } from '../chart-of-accounts/chart-of-accounts.interface';
+import { Customer } from '../customer/customer.interface';
+import { User } from '../user/user.interface';
+import { DeliveryRate } from '../delivery-rate/delivery-rate.interface';
+import { OrderSource, FulfillmentStatus, FulfillmentType, TransactionType, PaymentStatus } from '../../constants/enums';
+import { PaymentMethod } from '../account/account.interface';
 export { AccountType };
-
-export enum TransactionType {
-	DEBIT = 'DEBIT',
-	CREDIT = 'CREDIT',
-}
-
-export enum OrderType {
-	COUNTER = 'COUNTER',
-	ONLINE = 'ONLINE',
-}
+export { OrderSource, FulfillmentStatus, FulfillmentType, TransactionType, PaymentStatus };
 
 // Order Item Interfaces (matching guide - orderItems)
 export interface OrderItem {
-	id: number;
-	orderId: number;
-	productId: number;
+	id: number; // PK
+	orderId: number; // FK → Order
+	productId: number; // FK → Product
 	quantity: number;
 	unitPrice: number;
 	discountApplied: number;
 	lineTotal: number;
-	product?: any; // Product interface
-	createdAt?: Date;
-	updatedAt?: Date;
+	product?: any; // Product interface (when included)
+	createdAt?: Date | string;
+	updatedAt?: Date | string;
 }
 
 export interface CreateOrderItemDto {
 	productId: number; // Required
-	quantity: number; // Required, minimum 1
-	unitPrice: number; // Required, minimum 0
-	discountApplied?: number; // Optional, calculated automatically
+	quantity: number; // Required, min: 1
+	unitPrice: number; // Required, min: 0
+	discountApplied?: number; // Optional, min: 0
 }
 
 // Order Interfaces
 export interface Order {
+	// ============================================
+	// Basic Information
+	// ============================================
 	id: number;
-	orderNumber: string; // Format: ORD-YYYY-####
-	customerId: number;
-	orderDate: string; // ISO date string
-	orderType: OrderType;
-	totalAmount: number;
-	orderDiscount: number;
-	voucherCode?: string | null;
+	orderNumber: string; // Unique
+	customerId: number; // FK → Customer
+	
+	// ============================================
+	// Order Classification
+	// ============================================
+	orderSource: OrderSource; // COUNTER | ONLINE
 	fulfillmentStatus: FulfillmentStatus;
-	paymentStatus: PaymentStatus;
-	paymentDate?: string; // ISO date string
-	paymentMethod?: PaymentMethod | null;
-	transactionId?: string | null;
-	shippingCost: number;
-	internalNotes?: string | null;
-	referrerSource?: string | null;
-	feedbackToken?: string | null;
-	lastUpdated: string; // ISO date string
+	fulfillmentType: FulfillmentType; // DELIVERY | PICKUP | INSTORE
+	
+	// ============================================
+	// Financial Information
+	// ============================================
+	subTotal: number;
+	discount: number;
+	totalPayable: number;
+	deliveryCost: number;
+	voucherCode: string | null;
+	
+	// ============================================
+	// Fulfillment Timestamps
+	// ============================================
+	placedAt: Date | null;
+	confirmedAt: Date | null;
+	processingAt: Date | null;
+	shippingAt: Date | null;
+	deliveredAt: Date | null;
+	canceledAt: Date | null;
+	
+	// ============================================
+	// Delivery Information
+	// ============================================
+	deliveryRateId?: number; // FK → DeliveryRate
+	deliveryLocation?: string ; // Snapshotted from DeliveryLocation.name
+	deliveryMode?: string ; // Snapshotted from DeliveryRate.transportMode
+	shippingAddress?: string;
+	driverName?: string ;
+	driverPhone?: string ;
+	vehicleNumber?: string ;
+	expectedDeliveryDate?: Date ;
+	
+	// ============================================
+	// Payment Information
+	// ============================================
+	paymentStatus: PaymentStatus; // PENDING | PAID | FAILED
+	paymentMethod: PaymentMethod;
+	paidAt: Date ;
 	receiptGenerated: boolean;
-	receiptNumber?: string; // Format: RCP-YYYY-####
+	receiptNumber?: string ; // Unique
 	
-	// Timestamp fields
-	placedAt?: string; // ISO date string
-	confirmedAt?: string; // ISO date string
-	processingAt?: string; // ISO date string
-	shippingAt?: string; // ISO date string
-	deliveredAt?: string; // ISO date string
-	canceledAt?: string; // ISO date string
-	paidAt?: string; // ISO date string
+	// ============================================
+	// User References
+	// ============================================
+	affiliateId?: number ; // FK → User
+	servedBy?: number ; // FK → User
 	
-	// Driver information (for SHIPPING status)
-	driverName?: string | null;
-	driverPhone?: string | null;
-	vehicleNumber?: string | null;
+	// ============================================
+	// Additional Information
+	// ============================================
+	feedbackToken?: string ;
+	internalNotes?: string ;
+	referrerSource?: string ;
 	
-	// Relations (when included)
-	customer?: any; // Customer interface - import from customer module
-	orderItems?: OrderItem[]; // Matching guide - orderItems
-	orderDiscounts?: OrderDiscount[]; // Applied discounts
+	// ============================================
+	// Relationships
+	// ============================================
+	customer?: Customer;
+	servedByUser?: User;
+	deliveryRate?: DeliveryRate;
+	orderItems?: OrderItem[];
+	orderDiscounts?: OrderDiscount[];
 	transactions?: Transaction[];
-	timeline?: OrderTimelineEvent[];
-	
-	// Customer-facing field (included in GET /orders/:id)
-	customerStatusMessage?: string;
+	affiliateCommissions?: any[]; // AffiliateCommission[]
 }
 
 export interface CustomerDetailsDto {
@@ -110,20 +121,39 @@ export interface CustomerDetailsDto {
 }
 
 export interface CreateOrderDto {
-	customer: CustomerDetailsDto;
-	orderItems: CreateOrderItemDto[]; // Matching guide - orderItems
-	orderType?: OrderType; // 'COUNTER' or 'ONLINE', default: 'ONLINE'
-	paymentMethod?: PaymentMethod; // Optional
-	orderDiscount?: number; // Optional, calculated automatically
-	voucherCode?: string; // Optional voucher code
-	shippingCost?: number; // Default: 0
-	internalNotes?: string;
-	referrerSource?: string; // Auto-extracted from referer header if not provided
+	// Customer Information
+	customer: CustomerDetailsDto; // Required
+	
+	// Order Items
+	orderItems: CreateOrderItemDto[]; // Required, min 1 item
+	
+	// Order Classification
+	orderSource?: OrderSource; // Optional (COUNTER | ONLINE)
+	fulfillmentType?: FulfillmentType; // Optional (DELIVERY | PICKUP | INSTORE)
+	
+	// Payment Information
+	paymentMethod?: PaymentMethod; // Optional (CASH | MBOB | BDB_EPAY | TPAY | BNB_MPAY | ZPSS)
+	
+	// Financial Information
+	discount?: number; // Optional, min: 0
+	voucherCode?: string; // Optional
+	deliveryCost?: number; // Optional, min: 0
+	
+	// Delivery Information
+	deliveryRateId?: number; // Required when fulfillmentType is DELIVERY
+	shippingAddress?: string; // Required when fulfillmentType is DELIVERY
+	
+	// Additional Information
+	internalNotes?: string; // Optional
+	referrerSource?: string; // Optional
+	
+	// User References
+	servedBy?: number; // Optional (auto-set for counter orders)
 }
 
 export interface UpdateOrderDto {
 	orderItems?: CreateOrderItemDto[]; // Replaces all items
-	shippingCost?: number;
+	deliveryCost?: number;
 	internalNotes?: string;
 }
 
@@ -164,7 +194,20 @@ export interface CancelOrderDto {
 }
 
 export interface DeliverOrderDto {
-	// Empty body or optional notes
+	internalNotes?: string; // Optional - Internal notes about delivery
+}
+
+export interface ConfirmOrderDto {
+	paymentMethod: PaymentMethod; // Required
+	transactionId?: string; // Optional
+	internalNotes?: string; // Optional
+}
+
+export interface ShipOrderDto {
+	driverName: string; // Required - Name of the delivery driver
+	driverPhone?: string; // Optional - Phone number of the driver
+	vehicleNumber: string; // Required - Vehicle/car number/plate
+	expectedDeliveryDate: string; // Required - Expected delivery date (ISO format)
 }
 
 export interface OrderQueryDto {
@@ -172,6 +215,26 @@ export interface OrderQueryDto {
 	fulfillmentStatus?: FulfillmentStatus;
 	startDate?: string; // ISO date string
 	endDate?: string; // ISO date string
+}
+
+// Paginated Orders Query DTO
+export interface GetOrdersPaginatedQueryDto {
+	page?: number; // Page number (minimum: 1, default: 1)
+	limit?: number; // Number of items per page (minimum: 1, maximum: 100, default: 10)
+	fulfillmentStatus?: FulfillmentStatus; // Optional filter by fulfillment status
+}
+
+// Paginated Response DTO
+export interface PaginatedResponseDto<T> {
+	data: T[];
+	meta: {
+		total: number;
+		page: number;
+		limit: number;
+		totalPages: number;
+		hasNextPage: boolean;
+		hasPreviousPage: boolean;
+	};
 }
 
 // Track Order DTO
@@ -189,15 +252,16 @@ export interface GetCustomerStatusDto {
 
 // Order Discount Interface (for tracking applied discounts)
 export interface OrderDiscount {
-	id: number;
-	orderId: number;
-	discountId: number;
+	id: number; // PK
+	orderId: number; // FK → Order
+	discountId: number; // FK → Discount
+	discountAmount: number;
 	discountName: string;
 	discountType: string;
-	discountAmount: number;
 	voucherCode?: string | null;
-	createdAt?: string;
-	updatedAt?: string;
+	appliedAt: Date | string; // Date or ISO date string
+	createdAt?: Date | string;
+	updatedAt?: Date | string;
 }
 
 export interface OrderTimelineEvent {

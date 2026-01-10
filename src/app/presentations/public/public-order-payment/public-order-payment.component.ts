@@ -19,7 +19,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { OrderService } from '../../../core/dataservice/order/order.service';
-import { Order, FulfillmentStatus, ProcessPaymentDto } from '../../../core/dataservice/order/order.interface';
 import {
 	PaymentSettlementDataService,
 } from '../../../core/dataservice/payment-settlement/payment-settlement.dataservice';
@@ -32,6 +31,8 @@ import {
 	ClientDebitSuccessDTO,
 	BFSResponseCodes,
 } from '../../../core/dataservice/payment-settlement/payment-settlement.interface';
+import { FulfillmentStatus } from '../../../core/constants/enums';
+import { Order } from '../../../core/dataservice';
 
 @Component({
 	selector: 'app-public-order-payment',
@@ -141,49 +142,49 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 	loadOrderDetails() {
 		if (!this.orderId) return;
 
-		this.orderService.getOrderById(this.orderId).subscribe({
-			next: (order) => {
-				this.order = order;
-				// Ensure amount is always a number
-				this.amount = typeof order.totalAmount === 'string' 
-					? parseFloat(order.totalAmount) 
-					: Number(order.totalAmount);
-				this.loadingOrder = false;
-				this.loading = false;
+		// this.orderService.getOrderById(this.orderId).subscribe({
+		// 	next: (order) => {
+		// 		this.order = order;
+		// 		// Ensure amount is always a number
+		// 		this.amount = typeof order.totalAmount === 'string' 
+		// 			? parseFloat(order.totalAmount) 
+		// 			: Number(order.totalAmount);
+		// 		this.loadingOrder = false;
+		// 		this.loading = false;
 
-				// Check if order is already paid or completed
-				if (order.fulfillmentStatus === FulfillmentStatus.DELIVERED) {
-					this.messageService.add({
-						severity: 'info',
-						summary: 'Order Already Paid',
-						detail: 'This order has already been paid.',
-					});
-					this.router.navigate(['/order-confirmation'], {
-						queryParams: { orderId: this.orderId },
-					});
-					return;
-				}
+		// 		// Check if order is already paid or completed
+		// 		if (order.fulfillmentStatus === FulfillmentStatus.DELIVERED) {
+		// 			this.messageService.add({
+		// 				severity: 'info',
+		// 				summary: 'Order Already Paid',
+		// 				detail: 'This order has already been paid.',
+		// 			});
+		// 			this.router.navigate(['/order-confirmation'], {
+		// 				queryParams: { orderId: this.orderId },
+		// 			});
+		// 			return;
+		// 		}
 
-				// Check if order is confirmed
-				if (order.fulfillmentStatus !== 'CONFIRMED') {
-					this.messageService.add({
-						severity: 'warn',
-						summary: 'Order Not Ready',
-						detail: 'Order must be in CONFIRMED status to proceed with payment.',
-					});
-				}
-			},
-			error: (error) => {
-				console.error('Error loading order:', error);
-				this.loadingOrder = false;
-				this.loading = false;
-				this.messageService.add({
-					severity: 'error',
-					summary: 'Error Loading Order',
-					detail: 'Failed to load order details. Please try again.',
-				});
-			},
-		});
+		// 		// Check if order is confirmed
+		// 		if (order.fulfillmentStatus !== 'CONFIRMED') {
+		// 			this.messageService.add({
+		// 				severity: 'warn',
+		// 				summary: 'Order Not Ready',
+		// 				detail: 'Order must be in CONFIRMED status to proceed with payment.',
+		// 			});
+		// 		}
+		// 	},
+		// 	error: (error) => {
+		// 		console.error('Error loading order:', error);
+		// 		this.loadingOrder = false;
+		// 		this.loading = false;
+		// 		this.messageService.add({
+		// 			severity: 'error',
+		// 			summary: 'Error Loading Order',
+		// 			detail: 'Failed to load order details. Please try again.',
+		// 		});
+		// 	},
+		// });
 	}
 
 	// Step 1: Initiate Payment

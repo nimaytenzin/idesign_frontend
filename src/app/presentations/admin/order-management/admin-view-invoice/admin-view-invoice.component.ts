@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { OrderService } from '../../../../core/dataservice/order/order.service';
-import { Order, PaymentStatus } from '../../../../core/dataservice/order/order.interface';
 import { PrimeNgModules } from '../../../../primeng.modules';
+import { PaymentStatus } from '../../../../core/constants/enums';
+import { Order } from '../../../../core/dataservice';
 
 @Component({
 	selector: 'app-admin-view-invoice',
@@ -66,13 +67,38 @@ export class AdminViewInvoiceComponent implements OnInit {
 		}).format(value || 0)}`;
 	}
 
-	formatDate(date: Date | string | undefined): string {
+	formatDate(date: Date | string | null | undefined): string {
 		if (!date) return 'N/A';
 		return new Date(date).toLocaleDateString('en-US', {
 			year: 'numeric',
 			month: 'long',
 			day: 'numeric',
 		});
+	}
+
+	formatPaymentMethod(method: string): string {
+		const methodMap: { [key: string]: string } = {
+			'CASH': 'Cash',
+			'MBOB': 'MBOB',
+			'BDB_EPAY': 'BDB EPay',
+			'TPAY': 'TPay',
+			'BNB_MPAY': 'BNB MPay',
+			'ZPSS': 'ZPSS',
+		};
+		return methodMap[method] || method;
+	}
+
+	hasDeliveryInfo(): boolean {
+		if (!this.order) return false;
+		return !!(
+			this.order.shippingAddress ||
+			this.order.deliveryLocation ||
+			this.order.deliveryMode ||
+			this.order.driverName ||
+			this.order.driverPhone ||
+			this.order.vehicleNumber ||
+			this.order.expectedDeliveryDate
+		);
 	}
 
 	async downloadAsPDF() {

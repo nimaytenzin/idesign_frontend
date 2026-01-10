@@ -6,14 +6,17 @@ import { MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { OrderService } from '../../../../core/dataservice/order/order.service';
 import { ProductService } from '../../../../core/dataservice/product/product.service';
+import { DeliveryRateService } from '../../../../core/dataservice/delivery-rate/delivery-rate.service';
 import {
 	CreateOrderDto,
 	CreateOrderItemDto,
 	CustomerDetailsDto,
-	OrderType,
+	OrderSource,
 } from '../../../../core/dataservice/order/order.interface';
 import { PaymentMethod } from '../../../../core/dataservice/account/account.interface';
 import { Product } from '../../../../core/dataservice/product/product.interface';
+import { DeliveryRate } from '../../../../core/dataservice/delivery-rate/delivery-rate.interface';
+import { FulfillmentType } from '../../../../core/constants/enums';
 import { PrimeNgModules } from '../../../../primeng.modules';
 
 @Component({
@@ -32,16 +35,7 @@ export class AdminPlaceOrderComponent implements OnInit {
 	activeStep: number = 0;
 	dialogRef?: DynamicDialogRef;
 
-	// Step 1: Customer Details
-	customer: CustomerDetailsDto = {
-		name: '',
-		email: '',
-		phoneNumber: '',
-		shippingAddress: '',
-		billingAddress: '',
-	};
-
-	// Step 2: Products
+	// Step 1: Product Confirmation
 	products: Product[] = [];
 	orderItems: Array<CreateOrderItemDto & { product?: Product; lineTotal: number }> = [];
 	selectedProduct: Product | null = null;
@@ -50,30 +44,47 @@ export class AdminPlaceOrderComponent implements OnInit {
 	discountApplied: number = 0;
 	discountMode: 'amount' | 'percentage' = 'amount';
 	discountPercentage: number = 0;
+	showAddProductDialog: boolean = false;
 
-	// Step 3: Order Details
-	shippingCost: number = 0;
-	internalNotes: string = '';
+	// Step 2: Customer Details
+	customer: CustomerDetailsDto = {
+		name: '',
+		email: '',
+		phoneNumber: '',
+		shippingAddress: '',
+		billingAddress: '',
+	};
+
+	// Step 3: Fulfillment Type
+	fulfillmentType: FulfillmentType = FulfillmentType.INSTORE;
+	deliveryRates: DeliveryRate[] = [];
+	selectedDeliveryRate: DeliveryRate | null = null;
+	shippingAddress: string = '';
+	deliveryCost: number = 0;
 	paymentMethod: PaymentMethod | null = null;
-	orderType: OrderType = OrderType.ONLINE;
-	orderDiscount: number = 0;
+	orderSource: OrderSource = OrderSource.COUNTER;
+	discount: number = 0;
 	voucherCode: string = '';
-	OrderType = OrderType;
+	internalNotes: string = '';
+
+	// Enums for template
+	FulfillmentType = FulfillmentType;
 
 	// Calculated
 	subtotal: number = 0;
 	totalAmount: number = 0;
 
 	steps = [
-		{ label: 'Customer', icon: 'pi pi-user' },
 		{ label: 'Products', icon: 'pi pi-shopping-cart' },
-		{ label: 'Review', icon: 'pi pi-check' },
+		{ label: 'Customer', icon: 'pi pi-user' },
+		{ label: 'Fulfillment', icon: 'pi pi-truck' },
 	];
 
 	constructor(
 		private router: Router,
 		private orderService: OrderService,
 		private productService: ProductService,
+		private deliveryRateService: DeliveryRateService,
 		private messageService: MessageService,
 		private cdr: ChangeDetectorRef,
 		public ref?: DynamicDialogRef,
@@ -82,6 +93,47 @@ export class AdminPlaceOrderComponent implements OnInit {
 
 	ngOnInit() {
 		this.loadProducts();
+	}
+
+	loadDeliveryRates() {
+		this.deliveryRateService.getDeliveryRates().subscribe({
+			next: (data) => {
+				this.deliveryRates = data;
+				this.cdr.markForCheck();
+			},
+			error: () => {
+				this.messageService.add({
+					severity: 'warn',
+					summary: 'Warning',
+					detail: 'Failed to load delivery rates',
+				});
+			},
+		});
+	}
+
+	onFulfillmentTypeChange() {
+		if (this.fulfillmentType === FulfillmentType.DELIVERY) {
+			// Load delivery rates when DELIVERY is selected
+			if (this.deliveryRates.length === 0) {
+				this.loadDeliveryRates();
+			}
+		} else {
+			// Clear delivery-related fields for INSTORE
+			this.selectedDeliveryRate = null;
+			this.shippingAddress = '';
+			this.deliveryCost = 0;
+			this.calculateTotals();
+		}
+		this.cdr.markForCheck();
+	}
+
+	onDeliveryRateChange() {
+		if (this.selectedDeliveryRate) {
+			// Ensure deliveryCost is always a number, not a string
+			const rate = this.selectedDeliveryRate.rate;
+			this.deliveryCost = typeof rate === 'string' ? parseFloat(rate) : Number(rate) || 0;
+			this.calculateTotals();
+		}
 	}
 
 	loadProducts() {
@@ -166,13 +218,28 @@ export class AdminPlaceOrderComponent implements OnInit {
 		};
 
 		this.orderItems.push(lineItem);
+		this.resetProductForm();
+		this.showAddProductDialog = false;
+		this.calculateTotals();
+	}
+
+	resetProductForm() {
 		this.selectedProduct = null;
 		this.quantity = 1;
 		this.unitPrice = 0;
 		this.discountApplied = 0;
 		this.discountPercentage = 0;
 		this.discountMode = 'amount';
-		this.calculateTotals();
+	}
+
+	openAddProductDialog() {
+		this.resetProductForm();
+		this.showAddProductDialog = true;
+	}
+
+	closeAddProductDialog() {
+		this.showAddProductDialog = false;
+		this.resetProductForm();
 	}
 
 	removeLineItem(index: number) {
@@ -181,16 +248,45 @@ export class AdminPlaceOrderComponent implements OnInit {
 	}
 
 	calculateTotals() {
+		// Subtotal before discount
+		const subtotalBeforeDiscount = this.orderItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+		// Total discount applied
+		const totalDiscount = this.orderItems.reduce((sum, item) => sum + (item.discountApplied || 0), 0);
+		// Subtotal after discount (net payable for items)
 		this.subtotal = this.orderItems.reduce((sum, item) => sum + item.lineTotal, 0);
-		this.totalAmount = this.subtotal + this.shippingCost;
+		// Total amount including delivery cost
+		this.totalAmount = this.subtotal + this.deliveryCost;
 	}
 
-	onShippingCostChange() {
+	getSubtotalBeforeDiscount(): number {
+		return this.orderItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+	}
+
+	getTotalDiscount(): number {
+		return this.orderItems.reduce((sum, item) => sum + (item.discountApplied || 0), 0);
+	}
+
+	getNetPayable(): number {
+		return this.subtotal;
+	}
+
+	onDeliveryCostChange() {
 		this.calculateTotals();
 	}
 
 	nextStep() {
 		if (this.activeStep === 0) {
+			// Step 1: Product Confirmation
+			if (this.orderItems.length === 0) {
+				this.messageService.add({
+					severity: 'warn',
+					summary: 'Warning',
+					detail: 'Please add at least one product',
+				});
+				return;
+			}
+		} else if (this.activeStep === 1) {
+			// Step 2: Customer Details
 			if (!this.customer.name && !this.customer.email) {
 				this.messageService.add({
 					severity: 'warn',
@@ -199,12 +295,31 @@ export class AdminPlaceOrderComponent implements OnInit {
 				});
 				return;
 			}
-		} else if (this.activeStep === 1) {
-			if (this.orderItems.length === 0) {
+		} else if (this.activeStep === 2) {
+			// Step 3: Fulfillment Type
+			if (this.fulfillmentType === FulfillmentType.DELIVERY) {
+				if (!this.selectedDeliveryRate) {
+					this.messageService.add({
+						severity: 'warn',
+						summary: 'Warning',
+						detail: 'Please select a delivery rate',
+					});
+					return;
+				}
+				if (!this.shippingAddress || this.shippingAddress.trim() === '') {
+					this.messageService.add({
+						severity: 'warn',
+						summary: 'Warning',
+						detail: 'Shipping address is required for delivery orders',
+					});
+					return;
+				}
+			}
+			if (!this.paymentMethod) {
 				this.messageService.add({
 					severity: 'warn',
 					summary: 'Warning',
-					detail: 'Please add at least one product',
+					detail: 'Please select a payment method',
 				});
 				return;
 			}
@@ -239,6 +354,25 @@ export class AdminPlaceOrderComponent implements OnInit {
 			return;
 		}
 
+		if (this.fulfillmentType === FulfillmentType.DELIVERY) {
+			if (!this.selectedDeliveryRate) {
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Error',
+					detail: 'Please select a delivery rate',
+				});
+				return;
+			}
+			if (!this.shippingAddress || this.shippingAddress.trim() === '') {
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Error',
+					detail: 'Shipping address is required for delivery orders',
+				});
+				return;
+			}
+		}
+
 		if (!this.paymentMethod) {
 			this.messageService.add({
 				severity: 'error',
@@ -264,15 +398,20 @@ export class AdminPlaceOrderComponent implements OnInit {
 				unitPrice: item.unitPrice,
 				discountApplied: item.discountApplied,
 			})),
-			orderType: this.orderType,
+			orderSource: this.orderSource,
+			fulfillmentType: this.fulfillmentType,
 			paymentMethod: this.paymentMethod || undefined,
-			orderDiscount: this.orderDiscount > 0 ? this.orderDiscount : undefined,
+			discount: this.discount > 0 ? this.discount : undefined,
 			voucherCode: this.voucherCode || undefined,
-			shippingCost: this.shippingCost || undefined,
+			deliveryCost: this.deliveryCost > 0 ? (typeof this.deliveryCost === 'string' ? parseFloat(this.deliveryCost) : Number(this.deliveryCost)) : undefined,
+			deliveryRateId: this.selectedDeliveryRate?.id,
+			shippingAddress: this.fulfillmentType === FulfillmentType.DELIVERY ? this.shippingAddress : undefined,
 			internalNotes: this.internalNotes || undefined,
 		};
 
-		this.orderService.createOrder(orderData).subscribe({
+		console.log(orderData);
+
+		this.orderService.instorePlaceOrder(orderData).subscribe({
 			next: (data) => {
 				this.messageService.add({
 					severity: 'success',
@@ -311,6 +450,11 @@ export class AdminPlaceOrderComponent implements OnInit {
 			minimumFractionDigits: 2,
 			maximumFractionDigits: 2,
 		}).format(value || 0)}`;
+	}
+
+	getDeliveryRateDisplay(rate: DeliveryRate): string {
+		if (!rate) return '';
+		return rate.deliveryLocation?.name || `Location ${rate.deliveryLocationId}`;
 	}
 }
 

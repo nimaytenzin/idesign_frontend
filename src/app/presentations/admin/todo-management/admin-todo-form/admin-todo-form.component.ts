@@ -13,6 +13,7 @@ import {
 } from '../../../../core/dataservice';
 import { PrimeNgModules } from '../../../../primeng.modules';
 import { User } from '../../../../core/dataservice/user/user.interface';
+import { UserDataService } from '../../../../core/dataservice/user/user.dataservice';
 
 @Component({
 	selector: 'app-admin-todo-form',
@@ -46,6 +47,7 @@ export class AdminTodoFormComponent implements OnInit {
 
 	constructor(
 		private todoService: TodoService,
+		private userDataService: UserDataService,
 		private messageService: MessageService,
 		private ref: DynamicDialogRef,
 		private config: DynamicDialogConfig
@@ -53,11 +55,19 @@ export class AdminTodoFormComponent implements OnInit {
 		if (this.config.data) {
 			this.todo = this.config.data.todo;
 			this.portfolios = this.config.data.portfolios || [];
-			this.employees = this.config.data.employees || [];
+			// If employees are provided in config, use them; otherwise load from service
+			if (this.config.data.employees && this.config.data.employees.length > 0) {
+				this.employees = this.config.data.employees;
+			}
 		}
 	}
 
 	ngOnInit() {
+		// Load employees if not already provided
+		if (!this.employees || this.employees.length === 0) {
+			this.loadEmployees();
+		}
+		
 		if (this.todo) {
 			this.isEditMode = true;
 			this.task = this.todo.task;
@@ -73,6 +83,24 @@ export class AdminTodoFormComponent implements OnInit {
 				this.dueBy = new Date(this.todo.dueBy);
 			}
 		}
+	}
+
+	loadEmployees() {
+		this.loading = true;
+		this.userDataService.getAdminAndStaffUsers().subscribe({
+			next: (users) => {
+				this.employees = users;
+				this.loading = false;
+			},
+			error: (error) => {
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Error',
+					detail: error.error?.message || 'Failed to load users',
+				});
+				this.loading = false;
+			},
+		});
 	}
 
 	onSubmit() {
