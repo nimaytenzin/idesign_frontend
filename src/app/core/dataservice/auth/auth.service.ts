@@ -179,7 +179,7 @@ export class AuthService {
 	 * @returns Observable<User>
 	 */
 	getProfile(): Observable<User> {
-		return this.http.get<User>(`${this.apiUrl}/profile`).pipe(
+		return this.http.get<User>(`${this.apiUrl}/me`).pipe(
 			tap((user) => {
 				// Update stored user data if profile is different
 				const currentUser = this.getCurrentUser();

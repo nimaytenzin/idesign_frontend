@@ -73,6 +73,7 @@ export interface Order {
 	deliveryLocation?: string ; // Snapshotted from DeliveryLocation.name
 	deliveryMode?: string ; // Snapshotted from DeliveryRate.transportMode
 	shippingAddress?: string;
+	deliveryNotes?: string; // Optional delivery notes
 	driverName?: string ;
 	driverPhone?: string ;
 	vehicleNumber?: string ;
@@ -142,6 +143,7 @@ export interface CreateOrderDto {
 	// Delivery Information
 	deliveryRateId?: number; // Required when fulfillmentType is DELIVERY
 	shippingAddress?: string; // Required when fulfillmentType is DELIVERY
+	deliveryNotes?: string; // Optional delivery notes
 	
 	// Additional Information
 	internalNotes?: string; // Optional
@@ -155,6 +157,7 @@ export interface UpdateOrderDto {
 	orderItems?: CreateOrderItemDto[]; // Replaces all items
 	deliveryCost?: number;
 	internalNotes?: string;
+	deliveryNotes?: string; // Optional delivery notes
 }
 
 export interface UpdateOrderStatusDto {
@@ -208,6 +211,7 @@ export interface ShipOrderDto {
 	driverPhone?: string; // Optional - Phone number of the driver
 	vehicleNumber: string; // Required - Vehicle/car number/plate
 	expectedDeliveryDate: string; // Required - Expected delivery date (ISO format)
+	deliveryNotes?: string; // Optional delivery notes
 }
 
 export interface OrderQueryDto {

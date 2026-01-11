@@ -27,168 +27,347 @@
 		</div>
 	</div>
 
-	<!-- User Information Section -->
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-		<!-- Personal Information Card -->
-		<p-card styleClass="shadow-sm">
-			<ng-template pTemplate="header">
-				<div class="p-4 border-b">
-					<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-						<i class="pi pi-user text-blue-500"></i>
-						Personal Information
-					</h3>
-				</div>
-			</ng-template>
-			<div class="p-4 space-y-4">
+	<!-- Row 1: User Details Card (Full Width) -->
+	<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+		<div class="p-4 border-b border-gray-200">
+			<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+				<i class="pi pi-user text-blue-500"></i>
+				User Details
+			</h3>
+		</div>
+		<div class="p-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>CID</label
-					>
+					<label class="text-xs font-medium text-gray-500 uppercase">CID</label>
 					<p class="text-sm text-gray-900 mt-1">{{ staff.cid || 'N/A' }}</p>
 				</div>
 				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Email Address</label
-					>
+					<label class="text-xs font-medium text-gray-500 uppercase">Email Address</label>
 					<p class="text-sm text-gray-900 mt-1">{{ staff.emailAddress }}</p>
 				</div>
 				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Phone Number</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{ staff.phoneNumber || 'N/A' }}
-					</p>
+					<label class="text-xs font-medium text-gray-500 uppercase">Phone Number</label>
+					<p class="text-sm text-gray-900 mt-1">{{ staff.phoneNumber || 'N/A' }}</p>
 				</div>
 				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Role</label
-					>
+					<label class="text-xs font-medium text-gray-500 uppercase">Role</label>
 					<p class="text-sm text-gray-900 mt-1">{{ staff.role }}</p>
 				</div>
 				<div *ngIf="staff.dateOfBirth">
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Date of Birth</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{ formatDate(staff.dateOfBirth) }}
-					</p>
-				</div>
-			</div>
-		</p-card>
-
-		<!-- Address Information Card -->
-		<p-card styleClass="shadow-sm">
-			<ng-template pTemplate="header">
-				<div class="p-4 border-b">
-					<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-						<i class="pi pi-map-marker text-green-500"></i>
-						Address Information
-					</h3>
-				</div>
-			</ng-template>
-			<div class="p-4 space-y-4">
-				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Current Address</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{ staff.currentAddress || 'N/A' }}
-					</p>
+					<label class="text-xs font-medium text-gray-500 uppercase">Date of Birth</label>
+					<p class="text-sm text-gray-900 mt-1">{{ formatDate(staff.dateOfBirth) }}</p>
 				</div>
 				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Permanent Address</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{ staff.permanentAddress || 'N/A' }}
-					</p>
+					<label class="text-xs font-medium text-gray-500 uppercase">Current Address</label>
+					<p class="text-sm text-gray-900 mt-1">{{ staff.currentAddress || 'N/A' }}</p>
+				</div>
+				<div>
+					<label class="text-xs font-medium text-gray-500 uppercase">Permanent Address</label>
+					<p class="text-sm text-gray-900 mt-1">{{ staff.permanentAddress || 'N/A' }}</p>
 				</div>
 			</div>
-		</p-card>
+		</div>
 	</div>
 
-	<!-- Employee Profile Section -->
-	<p-card
-		*ngIf="staff.employeeProfile"
-		styleClass="shadow-sm"
-	>
-		<ng-template pTemplate="header">
-			<div class="p-4 border-b">
+	<!-- Row 2: Profile and Payscale (Side by Side) -->
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		<!-- Employee Profile Card -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+			<div class="p-4 border-b border-gray-200 flex items-center justify-between">
 				<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
 					<i class="pi pi-briefcase text-purple-500"></i>
 					Employee Profile
 				</h3>
+				<div class="flex gap-2">
+					<p-button
+						*ngIf="!staff.employeeProfile"
+						label="Create"
+						icon="pi pi-plus"
+						size="small"
+						severity="success"
+						(onClick)="createEmployeeProfile()"
+					></p-button>
+					<p-button
+						*ngIf="staff.employeeProfile"
+						label="Edit"
+						icon="pi pi-pencil"
+						size="small"
+						severity="secondary"
+						[outlined]="true"
+						(onClick)="updateEmployeeProfile()"
+					></p-button>
+				</div>
 			</div>
-		</ng-template>
-		<div class="p-4">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Department</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{ staff.employeeProfile.department || 'N/A' }}
-					</p>
+			<div class="p-4" *ngIf="staff.employeeProfile">
+				<div class="space-y-4">
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Department</label>
+						<p class="text-sm text-gray-900 mt-1">{{ staff.employeeProfile.department || 'N/A' }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Position</label>
+						<p class="text-sm text-gray-900 mt-1">{{ staff.employeeProfile.position || 'N/A' }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Hire Date</label>
+						<p class="text-sm text-gray-900 mt-1">
+							{{ staff.employeeProfile.hireDate ? formatDate(staff.employeeProfile.hireDate) : 'N/A' }}
+						</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Termination Date</label>
+						<p class="text-sm text-gray-900 mt-1">
+							{{ staff.employeeProfile.terminationDate ? formatDate(staff.employeeProfile.terminationDate) : 'N/A' }}
+						</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Employee Status</label>
+						<div class="mt-1">
+							<p-tag
+								[value]="getStatusLabel(staff.employeeProfile.employeeStatus)"
+								[severity]="getStatusSeverity(staff.employeeProfile.employeeStatus)"
+								styleClass="text-xs"
+							></p-tag>
+						</div>
+					</div>
+					<div *ngIf="staff.employeeProfile.bio">
+						<label class="text-xs font-medium text-gray-500 uppercase">Bio</label>
+						<p class="text-sm text-gray-900 mt-1 whitespace-pre-wrap">{{ staff.employeeProfile.bio }}</p>
+					</div>
 				</div>
-				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Position</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{ staff.employeeProfile.position || 'N/A' }}
-					</p>
+			</div>
+			<div *ngIf="!staff.employeeProfile" class="p-6 text-center text-gray-500">
+				<i class="pi pi-info-circle text-3xl mb-3"></i>
+				<p class="text-sm">No Employee Profile</p>
+			</div>
+		</div>
+
+		<!-- Employee Payscale Card -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+			<div class="p-4 border-b border-gray-200 flex items-center justify-between">
+				<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+					<i class="pi pi-money-bill text-green-500"></i>
+					Employee Payscale
+				</h3>
+				<div class="flex gap-2">
+					<p-button
+						*ngIf="!payscale"
+						label="Create"
+						icon="pi pi-plus"
+						size="small"
+						severity="success"
+						(onClick)="createPayscale()"
+						[loading]="payscaleLoading"
+					></p-button>
+					<p-button
+						*ngIf="payscale"
+						label="Edit"
+						icon="pi pi-pencil"
+						size="small"
+						severity="secondary"
+						[outlined]="true"
+						(onClick)="updatePayscale()"
+					></p-button>
 				</div>
-				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Hire Date</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{
-							staff.employeeProfile.hireDate
-								? formatDate(staff.employeeProfile.hireDate)
-								: 'N/A'
-						}}
-					</p>
+			</div>
+			<div class="p-4" *ngIf="payscale">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Basic Salary</label>
+						<p class="text-sm text-gray-900 mt-1 font-semibold">{{ formatCurrency(payscale.basicSalary) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Benefits Allowance</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatCurrency(payscale.benefitsAllowance) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Salary Arrear</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatCurrency(payscale.salaryArrear) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Gross Salary</label>
+						<p class="text-sm text-gray-900 mt-1 font-semibold">{{ formatCurrency(payscale.grossSalary) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">PF Deduction</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatCurrency(payscale.pfDeduction) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">GIS Deduction</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatCurrency(payscale.gisDeduction) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Net Salary</label>
+						<p class="text-sm text-gray-900 mt-1 font-semibold">{{ formatCurrency(payscale.netSalary) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">TDS</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatCurrency(payscale.tds) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Health Contribution</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatCurrency(payscale.healthContribution) }}</p>
+					</div>
+					<div>
+						<label class="text-xs font-medium text-gray-500 uppercase">Total Payout</label>
+						<p class="text-lg text-gray-900 mt-1 font-bold text-green-600">{{ formatCurrency(payscale.totalPayout) }}</p>
+					</div>
+					<div *ngIf="payscale.updatedAt" class="md:col-span-2">
+						<label class="text-xs font-medium text-gray-500 uppercase">Last Updated</label>
+						<p class="text-sm text-gray-900 mt-1">{{ formatDate(payscale.updatedAt) }}</p>
+					</div>
 				</div>
-				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Termination Date</label
-					>
-					<p class="text-sm text-gray-900 mt-1">
-						{{
-							staff.employeeProfile.terminationDate
-								? formatDate(staff.employeeProfile.terminationDate)
-								: 'N/A'
-						}}
-					</p>
+			</div>
+			<div *ngIf="!payscale && !payscaleLoading" class="p-6 text-center text-gray-500">
+				<i class="pi pi-money-bill text-3xl mb-3"></i>
+				<p class="text-sm">No Payscale Information</p>
+			</div>
+			<div *ngIf="payscaleLoading" class="p-6 flex items-center justify-center">
+				<p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+			</div>
+		</div>
+	</div>
+
+	<!-- Row 3: Education and Work Experience (Side by Side) -->
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		<!-- Education Card -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+			<div class="p-4 border-b border-gray-200 flex items-center justify-between">
+				<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+					<i class="pi pi-graduation-cap text-blue-500"></i>
+					Education
+				</h3>
+				<p-button
+					label="Add"
+					icon="pi pi-plus"
+					size="small"
+					severity="success"
+					(onClick)="createEducation()"
+					[disabled]="!staff.employeeProfile"
+				></p-button>
+			</div>
+			<div class="p-4">
+				<div *ngIf="educationsLoading" class="flex items-center justify-center py-8">
+					<p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
 				</div>
-				<div>
-					<label class="text-xs font-medium text-gray-500 uppercase"
-						>Employee Status</label
+				<div *ngIf="!educationsLoading" class="space-y-4">
+					<div
+						*ngFor="let education of educations"
+						class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
 					>
-					<div class="mt-1">
-						<p-tag
-							[value]="getStatusLabel(staff.employeeProfile.employeeStatus)"
-							[severity]="getStatusSeverity(staff.employeeProfile.employeeStatus)"
-							styleClass="text-xs"
-						></p-tag>
+						<div class="flex items-start justify-between">
+							<div class="flex-1">
+								<h4 class="text-base font-semibold text-gray-900">{{ education.courseTitle }}</h4>
+								<p class="text-sm text-gray-600 mt-1">{{ education.institute }}</p>
+								<div class="flex flex-wrap gap-2 mt-2">
+									<p-tag
+										[value]="formatEducationLevel(education.level)"
+										severity="info"
+										[style]="{ 'font-size': '0.75rem' }"
+									></p-tag>
+									<p-tag
+										[value]="formatEducationStatus(education.status)"
+										[severity]="education.status === EmployeeEducationStatus.COMPLETED ? 'success' : 'warning'"
+										[style]="{ 'font-size': '0.75rem' }"
+									></p-tag>
+								</div>
+								<p class="text-xs text-gray-500 mt-2">
+									{{ formatDate(education.startDate) }} - {{ formatDate(education.endDate) }}
+								</p>
+							</div>
+							<div class="flex gap-2 ml-4">
+								<p-button
+									icon="pi pi-pencil"
+									size="small"
+									severity="secondary"
+									[text]="true"
+									[rounded]="true"
+									(onClick)="updateEducation(education)"
+									pTooltip="Edit"
+								></p-button>
+								<p-button
+									icon="pi pi-trash"
+									size="small"
+									severity="danger"
+									[text]="true"
+									[rounded]="true"
+									(onClick)="deleteEducation(education)"
+									pTooltip="Delete"
+								></p-button>
+							</div>
+						</div>
+					</div>
+					<div *ngIf="educations.length === 0" class="text-center py-8 text-gray-500">
+						<i class="pi pi-graduation-cap text-3xl mb-2"></i>
+						<p class="text-sm">No education records</p>
 					</div>
 				</div>
 			</div>
 		</div>
-	</p-card>
 
-	<!-- No Employee Profile Message -->
-	<div
-		*ngIf="!staff.employeeProfile"
-		class="p-6 bg-gray-50 border border-gray-200 rounded-lg text-center"
-	>
-		<i class="pi pi-info-circle text-3xl text-gray-400 mb-3"></i>
-		<p class="text-gray-600 font-medium">No Employee Profile</p>
-		<p class="text-sm text-gray-500 mt-1">
-			This staff member does not have an employee profile yet.
-		</p>
+		<!-- Work Experience Card -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+			<div class="p-4 border-b border-gray-200 flex items-center justify-between">
+				<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+					<i class="pi pi-briefcase text-orange-500"></i>
+					Work Experience
+				</h3>
+				<p-button
+					label="Add"
+					icon="pi pi-plus"
+					size="small"
+					severity="success"
+					(onClick)="createWorkExperience()"
+					[disabled]="!staff.employeeProfile"
+				></p-button>
+			</div>
+			<div class="p-4">
+				<div *ngIf="workExperiencesLoading" class="flex items-center justify-center py-8">
+					<p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+				</div>
+				<div *ngIf="!workExperiencesLoading" class="space-y-4">
+					<div
+						*ngFor="let experience of workExperiences"
+						class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+					>
+						<div class="flex items-start justify-between">
+							<div class="flex-1">
+								<h4 class="text-base font-semibold text-gray-900">{{ experience.positionTitle }}</h4>
+								<p class="text-sm text-gray-600 mt-1">{{ experience.agency }}</p>
+								<p class="text-sm text-gray-500 mt-1">{{ experience.place }}</p>
+								<p class="text-xs text-gray-500 mt-2">
+									{{ formatDate(experience.effectiveDate) }} - {{ formatDate(experience.endDate) }}
+								</p>
+							</div>
+							<div class="flex gap-2 ml-4">
+								<p-button
+									icon="pi pi-pencil"
+									size="small"
+									severity="secondary"
+									[text]="true"
+									[rounded]="true"
+									(onClick)="updateWorkExperience(experience)"
+									pTooltip="Edit"
+								></p-button>
+								<p-button
+									icon="pi pi-trash"
+									size="small"
+									severity="danger"
+									[text]="true"
+									[rounded]="true"
+									(onClick)="deleteWorkExperience(experience)"
+									pTooltip="Delete"
+								></p-button>
+							</div>
+						</div>
+					</div>
+					<div *ngIf="workExperiences.length === 0" class="text-center py-8 text-gray-500">
+						<i class="pi pi-briefcase text-3xl mb-2"></i>
+						<p class="text-sm">No work experience records</p>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<!-- Timestamps -->
@@ -215,3 +394,6 @@
 		></p-button>
 	</div>
 </div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

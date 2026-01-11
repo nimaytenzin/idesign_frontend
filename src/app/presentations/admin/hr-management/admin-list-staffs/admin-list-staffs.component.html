@@ -127,50 +127,23 @@
 								{{ formatDate(staff.createdAt) }}
 							</p>
 						</td>
-						<td class="py-3 px-4">
-							<div class="flex items-center gap-2">
+						<td class="py-3 px-4 w-full">
+							<div class="flex flex-col items-end gap-2">
 								<p-button
 									icon="pi pi-eye"
-									[text]="true"
-									severity="help"
+ 									[outlined]="true"
+									label="View Details"
 									size="small"
 									(onClick)="openViewEmployeeCard(staff)"
-									pTooltip="View Details"
-								></p-button>
-								<p-button
-									icon="pi pi-pencil"
-									[text]="true"
-									severity="info"
-									size="small"
-									(onClick)="editStaff(staff)"
-									pTooltip="Edit User"
-								></p-button>
-								<p-button
-									*ngIf="!staff.employeeProfile"
-									icon="pi pi-user-plus"
-									[text]="true"
-									severity="success"
-									size="small"
-									(onClick)="openCreateEmployeeProfileDialog(staff)"
-									pTooltip="Create Employee Profile"
-								></p-button>
-								<p-button
-									*ngIf="staff.employeeProfile"
-									icon="pi pi-briefcase"
-									[text]="true"
-									severity="secondary"
-									size="small"
-									(onClick)="openUpdateEmployeeProfileDialog(staff)"
-									pTooltip="Update Employee Profile"
-								></p-button>
+ 								></p-button>
+								
 								<p-button
 									icon="pi pi-key"
-									[text]="true"
-									severity="warn"
+ 									severity="warn"
 									size="small"
+									label="Reset Password"
 									(onClick)="openResetPasswordDialog(staff)"
-									pTooltip="Reset Password"
-								></p-button>
+ 								></p-button>
 							</div>
 						</td>
 					</tr>

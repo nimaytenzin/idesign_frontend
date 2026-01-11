@@ -1,0 +1,37 @@
+// Staff Dashboard Styles
+:host {
+	display: block;
+	width: 100%;
+}
+
+// Custom scrollbar for better monotone appearance
+.custom-scrollbar::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: #f3f4f6;
+	border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: #9ca3af;
+	border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: #6b7280;
+}
+
+// Ensure proper height for calendar
+app-staff-calendar-events {
+	display: block;
+	height: 100%;
+}
+
+// Ensure proper height for todo
+app-staff-to-do {
+	display: block;
+	height: 100%;
+}

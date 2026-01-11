@@ -59,10 +59,22 @@ export * from './sms-template/sms-template.interface';
 export * from './sms-template/sms-template.service';
 
 // Employee Management exports
+export * from './hr-management/employee-profile/employee.profile.interface';
+export * from './hr-management/employee-profile/employee-profile.service';
+export * from './hr-management/employee-profile/employee.education.interface';
+export * from './hr-management/employee-profile/employee-education.service';
+export * from './hr-management/employee-profile/employee.work-experience.interface';
+export * from './hr-management/employee-profile/employee-work-experience.service';
+export * from './hr-management/employee-profile/employee-payscale.interface';
+export * from './hr-management/employee-profile/employee-payscale.service';
+
+// Attendance exports
+export * from './attendance/attendance.interface';
+export * from './attendance/attendance.service';
 
 // Calendar exports
-export * from './calendar/calendar.interface';
-export * from './calendar/calendar.service';
+export * from './calendar/calendar-event.interface';
+export * from './calendar/calendar-event.service';
 
 // Todo Management exports
 export * from './todo/todo.interface';

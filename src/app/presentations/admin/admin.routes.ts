@@ -24,6 +24,7 @@ import { DeliveryLocationsWithRatesComponent } from './settings/delivery/deliver
 import { AdminGuard } from '../../core/guards/auth.guard';
 import { AdminListAdministratorComponent } from './admin-management/admin-list-administrator/admin-list-administrator.component';
 import { AdminListStaffsComponent } from './hr-management/admin-list-staffs/admin-list-staffs.component';
+import { StaffAttendanceComponent } from './hr-management/staff-attendance/staff-attendance.component';
 
 export const adminRoutes: Routes = [
 	{
@@ -105,6 +106,10 @@ export const adminRoutes: Routes = [
 			{
 				path: 'staffs',
 				component: AdminListStaffsComponent,
+			},
+			{
+				path: 'staff-attendance',
+				component: StaffAttendanceComponent,
 			},
 			
 			// Analytics Route

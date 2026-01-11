@@ -40,10 +40,12 @@ export interface Todo {
 	dueBy: string | null; // ISO 8601 datetime
 	portfolioId: number;
 	createdById: number;
+	remarks: string;
 	createdAt: string; // ISO 8601 datetime
 	updatedAt: string; // ISO 8601 datetime
 	portfolio?: Portfolio;
 	createdBy?: TodoUser;
+
 	assignedUsers?: TodoUser[];
 }
 
@@ -96,6 +98,13 @@ export interface TodoQueryDto {
 	assignedUserId?: number;
 	startDate?: string; // ISO 8601 date (YYYY-MM-DD) - must be used with endDate
 	endDate?: string; // ISO 8601 date (YYYY-MM-DD) - must be used with startDate
+}
+
+/**
+ * Mark Complete DTO
+ */
+export interface MarkCompleteDto {
+	remarks?: string;
 }
 
 /**

@@ -255,6 +255,24 @@
 									<span class="font-medium text-gray-500 w-24">Country:</span>
 									<span class="text-gray-900">{{ company.country }}</span>
 								</div>
+								<div *ngIf="company.lat !== undefined && company.lat !== null" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-map text-blue-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Latitude</span>
+										<span class="text-gray-900 font-medium">{{ company.lat }}</span>
+									</div>
+								</div>
+								<div *ngIf="company.long !== undefined && company.long !== null" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-map text-blue-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Longitude</span>
+										<span class="text-gray-900 font-medium">{{ company.long }}</span>
+									</div>
+								</div>
 							</div>
 						</div>
 
@@ -326,7 +344,7 @@
 						</div>
 
 						<!-- Social Media -->
-						<div *ngIf="company.facebookLink || company.tiktokLink">
+						<div *ngIf="company.facebookLink || company.tiktokLink" class="pb-6 border-b border-gray-200">
 							<h4 class="font-medium text-gray-500 uppercase mb-4">Social Media</h4>
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div *ngIf="company.facebookLink" class="flex items-center gap-3">
@@ -352,6 +370,31 @@
 									>
 										{{ company.tiktokLink }}
 									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- Account Details / Timestamps -->
+						<div *ngIf="company.createdAt || company.updatedAt">
+							<h4 class="font-medium text-gray-500 uppercase mb-4">Account Details</h4>
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div *ngIf="company.createdAt" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-calendar text-gray-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Created At</span>
+										<span class="text-gray-900">{{ formatDate(company.createdAt) }}</span>
+									</div>
+								</div>
+								<div *ngIf="company.updatedAt" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-clock text-gray-600"></i>
+									</div>
+									<div>
+										<span class="font-medium text-gray-500 block">Last Updated</span>
+										<span class="text-gray-900">{{ formatDate(company.updatedAt) }}</span>
+									</div>
 								</div>
 							</div>
 						</div>

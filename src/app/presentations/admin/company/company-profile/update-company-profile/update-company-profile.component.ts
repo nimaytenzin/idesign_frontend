@@ -77,6 +77,8 @@ export class UpdateCompanyProfileComponent implements OnInit {
 			dzongkhag: [''],
 			thromde: [''],
 			country: ['Bhutan'],
+			lat: [null, [Validators.required, this.numberValidator]],
+			long: [null, [Validators.required, this.numberValidator]],
 			website: ['', [this.urlValidator]],
 			tpnNumber: [''],
 			businessLicenseNumber: [''],
@@ -120,6 +122,8 @@ export class UpdateCompanyProfileComponent implements OnInit {
 				dzongkhag: companyData.dzongkhag ?? '',
 				thromde: companyData.thromde ?? '',
 				country: companyData.country ?? 'Bhutan',
+				lat: companyData.lat ?? null,
+				long: companyData.long ?? null,
 				website: companyData.website ?? '',
 				tpnNumber: companyData.tpnNumber ?? '',
 				businessLicenseNumber: companyData.businessLicenseNumber ?? '',
@@ -166,6 +170,17 @@ export class UpdateCompanyProfileComponent implements OnInit {
 		}
 	}
 
+	numberValidator(control: AbstractControl): ValidationErrors | null {
+		if (control.value === null || control.value === undefined || control.value === '') {
+			return null; // Let required validator handle empty values
+		}
+		const num = Number(control.value);
+		if (isNaN(num)) {
+			return { invalidNumber: true };
+		}
+		return null;
+	}
+
 	/**
 	 * Clean form data before sending to API
 	 * For UPDATE: All fields are optional (partial update)
@@ -178,6 +193,14 @@ export class UpdateCompanyProfileComponent implements OnInit {
 		const urlFields = ['website', 'facebookLink', 'tiktokLink'];
 		// Optional string fields - omit if empty string
 		const optionalStringFields = ['name', 'phone1', 'phone2', 'phone3', 'email', 'address', 'dzongkhag', 'thromde', 'country', 'tpnNumber', 'businessLicenseNumber', 'slogan', 'description', 'zpssAccountName', 'zpssAccountNumber'];
+
+		// Handle required number fields - lat and long
+		if (data.lat !== undefined && data.lat !== null) {
+			cleaned.lat = Number(data.lat);
+		}
+		if (data.long !== undefined && data.long !== null) {
+			cleaned.long = Number(data.long);
+		}
 
 		// Handle name field
 		if (data.name && typeof data.name === 'string' && data.name.trim().length > 0) {
@@ -299,6 +322,9 @@ export class UpdateCompanyProfileComponent implements OnInit {
 			if (control.errors['invalidUrl']) {
 				return 'Please enter a valid URL';
 			}
+			if (control.errors['invalidNumber']) {
+				return 'Please enter a valid number';
+			}
 		}
 		return '';
 	}
@@ -310,6 +336,8 @@ export class UpdateCompanyProfileComponent implements OnInit {
 			website: 'Website',
 			facebookLink: 'Facebook Link',
 			tiktokLink: 'TikTok Link',
+			lat: 'Latitude',
+			long: 'Longitude',
 			zpssBankName: 'Bank Name',
 			zpssAccountName: 'Account Name',
 			zpssAccountNumber: 'Account Number',

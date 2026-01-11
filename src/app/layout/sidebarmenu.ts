@@ -144,6 +144,12 @@ export const ADMINSIDEBARITEMS = [
 				roles: [USERROLESENUM.ADMIN],
 			},
 			{
+				label: 'Staff Attendance',
+				icon: 'pi pi-fw pi-calendar-check',
+				routerLink: ['/admin/staff-attendance'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
 				label: 'Leave Types',
 				icon: 'pi pi-fw pi-calendar-times',
 				routerLink: ['/admin/hr/leave-types'],
@@ -208,6 +214,40 @@ export const ADMINSIDEBARITEMS = [
 				icon: 'pi pi-fw pi-file-text',
 				routerLink: ['/admin/logs'],
 				roles: [USERROLESENUM.ADMIN],
+			},
+		],
+	},
+];
+
+
+export const STAFFSIDEBARITEMS = [
+	{
+		label: 'Overview',
+		items: [
+			{
+				label: 'Dashboard',
+				icon: 'pi pi-fw pi-chart-bar',
+				routerLink: ['/staff'],
+			},
+			{
+				label: 'Manage Orders',
+				icon: 'pi pi-fw pi-shopping-cart',
+				routerLink: ['/staff/manage-orders'],
+			},
+			{
+				label: 'Record Expenses',
+				icon: 'pi pi-fw pi-money-bill',
+				routerLink: ['/staff/record-expenses'],
+			},
+			{
+				label: 'Document Archive',
+				icon: 'pi pi-fw pi-file-pdf',
+					routerLink: ['/staff/view-documents'],
+ 			},
+			{
+				label: 'Profile',
+				icon: 'pi pi-fw pi-user',
+				routerLink: ['/staff/profile'],
 			},
 		],
 	},

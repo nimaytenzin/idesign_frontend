@@ -92,6 +92,7 @@ export class AdminViewInvoiceComponent implements OnInit {
 		if (!this.order) return false;
 		return !!(
 			this.order.shippingAddress ||
+			this.order.deliveryNotes ||
 			this.order.deliveryLocation ||
 			this.order.deliveryMode ||
 			this.order.driverName ||
@@ -165,7 +166,7 @@ export class AdminViewInvoiceComponent implements OnInit {
 		}
 	}
 
-	async shareAsImage() {
+	printInvoice() {
 		if (!this.invoiceContent || !this.order) {
 			this.messageService.add({
 				severity: 'error',
@@ -175,39 +176,40 @@ export class AdminViewInvoiceComponent implements OnInit {
 			return;
 		}
 
-		try {
-			// Dynamic import of html2canvas
-			const html2canvas = (await import('html2canvas')).default;
+		const printContent = this.invoiceContent.nativeElement.innerHTML;
+		const printWindow = window.open('', '_blank');
+		
+		if (printWindow) {
+			printWindow.document.write(`
+				<!DOCTYPE html>
+				<html>
+					<head>
+						<title>Invoice - ${this.order.orderNumber}</title>
+						<style>
+							body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+							@media print {
+								body { padding: 0; }
+							}
+						</style>
+					</head>
+					<body>
+						${printContent}
+					</body>
+				</html>
+			`);
+			printWindow.document.close();
+			printWindow.focus();
 			
-			const element = this.invoiceContent.nativeElement;
-			const canvas = await html2canvas(element, {
-				scale: 2,
-				useCORS: true,
-				backgroundColor: '#ffffff',
-			});
-
-			canvas.toBlob((blob) => {
-				if (blob) {
-					const url = URL.createObjectURL(blob);
-					const link = document.createElement('a');
-					link.href = url;
-					link.download = `Invoice-${this.order?.orderNumber}.png`;
-					link.click();
-					URL.revokeObjectURL(url);
-					
-					this.messageService.add({
-						severity: 'success',
-						summary: 'Success',
-						detail: 'Invoice downloaded as image',
-					});
-				}
-			}, 'image/png');
-		} catch (error) {
-			console.error('Image generation error:', error);
+			// Wait for content to load, then print
+			setTimeout(() => {
+				printWindow.print();
+				printWindow.close();
+			}, 250);
+		} else {
 			this.messageService.add({
 				severity: 'error',
 				summary: 'Error',
-				detail: 'Failed to generate image',
+				detail: 'Please allow popups to print the invoice',
 			});
 		}
 	}

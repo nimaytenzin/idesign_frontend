@@ -10,6 +10,7 @@ import {
 	UpdateTodoDto,
 	TodoQueryDto,
 	WeeklyViewResponse,
+	MarkCompleteDto,
 } from './todo.interface';
 import { environment } from '../../../../environments/environment';
 
@@ -114,6 +115,51 @@ export class TodoService {
 	}
 
 	/**
+	 * Staff endpoint: Get todos assigned to the current staff user
+	 * @returns Observable of Todo array
+	 */
+	getMyTodos(): Observable<Todo[]> {
+		return this.http.get<Todo[]>(`${this.apiUrl}/my-todos`);
+	}
+
+	/**
+	 * Staff endpoint: Get completed todos for the current staff user this week
+	 * @returns Observable of Todo array
+	 */
+	getMyCompletedTodosThisWeek(): Observable<Todo[]> {
+		return this.http.get<Todo[]>(`${this.apiUrl}/my-todos/completed-this-week`);
+	}
+
+	/**
+	 * Staff endpoint: Get all todos with optional filtering
+	 * @param query Query parameters for filtering
+	 * @returns Observable of Todo array
+	 */
+	getAllTodosForStaff(query?: TodoQueryDto): Observable<Todo[]> {
+		let params = new HttpParams();
+
+		if (query) {
+			if (query.portfolioId !== undefined) {
+				params = params.set('portfolioId', query.portfolioId.toString());
+			}
+			if (query.status) {
+				params = params.set('status', query.status);
+			}
+			if (query.assignedUserId !== undefined) {
+				params = params.set('assignedUserId', query.assignedUserId.toString());
+			}
+			if (query.startDate) {
+				params = params.set('startDate', query.startDate);
+			}
+			if (query.endDate) {
+				params = params.set('endDate', query.endDate);
+			}
+		}
+
+		return this.http.get<Todo[]>(`${this.apiUrl}/all`, { params });
+	}
+
+	/**
 	 * Get a specific todo by ID
 	 * @param id Todo ID
 	 * @returns Observable of Todo
@@ -130,6 +176,16 @@ export class TodoService {
 	 */
 	updateTodo(id: number, dto: UpdateTodoDto): Observable<Todo> {
 		return this.http.patch<Todo>(`${this.apiUrl}/${id}`, dto);
+	}
+
+	/**
+	 * Mark a todo as complete with optional remarks
+	 * @param id Todo ID
+	 * @param dto Mark complete data (optional remarks)
+	 * @returns Observable of Todo
+	 */
+	markAsComplete(id: number, dto: MarkCompleteDto): Observable<Todo> {
+		return this.http.patch<Todo>(`${this.apiUrl}/${id}/mark-complete`, dto);
 	}
 
 	/**

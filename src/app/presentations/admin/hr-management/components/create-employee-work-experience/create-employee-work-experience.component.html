@@ -1,0 +1,126 @@
+<div class="flex flex-col gap-4">
+	<div class="flex flex-col gap-2">
+		<label for="positionTitle" class="text-sm font-medium text-gray-700">
+			Position Title <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="positionTitle"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.positionTitle"
+			placeholder="Enter position title"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.positionTitle"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.positionTitle"
+			>Position title is required</small
+		>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="agency" class="text-sm font-medium text-gray-700">
+			Agency <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="agency"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.agency"
+			placeholder="Enter agency name"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.agency"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.agency"
+			>Agency is required</small
+		>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="place" class="text-sm font-medium text-gray-700">
+			Place <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="place"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.place"
+			placeholder="Enter place"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.place"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.place"
+			>Place is required</small
+		>
+	</div>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="flex flex-col gap-2">
+			<label for="effectiveDate" class="text-sm font-medium text-gray-700">
+				Effective Date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				id="effectiveDate"
+				[(ngModel)]="createData.effectiveDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				placeholder="Select effective date"
+				[class.ng-invalid]="submitted && !createData.effectiveDate"
+			></p-calendar>
+			<small
+				class="text-xs text-red-500 mt-1"
+				*ngIf="submitted && !createData.effectiveDate"
+				>Effective date is required</small
+			>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="endDate" class="text-sm font-medium text-gray-700">
+				End Date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				id="endDate"
+				[(ngModel)]="createData.endDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				placeholder="Select end date"
+				[class.ng-invalid]="submitted && !createData.endDate"
+			></p-calendar>
+			<small
+				class="text-xs text-red-500 mt-1"
+				*ngIf="submitted && !createData.endDate"
+				>End date is required</small
+			>
+		</div>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Create Work Experience"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveWorkExperience()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

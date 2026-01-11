@@ -250,6 +250,17 @@ export class CompanyProfileComponent implements OnInit {
 		}
 	}
 
+	formatDate(date: Date | string | null | undefined): string {
+		if (!date) return 'N/A';
+		return new Date(date).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	}
+
 	deleteCompany() {
 		if (!this.company) {
 			return;

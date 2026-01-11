@@ -1,0 +1,206 @@
+// FullCalendar Tailwind-friendly styling
+// Using ViewEncapsulation.None so styles apply globally to FullCalendar
+.calendar-container {
+	@apply w-full;
+}
+
+// FullCalendar base styles
+.fc {
+	@apply font-sans;
+}
+
+.fc-header-toolbar {
+	@apply flex flex-wrap items-center justify-between gap-2 mb-4 p-2;
+}
+
+.fc-button {
+	@apply px-4 py-2 text-sm font-medium rounded-lg border transition-all;
+	@apply bg-white text-gray-700 border-gray-300;
+	@apply hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+	@apply bg-blue-600 text-white border-blue-600;
+}
+
+.fc-button-group {
+	@apply flex gap-1;
+}
+
+.fc-today-button {
+	@apply px-4 py-2 text-sm font-medium rounded-lg;
+	@apply bg-blue-600 text-white border-blue-600;
+	@apply hover:bg-blue-700;
+}
+
+.fc-toolbar-title {
+	@apply text-xl font-semibold text-gray-900;
+}
+
+.fc-daygrid-day {
+	@apply border border-gray-200;
+}
+
+.fc-daygrid-day-number {
+	@apply text-gray-700 p-2;
+}
+
+.fc-day-today {
+	@apply bg-blue-50;
+}
+
+.fc-daygrid-day-number.fc-day-today {
+	@apply bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center;
+}
+
+.fc-event {
+	@apply rounded px-2 py-1 text-xs font-medium cursor-pointer border-none;
+	@apply hover:opacity-90;
+}
+
+.fc-daygrid-event {
+	@apply rounded px-2 py-1 my-1;
+}
+
+.fc-timegrid-event {
+	@apply rounded px-2 py-1;
+}
+
+.fc-col-header-cell {
+	@apply bg-gray-50 border border-gray-200 p-2;
+}
+
+.fc-col-header-cell-cushion {
+	@apply text-sm font-semibold text-gray-700;
+}
+
+.fc-scrollgrid {
+	@apply border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.fc-timegrid-slot {
+	@apply border-t border-gray-100;
+}
+
+.fc-timegrid-slot-label {
+	@apply text-xs text-gray-500;
+}
+
+.fc-list-day-cushion {
+	@apply bg-gray-50 px-4 py-2 font-semibold text-gray-700;
+}
+
+.fc-list-event {
+	@apply px-4 py-2 border-b border-gray-100 hover:bg-gray-50;
+}
+
+.fc-list-event-title {
+	@apply font-medium text-gray-900;
+}
+
+.fc-list-event-time {
+	@apply text-sm text-gray-500;
+}
+
+// Year view specific styles
+.fc-dayGridYear-view {
+	.fc-daygrid-month {
+		@apply mb-6;
+	}
+
+	.fc-daygrid-month-header {
+		@apply text-lg font-semibold text-gray-800 mb-2;
+	}
+
+	.fc-daygrid-day {
+		@apply min-h-[80px];
+	}
+
+	.fc-daygrid-day-number {
+		@apply text-xs;
+	}
+
+	.fc-daygrid-event {
+		@apply text-xs px-1 py-0.5;
+	}
+}
+
+// Dialog Tailwind CSS Enhancements
+::ng-deep {
+	.p-dialog {
+		.p-dialog-header {
+			@apply px-6 py-4 border-b border-gray-200 bg-gray-50;
+			
+			.p-dialog-title {
+				@apply text-lg font-semibold text-gray-900;
+			}
+		}
+
+		.p-dialog-content {
+			@apply px-6 py-4;
+		}
+
+		.p-dialog-footer {
+			@apply px-6 py-4;
+		}
+
+		// Input field styling
+		.p-inputtext,
+		.p-inputtextarea {
+			@apply w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg;
+			@apply focus:ring-2 focus:ring-gray-500 focus:border-gray-500;
+			@apply transition-colors duration-200;
+			
+			&:focus {
+				@apply outline-none;
+			}
+		}
+
+		// Calendar input styling
+		.p-calendar {
+			.p-inputtext {
+				@apply w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg;
+				@apply focus:ring-2 focus:ring-gray-500 focus:border-gray-500;
+			}
+
+			.p-datepicker-trigger {
+				@apply border-l border-gray-300 bg-white hover:bg-gray-50;
+			}
+		}
+
+		// Switch styling
+		.p-inputswitch {
+			@apply w-12 h-6;
+			
+			.p-inputswitch-slider {
+				@apply bg-gray-300;
+			}
+
+			&.p-inputswitch-checked .p-inputswitch-slider {
+				@apply bg-gray-700;
+			}
+		}
+
+		// Button styling
+		.p-button {
+			@apply px-4 py-2 text-sm font-medium rounded-lg transition-all;
+			@apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+		}
+
+		.p-button-secondary.p-button-outlined {
+			@apply border-gray-300 text-gray-700 bg-white;
+			@apply hover:bg-gray-50 hover:border-gray-400;
+		}
+
+		.p-button-success {
+			@apply bg-gray-800 text-white border-gray-800;
+			@apply hover:bg-gray-900;
+		}
+
+		.p-button-danger.p-button-outlined {
+			@apply border-red-300 text-red-700 bg-white;
+			@apply hover:bg-red-50 hover:border-red-400;
+		}
+	}
+}

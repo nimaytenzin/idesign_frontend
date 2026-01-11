@@ -273,7 +273,7 @@ export class AdminListStaffsComponent implements OnInit {
 	openViewEmployeeCard(staff: User) {
 		const ref = this.dialogService.open(AdminViewEmployeeCardComponent, {
 			header: 'Employee Details',
-			width: '800px',
+			width: '1200px',
 			contentStyle: { overflow: 'auto' },
 			baseZIndex: 10000,
 			modal: true,
@@ -281,6 +281,11 @@ export class AdminListStaffsComponent implements OnInit {
 			data: {
 				staff: staff,
 			},
+		});
+
+		ref.onClose.subscribe(() => {
+			// Reload staff list to get updated data
+			this.loadStaffs();
 		});
 	}
 }

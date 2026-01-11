@@ -1,0 +1,102 @@
+// FullCalendar Monotone Styling
+.fc {
+	@apply font-sans;
+}
+
+.fc-header-toolbar {
+	@apply flex flex-wrap items-center justify-between gap-2 mb-4 p-2;
+}
+
+.fc-button {
+	@apply px-3 py-1.5 text-xs font-medium rounded-md border transition-all;
+	@apply bg-white text-gray-700 border-gray-300;
+	@apply hover:bg-gray-50 hover:border-gray-400;
+	@apply focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400;
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+	@apply bg-gray-800 text-white border-gray-800;
+}
+
+.fc-button-group {
+	@apply flex gap-1;
+}
+
+.fc-today-button {
+	@apply px-3 py-1.5 text-xs font-medium rounded-md;
+	@apply bg-gray-800 text-white border-gray-800;
+	@apply hover:bg-gray-900;
+}
+
+.fc-toolbar-title {
+	@apply text-lg font-semibold text-gray-900;
+}
+
+.fc-daygrid-day {
+	@apply border border-gray-200;
+}
+
+.fc-daygrid-day-number {
+	@apply text-gray-700 p-2;
+}
+
+.fc-day-today {
+	@apply bg-gray-50;
+}
+
+.fc-daygrid-day-number.fc-day-today {
+	@apply bg-gray-800 text-white rounded-full w-7 h-7 flex items-center justify-center font-semibold;
+}
+
+.fc-event {
+	@apply rounded px-2 py-1 text-xs font-medium cursor-pointer border-none;
+	@apply hover:opacity-90;
+	background-color: #6b7280 !important;
+	border-color: #6b7280 !important;
+	color: #ffffff !important;
+}
+
+.fc-daygrid-event {
+	@apply rounded px-2 py-1 my-1;
+}
+
+.fc-timegrid-event {
+	@apply rounded px-2 py-1;
+}
+
+.fc-col-header-cell {
+	@apply bg-gray-50 border border-gray-200 p-2;
+}
+
+.fc-col-header-cell-cushion {
+	@apply text-sm font-semibold text-gray-700;
+}
+
+.fc-scrollgrid {
+	@apply border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.fc-timegrid-slot {
+	@apply border-t border-gray-100;
+}
+
+.fc-timegrid-slot-label {
+	@apply text-xs text-gray-500;
+}
+
+.fc-list-day-cushion {
+	@apply bg-gray-50 px-4 py-2 font-semibold text-gray-700;
+}
+
+.fc-list-event {
+	@apply px-4 py-2 border-b border-gray-100 hover:bg-gray-50;
+}
+
+.fc-list-event-title {
+	@apply font-medium text-gray-900;
+}
+
+.fc-list-event-time {
+	@apply text-sm text-gray-500;
+}

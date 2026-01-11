@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators, A
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { environment } from '../../../../../../environments/environment';
-import { CreateCompanyDto, ZpssBankName, CompanyService } from '../../../../../core/dataservice';
+import { CreateCompanyDto, ZpssBankName, CompanyService, Company } from '../../../../../core/dataservice';
 import { PrimeNgModules } from '../../../../../primeng.modules';
 
 
@@ -22,29 +22,7 @@ export class CreateCompanyProfileComponent implements OnInit {
 	companyForm!: FormGroup;
 
 	// Form Data
-	company: Partial<CreateCompanyDto> = {
-		name: '',
-		phone1: '',
-		phone2: '',
-		phone3: '',
-		email: '',
-		address: '',
-		dzongkhag: '',
-		thromde: '',
-		country: 'Bhutan',
-		website: '',
-		tpnNumber: '',
-		businessLicenseNumber: '',
-		slogan: '',
-		facebookLink: '',
-		tiktokLink: '',
-		description: '',
-		// logo field removed - handled separately via POST /company/logo
-		isActive: true,
-		zpssBankName: undefined,
-		zpssAccountName: '',
-		zpssAccountNumber: '',
-	};
+	company!: Company ;
 
 	// Dzongkhag options (Bhutan districts)
 	dzongkhagOptions = [
@@ -102,6 +80,8 @@ export class CreateCompanyProfileComponent implements OnInit {
 			dzongkhag: [''],
 			thromde: [''],
 			country: ['Bhutan'],
+			lat: [null, [Validators.required, this.numberValidator]],
+			long: [null, [Validators.required, this.numberValidator]],
 			website: ['', [this.urlValidator]],
 			tpnNumber: [''],
 			businessLicenseNumber: [''],
@@ -118,13 +98,7 @@ export class CreateCompanyProfileComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		// Sync form values to company object for template (for backward compatibility with preview)
-		this.companyForm.valueChanges.subscribe((value) => {
-			this.company = { ...this.company, ...value };
-		});
-		// Initialize company object with form values
-		this.company = { ...this.company, ...this.companyForm.value };
-	}
+ 	}
 
 	// Custom validators
 	emailValidator(control: AbstractControl): ValidationErrors | null {
@@ -147,6 +121,17 @@ export class CreateCompanyProfileComponent implements OnInit {
 		}
 	}
 
+	numberValidator(control: AbstractControl): ValidationErrors | null {
+		if (control.value === null || control.value === undefined || control.value === '') {
+			return null; // Let required validator handle empty values
+		}
+		const num = Number(control.value);
+		if (isNaN(num)) {
+			return { invalidNumber: true };
+		}
+		return null;
+	}
+
 	/**
 	 * Clean form data before sending to API
 	 * According to API documentation:
@@ -162,6 +147,14 @@ export class CreateCompanyProfileComponent implements OnInit {
 		// Optional string fields - omit if empty string
 		// Note: logo is not included here - it's handled separately via POST /company/logo
 		const optionalStringFields = ['phone1', 'phone2', 'phone3', 'email', 'address', 'dzongkhag', 'thromde', 'country', 'tpnNumber', 'businessLicenseNumber', 'slogan', 'description', 'zpssAccountName', 'zpssAccountNumber'];
+
+		// Handle required number fields - lat and long
+		if (data.lat !== undefined && data.lat !== null) {
+			cleaned.lat = Number(data.lat);
+		}
+		if (data.long !== undefined && data.long !== null) {
+			cleaned.long = Number(data.long);
+		}
 
 		// Always include name if provided (required for CREATE)
 		if (data.name && typeof data.name === 'string' && data.name.trim().length > 0) {
@@ -209,7 +202,7 @@ export class CreateCompanyProfileComponent implements OnInit {
 	createCompany() {
 		this.submitted = true;
 
-		// Validate required fields - name is required for CREATE
+		// Validate required fields - name, lat, and long are required for CREATE
 		if (!this.companyForm.get('name')?.value) {
 			this.messageService.add({
 				severity: 'warn',
@@ -217,6 +210,26 @@ export class CreateCompanyProfileComponent implements OnInit {
 				detail: 'Company name is required',
 			});
 			this.companyForm.get('name')?.markAsTouched();
+			return;
+		}
+
+		if (!this.companyForm.get('lat')?.value || this.companyForm.get('lat')?.value === null) {
+			this.messageService.add({
+				severity: 'warn',
+				summary: 'Validation Error',
+				detail: 'Latitude is required',
+			});
+			this.companyForm.get('lat')?.markAsTouched();
+			return;
+		}
+
+		if (!this.companyForm.get('long')?.value || this.companyForm.get('long')?.value === null) {
+			this.messageService.add({
+				severity: 'warn',
+				summary: 'Validation Error',
+				detail: 'Longitude is required',
+			});
+			this.companyForm.get('long')?.markAsTouched();
 			return;
 		}
 
@@ -243,12 +256,32 @@ export class CreateCompanyProfileComponent implements OnInit {
 		const formValue = this.companyForm.value;
 		const cleanedData = this.cleanFormData(formValue);
 
-		// Ensure name is present for CREATE mode (required field per API)
+		// Ensure name, lat, and long are present for CREATE mode (required fields per API)
 		if (!cleanedData.name) {
 			this.messageService.add({
 				severity: 'error',
 				summary: 'Validation Error',
 				detail: 'Company name is required',
+			});
+			this.loading = false;
+			return;
+		}
+
+		if (cleanedData.lat === undefined || cleanedData.lat === null) {
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Validation Error',
+				detail: 'Latitude is required',
+			});
+			this.loading = false;
+			return;
+		}
+
+		if (cleanedData.long === undefined || cleanedData.long === null) {
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Validation Error',
+				detail: 'Longitude is required',
 			});
 			this.loading = false;
 			return;
@@ -310,6 +343,12 @@ export class CreateCompanyProfileComponent implements OnInit {
 			if (control.errors['invalidUrl']) {
 				return 'Please enter a valid URL';
 			}
+			if (control.errors['invalidNumber']) {
+				return 'Please enter a valid number';
+			}
+			if (control.errors['required']) {
+				return `${this.getFieldLabel(fieldName)} is required`;
+			}
 		}
 		return '';
 	}
@@ -321,6 +360,8 @@ export class CreateCompanyProfileComponent implements OnInit {
 			website: 'Website',
 			facebookLink: 'Facebook Link',
 			tiktokLink: 'TikTok Link',
+			lat: 'Latitude',
+			long: 'Longitude',
 			// logo field removed - handled separately
 			zpssBankName: 'Bank Name',
 			zpssAccountName: 'Account Name',

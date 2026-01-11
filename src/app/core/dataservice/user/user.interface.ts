@@ -10,6 +10,7 @@ export interface User {
 	phoneNumber?: string;
 	role: UserRole;
 	isActive: boolean;
+  tpnNumber?: string;
 
 	currentAddress?: string;
 	permanentAddress?: string;	
@@ -35,6 +36,7 @@ export interface CreateUserDto {
     currentAddress?: string;
     permanentAddress?: string;
     dateOfBirth?: Date;
+    tpnNumber?:string
  }
 
 export interface GetUsersQueryDto extends PaginationQueryDto {

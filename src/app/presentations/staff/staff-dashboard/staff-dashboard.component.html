@@ -1,1 +1,149 @@
-<p>staff-dashboard works!</p>
+<div class="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+	<div class="max-w-[1920px] mx-auto space-y-6">
+		<!-- Header Section -->
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+			<p class="text-sm text-gray-600">
+				Welcome back! Here's your overview for today.
+			</p>
+		</div>
+
+		<!-- Main Grid Layout -->
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			<!-- Left Column: Todo and Attendance -->
+			<div class="lg:col-span-1 space-y-6">
+				<!-- Todo Section -->
+				<div
+					class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+				>
+					<!-- Todo Header -->
+					<div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+						<div class="flex items-center justify-between">
+							<div>
+								<h2 class="text-lg font-semibold text-gray-900">My Todos</h2>
+								<p class="text-xs text-gray-500 mt-1">
+									Manage your tasks and assignments
+								</p>
+							</div>
+							<div
+								class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center"
+							>
+								<i class="pi pi-check-square text-gray-600"></i>
+							</div>
+						</div>
+					</div>
+					<!-- Todo Content -->
+					<div class="h-[500px] lg:h-[600px] overflow-hidden">
+						<app-staff-to-do></app-staff-to-do>
+					</div>
+				</div>
+
+				<!-- Attendance Section -->
+				<div
+					class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+				>
+					<!-- Attendance Header -->
+					<div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+						<div class="flex items-center justify-between">
+							<div>
+								<h2 class="text-lg font-semibold text-gray-900">Attendance</h2>
+								<p class="text-xs text-gray-500 mt-1">
+									View staff attendance status
+								</p>
+							</div>
+							<div
+								class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center"
+							>
+								<i class="pi pi-calendar-check text-gray-600"></i>
+							</div>
+						</div>
+					</div>
+					<!-- Attendance Content -->
+					<div class="p-4 overflow-y-auto" style="max-height: 600px;">
+						<app-staff-attendance-viewer></app-staff-attendance-viewer>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Column: Calendar -->
+			<div class="lg:col-span-1">
+				<div
+					class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+				>
+					<!-- Quick Actions Section -->
+					<div
+						class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 mb-4"
+					>
+						<h2 class="text-sm font-semibold text-gray-900 mb-2">
+							Quick Actions
+						</h2>
+						<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+							<button
+								class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 group"
+								(onClick)="placeOrder()"
+							>
+								<div
+									class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors"
+								>
+									<i class="pi pi-shopping-cart text-gray-600 text-sm"></i>
+								</div>
+								<span class="text-xs font-medium text-gray-900"
+									>Place Order</span
+								>
+							</button>
+
+							<button
+								class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 group"
+								(onClick)="requestAttendance()"
+							>
+								<div
+									class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors"
+								>
+									<i class="pi pi-calendar-check text-gray-600 text-sm"></i>
+								</div>
+								<span class="text-xs font-medium text-gray-900"
+									>Request Attendance</span
+								>
+							</button>
+
+							<button
+								class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 group"
+								(onClick)="recordExpense()"
+							>
+								<div
+									class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors"
+								>
+									<i class="pi pi-money-bill text-gray-600 text-sm"></i>
+								</div>
+								<span class="text-xs font-medium text-gray-900"
+									>Record Expense</span
+								>
+							</button>
+
+							<button
+								class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 group"
+								(onClick)="receivePayment()"
+							>
+								<div
+									class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors"
+								>
+									<i class="pi pi-wallet text-gray-600 text-sm"></i>
+								</div>
+								<span class="text-xs font-medium text-gray-900"
+									>Receive Payment</span
+								>
+							</button>
+						</div>
+					</div>
+
+					<!-- Calendar Content -->
+					<div class="p-3">
+						<app-staff-calendar-events></app-staff-calendar-events>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<p-toast></p-toast>

@@ -1,0 +1,193 @@
+<div class="flex flex-col gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="flex flex-col gap-2">
+			<label for="basicSalary" class="text-sm font-medium text-gray-700">
+				Basic Salary <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="basicSalary"
+				[(ngModel)]="createData.basicSalary"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[class.ng-invalid]="submitted && createData.basicSalary < 0"
+				styleClass="w-full"
+				(onInput)="calculateGrossSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="benefitsAllowance" class="text-sm font-medium text-gray-700">
+				Benefits Allowance <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="benefitsAllowance"
+				[(ngModel)]="createData.benefitsAllowance"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateGrossSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="salaryArrear" class="text-sm font-medium text-gray-700">
+				Salary Arrear
+			</label>
+			<p-inputNumber
+				id="salaryArrear"
+				[(ngModel)]="createData.salaryArrear"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateGrossSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="grossSalary" class="text-sm font-medium text-gray-700">
+				Gross Salary <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="grossSalary"
+				[(ngModel)]="createData.grossSalary"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[readonly]="true"
+				styleClass="w-full"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="pfDeduction" class="text-sm font-medium text-gray-700">
+				PF Deduction <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="pfDeduction"
+				[(ngModel)]="createData.pfDeduction"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateNetSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="gisDeduction" class="text-sm font-medium text-gray-700">
+				GIS Deduction <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="gisDeduction"
+				[(ngModel)]="createData.gisDeduction"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateNetSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="netSalary" class="text-sm font-medium text-gray-700">
+				Net Salary <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="netSalary"
+				[(ngModel)]="createData.netSalary"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[readonly]="true"
+				styleClass="w-full"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="tds" class="text-sm font-medium text-gray-700">
+				TDS <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="tds"
+				[(ngModel)]="createData.tds"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateTotalPayout()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="healthContribution" class="text-sm font-medium text-gray-700">
+				Health Contribution <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="healthContribution"
+				[(ngModel)]="createData.healthContribution"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateTotalPayout()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="totalPayout" class="text-sm font-medium text-gray-700">
+				Total Payout <span class="text-red-500">*</span>
+			</label>
+			<p-inputNumber
+				id="totalPayout"
+				[(ngModel)]="createData.totalPayout"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[readonly]="true"
+				styleClass="w-full"
+			></p-inputNumber>
+		</div>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Create Payscale"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="savePayscale()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

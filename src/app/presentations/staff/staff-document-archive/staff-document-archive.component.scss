@@ -1,0 +1,20 @@
+// Styles are now handled by Tailwind CSS utility classes
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+	.explorer-layout {
+		flex-direction: column;
+	}
+
+	.explorer-sidebar {
+		width: 100%;
+		max-height: 300px;
+	}
+}
+
+@media (max-width: 768px) {
+	.explorer-container {
+		padding: 1rem;
+		height: calc(100vh - 6rem);
+	}
+}

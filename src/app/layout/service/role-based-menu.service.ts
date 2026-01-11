@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
 	ADMINSIDEBARITEMS,
+	STAFFSIDEBARITEMS,
 	USERROLESENUM,
 } from '../sidebarmenu';
 import { UserRole } from '../../core/constants/enums';
@@ -25,9 +26,12 @@ export class RoleBasedMenuService {
 
 		switch (role) {
 			case USERROLESENUM.ADMIN:
-			case USERROLESENUM.STAFF:
 				menu = ADMINSIDEBARITEMS;
 				console.log('Returning ADMINSIDEBARITEMS');
+				break;
+			case USERROLESENUM.STAFF:
+				menu = STAFFSIDEBARITEMS;
+				console.log('Returning STAFFSIDEBARITEMS');
 				break;
 
 			default:

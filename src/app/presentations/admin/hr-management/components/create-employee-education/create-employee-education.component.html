@@ -1,0 +1,136 @@
+<div class="flex flex-col gap-4">
+	<div class="flex flex-col gap-2">
+		<label for="level" class="text-sm font-medium text-gray-700">
+			Education Level <span class="text-red-500">*</span>
+		</label>
+		<p-dropdown
+			id="level"
+			[options]="levelOptions"
+			optionLabel="label"
+			optionValue="value"
+			[(ngModel)]="createData.level"
+			placeholder="Select education level"
+			styleClass="w-full"
+		></p-dropdown>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="courseTitle" class="text-sm font-medium text-gray-700">
+			Course Title <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="courseTitle"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.courseTitle"
+			placeholder="Enter course title"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.courseTitle"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.courseTitle"
+			>Course title is required</small
+		>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="institute" class="text-sm font-medium text-gray-700">
+			Institute <span class="text-red-500">*</span>
+		</label>
+		<input
+			id="institute"
+			type="text"
+			pInputText
+			[(ngModel)]="createData.institute"
+			placeholder="Enter institute name"
+			class="w-full"
+			[class.ng-invalid]="submitted && !createData.institute"
+		/>
+		<small
+			class="text-xs text-red-500 mt-1"
+			*ngIf="submitted && !createData.institute"
+			>Institute is required</small
+		>
+	</div>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="flex flex-col gap-2">
+			<label for="startDate" class="text-sm font-medium text-gray-700">
+				Start Date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				id="startDate"
+				[(ngModel)]="createData.startDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				placeholder="Select start date"
+				[class.ng-invalid]="submitted && !createData.startDate"
+			></p-calendar>
+			<small
+				class="text-xs text-red-500 mt-1"
+				*ngIf="submitted && !createData.startDate"
+				>Start date is required</small
+			>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="endDate" class="text-sm font-medium text-gray-700">
+				End Date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				id="endDate"
+				[(ngModel)]="createData.endDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				placeholder="Select end date"
+				[class.ng-invalid]="submitted && !createData.endDate"
+			></p-calendar>
+			<small
+				class="text-xs text-red-500 mt-1"
+				*ngIf="submitted && !createData.endDate"
+				>End date is required</small
+			>
+		</div>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="status" class="text-sm font-medium text-gray-700">
+			Status <span class="text-red-500">*</span>
+		</label>
+		<p-dropdown
+			id="status"
+			[options]="statusOptions"
+			optionLabel="label"
+			optionValue="value"
+			[(ngModel)]="createData.status"
+			placeholder="Select status"
+			styleClass="w-full"
+		></p-dropdown>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Create Education"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveEducation()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

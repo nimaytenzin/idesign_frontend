@@ -191,6 +191,48 @@
 								class="w-full"
 							/>
 						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div class="flex flex-col gap-1.5">
+								<label class="text-xs font-medium text-gray-600"
+									>Latitude <span class="text-red-500">*</span></label
+								>
+								<input
+									type="number"
+									pInputText
+									formControlName="lat"
+									placeholder="27.4728"
+									class="w-full"
+									step="any"
+									[class.ng-invalid]="isFieldInvalid('lat')"
+								/>
+								<small
+									class="text-xs text-red-600"
+									*ngIf="isFieldInvalid('lat')"
+									>{{ getFieldError('lat') }}</small
+								>
+							</div>
+
+							<div class="flex flex-col gap-1.5">
+								<label class="text-xs font-medium text-gray-600"
+									>Longitude <span class="text-red-500">*</span></label
+								>
+								<input
+									type="number"
+									pInputText
+									formControlName="long"
+									placeholder="89.6390"
+									class="w-full"
+									step="any"
+									[class.ng-invalid]="isFieldInvalid('long')"
+								/>
+								<small
+									class="text-xs text-red-600"
+									*ngIf="isFieldInvalid('long')"
+									>{{ getFieldError('long') }}</small
+								>
+							</div>
+						</div>
 					</div>
 				</p-card>
 
@@ -366,6 +408,7 @@
 						<div class="flex flex-col gap-1.5">
 							<label class="text-xs font-medium text-gray-600">Company Status</label>
 							<div class="flex items-center gap-3">
+								
 								<p-inputSwitch formControlName="isActive"></p-inputSwitch>
 								<span class="text-sm text-gray-700">{{
 									companyForm.get('isActive')?.value ? 'Active' : 'Inactive'

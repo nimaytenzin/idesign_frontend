@@ -1,4 +1,32 @@
 <div class="flex flex-col max-h-[90vh]" *ngIf="order && !loading">
+	<!-- Top Actions -->
+	<div class="p-4 border-b border-gray-200 bg-white flex justify-end gap-3 rounded-t-lg">
+		<p-button
+			label="Print"
+			icon="pi pi-print"
+			size="small"
+			severity="info"
+			[outlined]="true"
+			(onClick)="printInvoice()"
+		></p-button>
+		<p-button
+			label="Download PDF"
+			icon="pi pi-file-pdf"
+			size="small"
+			severity="danger"
+			[outlined]="true"
+			(onClick)="downloadAsPDF()"
+		></p-button>
+		<p-button
+			label="Close"
+			icon="pi pi-times"
+			size="small"
+			severity="secondary"
+			[outlined]="true"
+			(onClick)="close()"
+		></p-button>
+	</div>
+
 	<!-- Invoice Content -->
 	<div class="flex-1 overflow-y-auto p-6 bg-gray-50">
 		<div #invoiceContent class="bg-white p-10 max-w-4xl mx-auto shadow-md">
@@ -98,6 +126,10 @@
 						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Shipping Address:</span>
 						<span class="text-sm text-slate-800">{{ order.shippingAddress }}</span>
 					</div>
+					<div *ngIf="order.deliveryNotes" class="flex gap-2">
+						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Delivery Notes:</span>
+						<span class="text-sm text-slate-800 whitespace-pre-wrap">{{ order.deliveryNotes }}</span>
+					</div>
 					<div *ngIf="order.deliveryLocation" class="flex gap-2">
 						<span class="text-sm font-medium text-slate-500 min-w-[140px]">Delivery Location:</span>
 						<span class="text-sm text-slate-800">{{ order.deliveryLocation }}</span>
@@ -187,34 +219,6 @@
 				<p class="text-xs text-slate-500 m-0">This is an invoice. Payment is due upon receipt.</p>
 			</div>
 		</div>
-	</div>
-
-	<!-- Footer Actions -->
-	<div class="p-4 border-t border-gray-200 bg-white flex justify-end gap-3 rounded-b-lg">
-		<p-button
-			label="Download PDF"
-			icon="pi pi-file-pdf"
-			size="small"
-			severity="danger"
-			[outlined]="true"
-			(onClick)="downloadAsPDF()"
-		></p-button>
-		<p-button
-			label="Download Image"
-			icon="pi pi-image"
-			size="small"
-			severity="info"
-			[outlined]="true"
-			(onClick)="shareAsImage()"
-		></p-button>
-		<p-button
-			label="Close"
-			icon="pi pi-times"
-			size="small"
-			severity="secondary"
-			[outlined]="true"
-			(onClick)="close()"
-		></p-button>
 	</div>
 </div>
 

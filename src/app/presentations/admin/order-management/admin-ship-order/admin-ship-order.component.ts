@@ -21,6 +21,7 @@ export class AdminShipOrderComponent implements OnInit {
 	driverPhone: string = '';
 	vehicleNumber: string = '';
 	expectedDeliveryDate: Date | null = null;
+	deliveryNotes: string = '';
 	loading: boolean = false;
 	minDate: Date = new Date();
 
@@ -34,6 +35,10 @@ export class AdminShipOrderComponent implements OnInit {
 	ngOnInit() {
 		if (this.config.data?.order) {
 			this.order = this.config.data.order;
+			// Pre-populate deliveryNotes if it exists
+			if (this.order?.deliveryNotes) {
+				this.deliveryNotes = this.order.deliveryNotes;
+			}
 		} else if (this.config.data?.orderId) {
 			this.loadOrder(this.config.data.orderId);
 		}
@@ -44,6 +49,10 @@ export class AdminShipOrderComponent implements OnInit {
 		this.orderService.getOrderById(orderId).subscribe({
 			next: (order) => {
 				this.order = order;
+				// Pre-populate deliveryNotes if it exists
+				if (order.deliveryNotes) {
+					this.deliveryNotes = order.deliveryNotes;
+				}
 				this.loading = false;
 			},
 			error: () => {
@@ -109,6 +118,7 @@ export class AdminShipOrderComponent implements OnInit {
 			driverPhone: this.driverPhone?.trim() || undefined,
 			vehicleNumber: this.vehicleNumber.trim(),
 			expectedDeliveryDate: this.expectedDeliveryDate.toISOString(),
+			deliveryNotes: this.deliveryNotes?.trim() || undefined,
 		};
 
 		this.orderService.shipOrder(this.order.id, shipData).subscribe({

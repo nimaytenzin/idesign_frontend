@@ -1,0 +1,305 @@
+<div class="h-full flex flex-col">
+	<!-- Tabs Section -->
+	<p-tabView [(activeIndex)]="activeTabIndex" (onChange)="onTabChange()" class="flex-1 flex flex-col">
+		<p-tabPanel header="My Todo">
+			<div class="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+				<!-- Loading State -->
+				<div *ngIf="todosLoading" class="flex items-center justify-center py-12">
+					<p-progressSpinner [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
+				</div>
+
+				<!-- Todo List -->
+				<div *ngIf="!todosLoading" class="space-y-2">
+					<div
+						*ngFor="let todo of myTodos"
+						[class.opacity-65]="todo.status === 'COMPLETED'"
+					>
+						<div
+							class="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors"
+							[class.border-l-4]="isOverdue(todo) && todo.status === 'PENDING'"
+							[class.border-red-500]="isOverdue(todo) && todo.status === 'PENDING'"
+							[class.pl-3]="isOverdue(todo) && todo.status === 'PENDING'"
+						>
+							<!-- Circular Checkbox -->
+							<div class="flex-shrink-0 pt-0.5">
+								<div
+									class="w-[22px] h-[22px] border-2 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 bg-white flex-shrink-0 select-none hover:border-gray-400 hover:bg-gray-50 hover:scale-105 active:scale-95"
+									[class.bg-green-500]="todo.status === 'COMPLETED'"
+									[class.border-green-500]="todo.status === 'COMPLETED'"
+									[class.hover:bg-green-600]="todo.status === 'COMPLETED'"
+									[class.hover:border-green-600]="todo.status === 'COMPLETED'"
+									[class.border-gray-300]="todo.status === 'PENDING'"
+									(click)="toggleTodoStatus(todo)"
+								>
+									<i *ngIf="todo.status === 'COMPLETED'" class="pi pi-check text-white text-xs"></i>
+								</div>
+							</div>
+
+							<!-- Task Content -->
+							<div class="flex-1 min-w-0">
+								<!-- Task Title -->
+								<div
+									class="text-[0.9375rem] font-semibold text-gray-900 leading-[1.4] mb-1 transition-all duration-200 break-words"
+									[class.line-through]="todo.status === 'COMPLETED'"
+									[class.text-gray-400]="todo.status === 'COMPLETED'"
+								>
+									{{ todo.task }}
+								</div>
+
+								<!-- Description -->
+								<div
+									*ngIf="todo.description"
+									class="text-[0.8125rem] text-gray-600 leading-[1.5] mb-2 mt-0.5 break-words"
+									[class.text-gray-400]="todo.status === 'COMPLETED'"
+								>
+									{{ todo.description }}
+								</div>
+
+								<!-- Metadata -->
+								<div class="flex flex-wrap gap-3 mt-2">
+									<span class="text-xs text-gray-600 inline-flex items-center whitespace-nowrap">
+										<i class="pi pi-folder text-xs mr-1 opacity-60"></i>
+										{{ todo.portfolio?.name || 'Unknown' }}
+									</span>
+									<span
+										class="text-xs inline-flex items-center whitespace-nowrap"
+										[ngClass]="{
+											'text-red-600': isOverdue(todo) && todo.status === 'PENDING',
+											'text-gray-400': todo.status === 'COMPLETED',
+											'text-gray-600': !isOverdue(todo) && todo.status === 'PENDING'
+										}"
+									>
+										<i class="pi pi-calendar text-xs mr-1 opacity-60"></i>
+										{{
+											todo.dueBy
+												? formatDate(todo.dueBy)
+												: 'No due date'
+										}}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Empty State -->
+					<div *ngIf="myTodos.length === 0 && !completedTodosLoading" class="flex flex-col items-center justify-center py-20">
+						<i class="pi pi-check-circle text-6xl text-green-400 mb-4"></i>
+						<div class="text-xl font-semibold text-gray-700 mb-2">Hurray! No todo assigned to you</div>
+						<div class="text-sm text-gray-500">You're all caught up!</div>
+					</div>
+				</div>
+
+				<!-- Completed This Week Section -->
+				<div *ngIf="!todosLoading && !completedTodosLoading" class="mt-8">
+					<div class="mb-4 pb-2 border-b border-gray-200">
+						<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+							Completed This Week
+						</h3>
+					</div>
+
+					<div *ngIf="completedTodosThisWeek.length > 0" class="space-y-2">
+						<div
+							*ngFor="let todo of completedTodosThisWeek"
+							class="opacity-65"
+						>
+							<div class="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+								<!-- Circular Checkbox -->
+								<div class="flex-shrink-0 pt-0.5">
+									<div
+										class="w-[22px] h-[22px] border-2 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 bg-green-500 border-green-500 flex-shrink-0 select-none hover:bg-green-600 hover:border-green-600 hover:scale-105 active:scale-95"
+										(click)="toggleTodoStatus(todo)"
+									>
+										<i class="pi pi-check text-white text-xs"></i>
+									</div>
+								</div>
+
+								<!-- Task Content -->
+								<div class="flex-1 min-w-0">
+									<!-- Task Title -->
+									<div class="text-[0.9375rem] font-semibold text-gray-400 leading-[1.4] mb-1 transition-all duration-200 break-words line-through">
+										{{ todo.task }}
+									</div>
+
+									<!-- Description -->
+									<div
+										*ngIf="todo.description"
+										class="text-[0.8125rem] text-gray-400 leading-[1.5] mb-2 mt-0.5 break-words"
+									>
+										{{ todo.description }}
+									</div>
+
+									<!-- Metadata -->
+									<div class="flex flex-wrap gap-3 mt-2">
+										<span class="text-xs text-gray-400 inline-flex items-center whitespace-nowrap">
+											<i class="pi pi-folder text-xs mr-1 opacity-60"></i>
+											{{ todo.portfolio?.name || 'Unknown' }}
+										</span>
+										<span class="text-xs text-gray-400 inline-flex items-center whitespace-nowrap">
+											<i class="pi pi-calendar text-xs mr-1 opacity-60"></i>
+											{{
+												todo.dueBy
+													? formatDate(todo.dueBy)
+													: 'No due date'
+											}}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Empty State for Completed Todos -->
+					<div *ngIf="completedTodosThisWeek.length === 0" class="flex flex-col items-center justify-center py-12">
+						<i class="pi pi-calendar-times text-4xl text-gray-300 mb-2"></i>
+						<div class="text-sm text-gray-500">No todos completed this week</div>
+					</div>
+				</div>
+			</div>
+		</p-tabPanel>
+
+		<p-tabPanel header="All Todo">
+			<div class="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+				<!-- Loading State -->
+				<div *ngIf="todosLoading" class="flex items-center justify-center py-12">
+					<p-progressSpinner [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
+				</div>
+
+				<!-- Todo List -->
+				<div *ngIf="!todosLoading" class="space-y-2">
+					<div
+						*ngFor="let todo of allTodos"
+						[class.opacity-65]="todo.status === 'COMPLETED'"
+					>
+						<div
+							class="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors"
+							[class.border-l-4]="isOverdue(todo) && todo.status === 'PENDING'"
+							[class.border-red-500]="isOverdue(todo) && todo.status === 'PENDING'"
+							[class.pl-3]="isOverdue(todo) && todo.status === 'PENDING'"
+						>
+							<!-- Circular Checkbox -->
+							<div class="flex-shrink-0 pt-0.5">
+								<div
+									class="w-[22px] h-[22px] border-2 rounded-full cursor-pointer flex items-center justify-center transition-all duration-200 bg-white flex-shrink-0 select-none hover:border-gray-400 hover:bg-gray-50 hover:scale-105 active:scale-95"
+									[class.bg-green-500]="todo.status === 'COMPLETED'"
+									[class.border-green-500]="todo.status === 'COMPLETED'"
+									[class.hover:bg-green-600]="todo.status === 'COMPLETED'"
+									[class.hover:border-green-600]="todo.status === 'COMPLETED'"
+									[class.border-gray-300]="todo.status === 'PENDING'"
+									(click)="toggleTodoStatus(todo)"
+								>
+									<i *ngIf="todo.status === 'COMPLETED'" class="pi pi-check text-white text-xs"></i>
+								</div>
+							</div>
+
+							<!-- Task Content -->
+							<div class="flex-1 min-w-0">
+								<!-- Task Title -->
+								<div
+									class="text-[0.9375rem] font-semibold text-gray-900 leading-[1.4] mb-1 transition-all duration-200 break-words"
+									[class.line-through]="todo.status === 'COMPLETED'"
+									[class.text-gray-400]="todo.status === 'COMPLETED'"
+								>
+									{{ todo.task }}
+								</div>
+
+								<!-- Description -->
+								<div
+									*ngIf="todo.description"
+									class="text-[0.8125rem] text-gray-600 leading-[1.5] mb-2 mt-0.5 break-words"
+									[class.text-gray-400]="todo.status === 'COMPLETED'"
+								>
+									{{ todo.description }}
+								</div>
+
+								<!-- Metadata -->
+								<div class="flex flex-wrap gap-3 mt-2">
+									<span class="text-xs text-gray-600 inline-flex items-center whitespace-nowrap">
+										<i class="pi pi-folder text-xs mr-1 opacity-60"></i>
+										{{ todo.portfolio?.name || 'Unknown' }}
+									</span>
+									<span class="text-xs text-gray-600 inline-flex items-center whitespace-nowrap">
+										<i class="pi pi-user text-xs mr-1 opacity-60"></i>
+										{{ getAssignedUsersNames(todo) }}
+									</span>
+									<span
+										class="text-xs inline-flex items-center whitespace-nowrap"
+										[ngClass]="{
+											'text-red-600': isOverdue(todo) && todo.status === 'PENDING',
+											'text-gray-400': todo.status === 'COMPLETED',
+											'text-gray-600': !isOverdue(todo) && todo.status === 'PENDING'
+										}"
+									>
+										<i class="pi pi-calendar text-xs mr-1 opacity-60"></i>
+										{{
+											todo.dueBy
+												? formatDate(todo.dueBy)
+												: 'No due date'
+										}}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Empty State -->
+					<div *ngIf="allTodos.length === 0" class="flex flex-col items-center justify-center py-20">
+						<i class="pi pi-inbox text-6xl text-gray-300 mb-4"></i>
+						<div class="text-lg font-semibold text-gray-700 mb-2">No todos found</div>
+						<div class="text-sm text-gray-500">Get started by creating a new todo</div>
+					</div>
+				</div>
+			</div>
+		</p-tabPanel>
+	</p-tabView>
+</div>
+
+<!-- Remarks Dialog -->
+<p-dialog
+	[(visible)]="showRemarksDialog"
+	[modal]="true"
+	[style]="{ width: '500px' }"
+	[closable]="true"
+	[draggable]="false"
+	[resizable]="false"
+	(onHide)="closeRemarksDialog()"
+	header="Mark as Complete"
+>
+	<div class="flex flex-col gap-4">
+		<div *ngIf="selectedTodo" class="mb-2">
+			<div class="text-sm font-medium text-gray-700 mb-1">Task:</div>
+			<div class="text-base text-gray-900">{{ selectedTodo.task }}</div>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="remarks" class="text-sm font-medium text-gray-700">
+				Enter Remarks <span class="text-gray-400 font-normal">(Optional)</span>
+			</label>
+			<textarea
+				id="remarks"
+				pTextarea
+				[(ngModel)]="remarks"
+				placeholder="Add any remarks about completing this task..."
+				[rows]="4"
+				[autoResize]="true"
+				styleClass="w-full"
+			></textarea>
+		</div>
+
+		<div class="flex justify-end gap-2 pt-2">
+			<p-button
+				label="Cancel"
+				severity="secondary"
+				[outlined]="true"
+				(onClick)="closeRemarksDialog()"
+			></p-button>
+			<p-button
+				label="Mark as Complete"
+				severity="success"
+				(onClick)="submitRemarks()"
+			></p-button>
+		</div>
+	</div>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>

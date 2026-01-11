@@ -1,0 +1,191 @@
+<div class="flex flex-col gap-4" *ngIf="payscale">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="flex flex-col gap-2">
+			<label for="basicSalary" class="text-sm font-medium text-gray-700">
+				Basic Salary
+			</label>
+			<p-inputNumber
+				id="basicSalary"
+				[(ngModel)]="updateData.basicSalary"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateGrossSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="benefitsAllowance" class="text-sm font-medium text-gray-700">
+				Benefits Allowance
+			</label>
+			<p-inputNumber
+				id="benefitsAllowance"
+				[(ngModel)]="updateData.benefitsAllowance"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateGrossSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="salaryArrear" class="text-sm font-medium text-gray-700">
+				Salary Arrear
+			</label>
+			<p-inputNumber
+				id="salaryArrear"
+				[(ngModel)]="updateData.salaryArrear"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateGrossSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="grossSalary" class="text-sm font-medium text-gray-700">
+				Gross Salary
+			</label>
+			<p-inputNumber
+				id="grossSalary"
+				[(ngModel)]="updateData.grossSalary"
+				mode="decimal"
+				[min]="0"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[readonly]="true"
+				styleClass="w-full"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="pfDeduction" class="text-sm font-medium text-gray-700">
+				PF Deduction
+			</label>
+			<p-inputNumber
+				id="pfDeduction"
+				[(ngModel)]="updateData.pfDeduction"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateNetSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="gisDeduction" class="text-sm font-medium text-gray-700">
+				GIS Deduction
+			</label>
+			<p-inputNumber
+				id="gisDeduction"
+				[(ngModel)]="updateData.gisDeduction"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateNetSalary()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="netSalary" class="text-sm font-medium text-gray-700">
+				Net Salary
+			</label>
+			<p-inputNumber
+				id="netSalary"
+				[(ngModel)]="updateData.netSalary"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[readonly]="true"
+				styleClass="w-full"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="tds" class="text-sm font-medium text-gray-700">
+				TDS
+			</label>
+			<p-inputNumber
+				id="tds"
+				[(ngModel)]="updateData.tds"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateTotalPayout()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="healthContribution" class="text-sm font-medium text-gray-700">
+				Health Contribution
+			</label>
+			<p-inputNumber
+				id="healthContribution"
+				[(ngModel)]="updateData.healthContribution"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				styleClass="w-full"
+				(onInput)="calculateTotalPayout()"
+			></p-inputNumber>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="totalPayout" class="text-sm font-medium text-gray-700">
+				Total Payout
+			</label>
+			<p-inputNumber
+				id="totalPayout"
+				[(ngModel)]="updateData.totalPayout"
+				mode="decimal"
+				[min]="0"
+				[maxFractionDigits]="2"
+				[useGrouping]="true"
+				[prefix]="'Nu. '"
+				[readonly]="true"
+				styleClass="w-full"
+			></p-inputNumber>
+		</div>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Update Payscale"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="savePayscale()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

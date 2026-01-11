@@ -94,6 +94,17 @@
 							placeholder="Select expected delivery date"
 						></p-calendar>
 					</div>
+
+					<div class="w-full">
+						<label class="block text-sm font-medium text-gray-700 mb-2">Delivery Notes (Optional)</label>
+						<textarea
+							pInputTextarea
+							[(ngModel)]="deliveryNotes"
+							placeholder="Enter delivery notes or special instructions..."
+							rows="3"
+							class="w-full max-w-full"
+						></textarea>
+					</div>
 				</div>
 			</ng-template>
 		</p-card>

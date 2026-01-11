@@ -18,6 +18,8 @@ export interface Company {
 	dzongkhag?: string;
 	thromde?: string;
 	country?: string;
+	lat: number;
+	long: number;
 	website?: string;
 	tpnNumber?: string;
 	businessLicenseNumber?: string;
@@ -44,6 +46,8 @@ export interface CreateCompanyDto {
 	dzongkhag?: string;
 	thromde?: string;
 	country?: string;
+	lat: number;
+	long: number;
 	website?: string;
 	tpnNumber?: string;
 	businessLicenseNumber?: string;

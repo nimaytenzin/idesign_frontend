@@ -1,0 +1,96 @@
+<div class="flex flex-col gap-4" *ngIf="experience">
+	<div class="flex flex-col gap-2">
+		<label for="positionTitle" class="text-sm font-medium text-gray-700">
+			Position Title
+		</label>
+		<input
+			id="positionTitle"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.positionTitle"
+			placeholder="Enter position title"
+			class="w-full"
+		/>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="agency" class="text-sm font-medium text-gray-700">
+			Agency
+		</label>
+		<input
+			id="agency"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.agency"
+			placeholder="Enter agency name"
+			class="w-full"
+		/>
+	</div>
+
+	<div class="flex flex-col gap-2">
+		<label for="place" class="text-sm font-medium text-gray-700">
+			Place
+		</label>
+		<input
+			id="place"
+			type="text"
+			pInputText
+			[(ngModel)]="updateData.place"
+			placeholder="Enter place"
+			class="w-full"
+		/>
+	</div>
+
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="flex flex-col gap-2">
+			<label for="effectiveDate" class="text-sm font-medium text-gray-700">
+				Effective Date
+			</label>
+			<p-calendar
+				id="effectiveDate"
+				[(ngModel)]="updateData.effectiveDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				placeholder="Select effective date"
+			></p-calendar>
+		</div>
+
+		<div class="flex flex-col gap-2">
+			<label for="endDate" class="text-sm font-medium text-gray-700">
+				End Date
+			</label>
+			<p-calendar
+				id="endDate"
+				[(ngModel)]="updateData.endDate"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				[showButtonBar]="true"
+				styleClass="w-full"
+				appendTo="body"
+				placeholder="Select end date"
+			></p-calendar>
+		</div>
+	</div>
+</div>
+
+<div class="flex justify-end gap-2 mt-6">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		[text]="true"
+		(onClick)="close()"
+		[disabled]="loading"
+	></p-button>
+	<p-button
+		label="Update Work Experience"
+		icon="pi pi-check"
+		severity="success"
+		(onClick)="saveWorkExperience()"
+		[loading]="loading"
+	></p-button>
+</div>
+
+<p-toast></p-toast>

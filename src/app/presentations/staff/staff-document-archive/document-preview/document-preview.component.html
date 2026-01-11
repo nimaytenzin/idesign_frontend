@@ -1,0 +1,84 @@
+<div class="flex flex-col h-full max-h-[90vh] bg-white dark:bg-gray-900">
+	<!-- Header -->
+	<div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
+		<div class="flex items-center gap-3">
+			<i [ngClass]="getFileIcon()" class="pi text-2xl text-blue-500 dark:text-blue-400"></i>
+			<div>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 m-0">
+					{{ document?.documentTitle }}
+				</h3>
+				<p class="text-sm text-gray-500 dark:text-gray-400 m-0">
+					{{ document?.fileType }} • {{ formatFileSize(document?.fileSize || 0) }}
+				</p>
+			</div>
+		</div>
+		<div class="flex gap-2">
+			<p-button
+				icon="pi pi-download"
+				label="Download"
+				(onClick)="downloadDocument()"
+				[loading]="loading"
+				size="small"
+			></p-button>
+			<p-button
+				icon="pi pi-times"
+				(onClick)="close()"
+				[text]="true"
+				size="small"
+				styleClass="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+			></p-button>
+		</div>
+	</div>
+
+	<!-- Loading State -->
+	<div *ngIf="loading" class="flex-1 overflow-auto min-h-0 flex flex-col items-center justify-center p-12">
+		<p-progressSpinner></p-progressSpinner>
+		<p class="text-gray-500 dark:text-gray-400 mt-4">Loading document...</p>
+	</div>
+
+	<!-- Error/Not Supported State -->
+	<div *ngIf="!loading && previewError" class="flex-1 overflow-auto min-h-0 p-8">
+		<div class="flex flex-col items-center justify-center h-full">
+			<i class="pi pi-exclamation-triangle text-6xl text-yellow-500 dark:text-yellow-400 mb-4"></i>
+			<p-message severity="warn" [text]="previewError" [closable]="false"></p-message>
+			<p-button
+				icon="pi pi-download"
+				label="Download File"
+				(onClick)="downloadDocument()"
+				[loading]="loading"
+				styleClass="mt-4"
+			></p-button>
+		</div>
+	</div>
+
+	<!-- PDF Preview -->
+	<div *ngIf="!loading && !previewError && isPdf() && safePreviewUrl" class="flex-1 overflow-auto min-h-0 p-0">
+		<iframe
+			[src]="safePreviewUrl"
+			class="w-full h-full border-0 min-h-[600px]"
+			title="PDF Preview"
+		></iframe>
+	</div>
+
+	<!-- Word Document Preview -->
+	<div *ngIf="!loading && !previewError && isWord() && previewUrl" class="flex-1 overflow-auto min-h-0 p-8">
+		<div class="flex flex-col items-center justify-center h-full">
+			<i class="pi pi-file-word text-6xl text-blue-500 dark:text-blue-400 mb-4"></i>
+			<p class="text-gray-700 dark:text-gray-300 mb-2 font-medium">
+				Word Document Preview
+			</p>
+			<p class="text-sm text-gray-500 dark:text-gray-400 mb-6 text-center max-w-md">
+				Word documents (.doc, .docx) cannot be previewed directly in the browser. Please download the file and open it in Microsoft Word, Google Docs, or another compatible application to view the content.
+			</p>
+			<p-button
+				icon="pi pi-download"
+				label="Download Document"
+				(onClick)="downloadDocument()"
+				[loading]="loading"
+			></p-button>
+		</div>
+	</div>
+</div>
+
+<p-toast></p-toast>
+
