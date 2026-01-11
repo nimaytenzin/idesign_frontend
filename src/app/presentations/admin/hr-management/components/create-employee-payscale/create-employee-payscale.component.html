@@ -7,9 +7,7 @@
 			<p-inputNumber
 				id="basicSalary"
 				[(ngModel)]="createData.basicSalary"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+				
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				[class.ng-invalid]="submitted && createData.basicSalary < 0"
@@ -25,9 +23,7 @@
 			<p-inputNumber
 				id="benefitsAllowance"
 				[(ngModel)]="createData.benefitsAllowance"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+				
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				styleClass="w-full"
@@ -42,9 +38,7 @@
 			<p-inputNumber
 				id="salaryArrear"
 				[(ngModel)]="createData.salaryArrear"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+				
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				styleClass="w-full"
@@ -59,9 +53,7 @@
 			<p-inputNumber
 				id="grossSalary"
 				[(ngModel)]="createData.grossSalary"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+			
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				[readonly]="true"
@@ -76,9 +68,7 @@
 			<p-inputNumber
 				id="pfDeduction"
 				[(ngModel)]="createData.pfDeduction"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+			
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				styleClass="w-full"
@@ -93,9 +83,7 @@
 			<p-inputNumber
 				id="gisDeduction"
 				[(ngModel)]="createData.gisDeduction"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+				
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				styleClass="w-full"
@@ -110,9 +98,7 @@
 			<p-inputNumber
 				id="netSalary"
 				[(ngModel)]="createData.netSalary"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
+				
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				[readonly]="true"
@@ -127,9 +113,6 @@
 			<p-inputNumber
 				id="tds"
 				[(ngModel)]="createData.tds"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				styleClass="w-full"
@@ -144,9 +127,6 @@
 			<p-inputNumber
 				id="healthContribution"
 				[(ngModel)]="createData.healthContribution"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				styleClass="w-full"
@@ -161,9 +141,6 @@
 			<p-inputNumber
 				id="totalPayout"
 				[(ngModel)]="createData.totalPayout"
-				mode="decimal"
-				[min]="0"
-				[maxFractionDigits]="2"
 				[useGrouping]="true"
 				[prefix]="'Nu. '"
 				[readonly]="true"
