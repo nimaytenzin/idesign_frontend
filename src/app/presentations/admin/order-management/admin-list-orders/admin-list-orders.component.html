@@ -15,129 +15,79 @@
 				label="New Order"
 				icon="pi pi-plus"
 				size="small"
-				(onClick)="openPlaceOrderDialog()"
+				(onClick)="detailsPanel.openPlaceOrderDialog()"
 			></p-button>
 		</div>
 
-		<!-- Orders List + Order details panel (always visible) -->
-		<div class="bg-white flex rounded-lg border border-gray-200 overflow-hidden">
-			<div class="flex-1 min-w-0">
+		<!-- Orders List + Order details: two cards with gap -->
+		<div class="flex gap-4 ">
+			<!-- Card 1: Orders table (tabs) -->
+			<div class="flex-1 min-w-0 bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
 				<p-tabView
 					[(activeIndex)]="activePhaseIndex"
 					(onChange)="onPhaseChange($event)"
 				>
-				<p-tabPanel header="To Process">
-					<app-admin-tab-to-process
-						*ngIf="activePhaseIndex === 0"
-						[refreshTrigger]="toProcessRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-to-process>
-				</p-tabPanel>
-				<p-tabPanel header="To Deliver">
-					<app-admin-tab-to-deliver
-						*ngIf="activePhaseIndex === 1"
-						[refreshTrigger]="toDeliverRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-to-deliver>
-				</p-tabPanel>
-				<p-tabPanel header="Awaiting Pickup">
-					<app-admin-tab-awaiting-pickup
-						*ngIf="activePhaseIndex === 2"
-						[refreshTrigger]="awaitingPickupRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-awaiting-pickup>
-				</p-tabPanel>
-				<p-tabPanel header="To Track">
-					<app-admin-tab-to-track
-						*ngIf="activePhaseIndex === 3"
-						[refreshTrigger]="toTrackRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-to-track>
-				</p-tabPanel>
-				<p-tabPanel header="Collect Payments">
-					<app-admin-tab-unpaid-delivery
-						*ngIf="activePhaseIndex === 4"
-						[refreshTrigger]="unpaidDeliveryRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-unpaid-delivery>
-				</p-tabPanel>
-				<p-tabPanel header="Completed">
-					<app-admin-tab-completed
-						*ngIf="activePhaseIndex === 5"
-						[refreshTrigger]="completedRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-completed>
-				</p-tabPanel>
-				<p-tabPanel header="Cancelled">
-					<app-admin-tab-cancelled
-						*ngIf="activePhaseIndex === 6"
-						[refreshTrigger]="cancelledRefreshTrigger"
-						(rowSelect)="onOrderRowSelect($event)"
-					></app-admin-tab-cancelled>
-				</p-tabPanel>
-			</p-tabView>
+					<p-tabPanel header="To Process">
+						<app-admin-tab-to-process
+							*ngIf="activePhaseIndex === 0"
+							[refreshTrigger]="toProcessRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-to-process>
+					</p-tabPanel>
+					<p-tabPanel header="To Deliver">
+						<app-admin-tab-to-deliver
+							*ngIf="activePhaseIndex === 1"
+							[refreshTrigger]="toDeliverRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-to-deliver>
+					</p-tabPanel>
+					<p-tabPanel header="Awaiting Pickup">
+						<app-admin-tab-awaiting-pickup
+							*ngIf="activePhaseIndex === 2"
+							[refreshTrigger]="awaitingPickupRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-awaiting-pickup>
+					</p-tabPanel>
+					<p-tabPanel header="To Track">
+						<app-admin-tab-to-track
+							*ngIf="activePhaseIndex === 3"
+							[refreshTrigger]="toTrackRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-to-track>
+					</p-tabPanel>
+					<p-tabPanel header="Collect Payments">
+						<app-admin-tab-unpaid-delivery
+							*ngIf="activePhaseIndex === 4"
+							[refreshTrigger]="unpaidDeliveryRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-unpaid-delivery>
+					</p-tabPanel>
+					<p-tabPanel header="Completed">
+						<app-admin-tab-completed
+							*ngIf="activePhaseIndex === 5"
+							[refreshTrigger]="completedRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-completed>
+					</p-tabPanel>
+					<p-tabPanel header="Cancelled">
+						<app-admin-tab-cancelled
+							*ngIf="activePhaseIndex === 6"
+							[refreshTrigger]="cancelledRefreshTrigger"
+							(rowSelect)="onOrderRowSelect($event)"
+						></app-admin-tab-cancelled>
+					</p-tabPanel>
+				</p-tabView>
 			</div>
 
-			<!-- Order details panel: always visible; shows "No order selected" or order content -->
-			<div class="w-[500px]">
+			<!-- Card 2: Order details panel -->
+			<div class="w-[500px] shrink-0 bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
 				<app-admin-order-details-panel
-				[order]="selectedOrder"
-				(confirmOrder)="confirmOrder($event)"
-				(markConfirmed)="markConfirmed($event)"
-				(recordPayment)="recordPayment($event)"
-				(shipOrder)="shipOrder($event)"
-				(deliverOrder)="deliverOrder($event)"
-				(markCollected)="markCollected($event)"
-				(updateDeliveryDetails)="updateDeliveryDetails($event)"
-				(openCancelDialog)="openCancelDialog($event)"
-				(viewInvoice)="viewInvoice($event)"
-				(viewDetails)="viewOrderDetails($event)"
-			></app-admin-order-details-panel>
+					#detailsPanel
+					[order]="selectedOrder"
+					(orderUpdated)="onOrderUpdated($event)"
+					(refreshRequested)="onRefreshRequested()"
+				></app-admin-order-details-panel>
 			</div>
 		</div>
 	</div>
 </div>
-
-<!-- Cancel Dialog -->
-<p-dialog
-	[(visible)]="showCancelDialog"
-	header="Cancel Order"
-	[modal]="true"
-	[style]="{ width: '500px' }"
-	[closable]="true"
->
-	<div class="space-y-4">
-		<p class="text-sm text-gray-600">
-			Are you sure you want to cancel order
-			<strong>{{ selectedOrderForAction?.orderNumber }}</strong
-			>?
-		</p>
-		<div>
-			<label class="block text-sm font-medium text-gray-700 mb-2"
-				>Cancellation Reason (Optional)</label
-			>
-			<textarea
-				pInputTextarea
-				[(ngModel)]="actionNotes"
-				placeholder="Reason for cancellation..."
-				rows="3"
-				class="w-full"
-			></textarea>
-		</div>
-	</div>
-	<ng-template pTemplate="footer">
-		<p-button
-			label="Cancel"
-			icon="pi pi-times"
-			severity="secondary"
-			[outlined]="true"
-			(onClick)="showCancelDialog = false"
-		></p-button>
-		<p-button
-			label="Confirm Cancellation"
-			icon="pi pi-check"
-			severity="danger"
-			(onClick)="cancelOrder()"
-		></p-button>
-	</ng-template>
-</p-dialog>

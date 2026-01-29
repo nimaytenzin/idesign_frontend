@@ -1,153 +1,168 @@
-<div class="flex flex-col border-t border-gray-200 bg-white" *ngIf="displayOrder && !loading">
-	<!-- Header: order # + status tags -->
-	<div class="bg-white border-b border-gray-200 px-3 py-2.5 flex flex-wrap items-center gap-2">
-		<h3 class="text-sm font-semibold text-gray-900 m-0">Order {{ displayOrder.orderNumber }}</h3>
-		
-	</div>
+<div class="flex flex-col h-full" *ngIf="displayOrder && !loading">
+	<!-- 1. Status & Action Header -->
+	<header
+		class="bg-white border-b border-slate-200 p-4 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-10">
+		<div class="flex flex-wrap items-center gap-4">
+			<h2 class="text-lg font-bold text-slate-800 m-0">#{{ displayOrder.orderNumber }}</h2>
+			<div class="flex gap-2">
+				<p-tag [severity]="getPaymentSeverity(displayOrder.paymentStatus)"
+					[value]="displayOrder.paymentStatus"></p-tag>
+				<p-tag [severity]="getFulfillmentSeverity(displayOrder.fulfillmentStatus)"
+					[value]="displayOrder.fulfillmentStatus"></p-tag>
+			</div>
+		</div>
 
-	<!-- Actions: based on fulfillment + payment (dummy emit) -->
-	<div class="px-3 py-2 border-b border-gray-200 bg-gray-100/80 flex flex-wrap items-center gap-1.5">
-		<p-button *ngIf="canMarkConfirmed()" label="Mark Confirmed" icon="pi pi-check" size="small" (onClick)="onMarkConfirmed()" pTooltip="PLACED → CONFIRMED, confirmedAt set; payment unchanged"></p-button>
-		<p-button *ngIf="canConfirmOrder()" label="Confirm Order" icon="pi pi-check-circle" size="small" (onClick)="onConfirmOrder()" pTooltip="Confirm and record payment (opens dialog)"></p-button>
-		<p-button *ngIf="canShip()" label="Ship" icon="pi pi-truck" size="small" (onClick)="onShipOrder()" pTooltip="Ship order (assign driver)"></p-button>
-		<p-button *ngIf="canMarkDelivered()" label="Mark Delivered" icon="pi pi-check-circle" size="small" severity="success" (onClick)="onDeliverOrder()" pTooltip="Mark as delivered"></p-button>
-		<p-button *ngIf="canMarkCollected()" label="Mark Collected" icon="pi pi-box" size="small" severity="success" (onClick)="onMarkCollected()" pTooltip="Customer collected (pickup/in store)"></p-button>
-		<p-button label="View Invoice" icon="pi pi-file" size="small" severity="secondary" [outlined]="true" (onClick)="onViewInvoice()" pTooltip="View invoice"></p-button>
-		<p-button *ngIf="canCancel()" label="Cancel" icon="pi pi-times" size="small" severity="danger" [outlined]="true" (onClick)="onOpenCancelDialog()" pTooltip="Cancel order"></p-button>
-	</div>
+		<div class="flex flex-wrap gap-2">
+			<p-button *ngIf="canMarkConfirmed()" label="Confirm" size="small" icon="pi pi-check" severity="primary"
+				(onClick)="onMarkConfirmed()" pTooltip="PLACED → CONFIRMED"></p-button>
+			<p-button *ngIf="canShipOrUpdateDelivery()" label="Ship Order" size="small" icon="pi pi-truck"
+				severity="info" (onClick)="onShipOrderOrUpdate()"
+				pTooltip="Ship order or update delivery details"></p-button>
+			<p-button *ngIf="canMarkDelivered()" size="small" label="Mark Delivered" icon="pi pi-check-circle"
+				severity="success" (onClick)="onDeliverOrder()" pTooltip="Mark delivery as completed"></p-button>
+			<p-button *ngIf="canMarkCollected()" [label]="getMarkCollectedLabel()" size="small" icon="pi pi-box"
+				severity="success" (onClick)="onMarkCollected()" pTooltip="Customer received items"></p-button>
+			<p-button icon="pi pi-print" [outlined]="true" severity="secondary" size="small" (onClick)="onViewInvoice()"
+				pTooltip="Print Invoice"></p-button>
+			<p-button icon="pi pi-eye" [outlined]="true" severity="secondary" size="small" (onClick)="onViewDetails()"
+				pTooltip="Full order details"></p-button>
+			<p-button *ngIf="canCancel()" icon="pi pi-trash" [outlined]="true" size="small" severity="danger"
+				(onClick)="onOpenCancelDialog()" pTooltip="Cancel order"></p-button>
+		</div>
+	</header>
 
-	<!-- Body -->
-	<div class="flex-1 overflow-y-auto p-4 space-y-4">
-		<div>
-			<p>
-				Payment Status: {{ displayOrder.paymentStatus }}
+	<!-- 2. Summary Cards (Triad) + Financials & Line Items + Audit -->
+	<div class="p-2 ">
 
+		<div class="bg-white grid grid-cols-2 gap-x-8 gap-y-5 rounded-xl p-4 border border-slate-200">
+			<div class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Customer Name</div>
+				<p class="text-sm font-medium text-slate-900 m-0">{{ displayOrder.customer?.name || 'N/A' }}</p>
+			</div>
+			<div class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Customer Phone</div>
+				<a *ngIf="displayOrder.customer?.phoneNumber" [href]="'tel:' + (displayOrder.customer?.phoneNumber ?? '')" class="text-sm font-medium text-blue-600 hover:underline m-0">{{ displayOrder.customer?.phoneNumber }}</a>
+				<p *ngIf="!displayOrder.customer?.phoneNumber" class="text-sm text-slate-500 m-0">—</p>
+			</div>
+			<div class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Delivery Type</div>
+				<p class="text-sm font-medium text-slate-900 m-0">{{ displayOrder.fulfillmentType === FulfillmentType.DELIVERY ? 'Delivery' : displayOrder.fulfillmentType === FulfillmentType.PICKUP ? 'Pickup' : 'In store Purchase' }}</p>
+			</div>
+			<div class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Address</div>
+				<p class="text-sm text-slate-700 m-0 leading-relaxed">{{ displayOrder.shippingAddress || 'Store Pickup' }}</p>
+			</div>
+			<div *ngIf="displayOrder.deliveryLocation || displayOrder.deliveryMode" class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Location / Mode</div>
+				<p class="text-sm text-slate-700 m-0">{{ displayOrder.deliveryLocation }}<span *ngIf="displayOrder.deliveryLocation && displayOrder.deliveryMode"> · </span>{{ displayOrder.deliveryMode }}</p>
+			</div>
+			<div *ngIf="displayOrder.driverName || displayOrder.vehicleNumber" class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Driver / Vehicle</div>
+				<p class="text-sm font-medium text-slate-800 m-0">{{ displayOrder.driverName || '—' }} <span *ngIf="displayOrder.vehicleNumber">({{ displayOrder.vehicleNumber }})</span></p>
+				<a *ngIf="displayOrder.driverPhone" [href]="'tel:' + displayOrder.driverPhone" class="text-sm text-blue-600 hover:underline mt-0.5">{{ displayOrder.driverPhone }}</a>
+			</div>
+			<div *ngIf="displayOrder.expectedDeliveryDate" class="flex flex-col min-w-0">
+				<div class="text-xs text-slate-500 uppercase tracking-wider mb-1">Expected</div>
+				<p class="text-sm text-slate-700 m-0">{{ formatDate(displayOrder.expectedDeliveryDate) }}</p>
+			</div>
+		</div>
+
+		<!-- Line Items Table -->
+		<section class="bg-white mt-4 rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+			<div class="p-4 border-b border-slate-200 bg-slate-50/50">
+				<h3 class="font-bold text-slate-800 text-sm m-0">Order Items</h3>
+			</div>
+			<p-table [value]="displayOrder.orderItems || []" styleClass="p-datatable-sm p-datatable-gridlines">
+				<ng-template pTemplate="header">
+					<tr>
+						<th class="text-left">Product</th>
+						<th class="text-center">Qty</th>
+						<th class="text-right">Unit Price</th>
+						<th class="text-right">Discount</th>
+						<th class="text-right">Line Total</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-item>
+					<tr>
+						<td class="font-medium">{{ item.product?.title || 'N/A' }}</td>
+						<td class="text-center">{{ item.quantity }}</td>
+						<td class="text-right">{{ formatCurrency(item.unitPrice) }}</td>
+						<td class="text-right text-red-600">{{ formatCurrency(item.discountApplied || 0) }}</td>
+						<td class="text-right font-bold">{{ formatCurrency(item.lineTotal) }}</td>
+					</tr>
+				</ng-template>
+			</p-table>
+			<div class="border-t border-slate-200 bg-slate-50/50 px-4 py-3 flex flex-col items-end gap-1.5 text-sm">
+				<div class="flex justify-end gap-8 w-full max-w-xs">
+					<span class="text-slate-600">Subtotal</span>
+					<span class="font-medium text-slate-900">{{ formatCurrency(displayOrder.subTotal) }}</span>
+				</div>
+				<div class="flex justify-end gap-8 w-full max-w-xs">
+					<span class="text-slate-600">Shipping / Delivery</span>
+					<span class="font-medium text-slate-900">{{ formatCurrency(displayOrder.deliveryCost) }}</span>
+				</div>
+				<div class="flex justify-end gap-8 w-full max-w-xs pt-2 mt-1 border-t border-slate-200">
+					<span class="font-bold text-slate-900">Total</span>
+					<span class="font-bold text-slate-900">{{ formatCurrency(displayOrder.totalPayable) }}</span>
+				</div>
+
+
+			<p class="text-xs my-2 text-blue-900 " *ngIf="displayOrder.internalNotes">{{ displayOrder.internalNotes || 'No internal notes provided.' }}
 			</p>
-			<p>
-				Fulfillment Status: {{ displayOrder.fulfillmentStatus }}
-
-				</p>
-				<p>
-					Fulfillment Type: {{ displayOrder.fulfillmentType }}
-				</p>
-		</div>
-		<!-- Top grid: Customer, Payment, Notes, Delivery -->
-		<div class="grid grid-cols-1 gap-3">
-			<div class="bg-white border border-gray-200 rounded-lg p-3">
-				<h4 class="text-xs font-semibold text-gray-900 mb-2 pb-2 border-b border-gray-200 uppercase tracking-wide">Customer</h4>
-				<div class="space-y-1.5 text-sm">
-					<p><span class="text-gray-500">Name:</span> {{ displayOrder.customer?.name || 'N/A' }}</p>
-					<p *ngIf="displayOrder.customer?.email"><span class="text-gray-500">Email:</span> {{ displayOrder.customer?.email }}</p>
-					<p *ngIf="displayOrder.customer?.phoneNumber"><span class="text-gray-500">Phone:</span> {{ displayOrder.customer?.phoneNumber }}</p>
-					
-				</div>
 			</div>
-			<div class="bg-white border border-gray-200 rounded-lg p-3">
-				<div class="flex items-center justify-between">
-					<h4 class="text-xs font-semibold text-gray-900 mb-2 pb-2 border-b border-gray-200 uppercase tracking-wide">Payment</h4>
-				<p-button *ngIf="canRecordPayment()"  label="Recieve Payment" icon="pi pi-wallet" size="small" (onClick)="onRecordPayment()" pTooltip="Record or confirm payment"></p-button>
-				</div>
-				<div class="space-y-1.5 text-sm">
-					<p><span class="text-gray-500">Method:</span> {{ getPaymentMethodLabel(displayOrder.paymentMethod) }}</p>
-					<p><span class="text-gray-500">Status:</span> {{ displayOrder.paymentStatus }}</p>
-					<p *ngIf="displayOrder.paidAt"><span class="text-gray-500">Paid:</span> {{ formatDate(displayOrder.paidAt) }}</p>
-					<p *ngIf="displayOrder.receiptNumber"><span class="text-gray-500">Receipt:</span> {{ displayOrder.receiptNumber }}</p>
-					<p class="pt-1 border-t border-gray-100 mt-1"><span class="text-gray-500">Total:</span> <span class="font-medium text-gray-900">{{ formatCurrency(displayOrder.totalPayable) }}</span></p>
-					<p *ngIf="displayOrder.deliveryCost && displayOrder.deliveryCost > 0"><span class="text-gray-500">Delivery:</span> {{ formatCurrency(displayOrder.deliveryCost) }}</p>
-				</div>
-			</div>
-		
-			<div class="bg-white border border-gray-200 rounded-lg p-3">
-				<div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-200 flex-wrap">
-					<h4 class="text-xs font-semibold text-gray-900 uppercase tracking-wide m-0">Delivery</h4>
-					<div class="flex flex-wrap gap-1.5">
-						<p-button *ngIf="canMarkCollected()" [label]="displayOrder.fulfillmentType === FulfillmentType.INSTORE ? 'Mark as Delivered' : 'Mark Collected'" icon="pi pi-check-circle" size="small" severity="success" (onClick)="onMarkCollected()" pTooltip="Customer received items (in store / pickup)"></p-button>
-						<p-button *ngIf="canUpdateDeliveryDetails()" label="Update Delivery Details" icon="pi pi-pencil" size="small" severity="secondary" [outlined]="true" (onClick)="onUpdateDeliveryDetails()" pTooltip="Edit driver, vehicle, expected date"></p-button>
-						<p-button *ngIf="canMarkDelivered()" label="Mark as Delivered" icon="pi pi-check-circle" size="small" severity="success" (onClick)="onDeliverOrder()" pTooltip="Mark delivery as completed"></p-button>
-					</div>
-				</div>
-				<div class="space-y-1.5 text-sm">
-					<p><span class="text-gray-500">Type:</span> {{ displayOrder.fulfillmentType === FulfillmentType.DELIVERY ? 'Delivery' : (displayOrder.fulfillmentType === FulfillmentType.PICKUP ? 'Pickup' : 'In store') }}</p>
 
-					<!-- Delivery: address, driver, vehicle, dates -->
-					<ng-container *ngIf="displayOrder.fulfillmentType === FulfillmentType.DELIVERY">
-						<div class="pt-1.5 space-y-1">
-							<p class="text-xs font-medium text-gray-600 uppercase">Address</p>
-							<p *ngIf="displayOrder.shippingAddress"><span class="text-gray-500">Shipping:</span> {{ displayOrder.shippingAddress }}</p>
-							<p *ngIf="displayOrder.deliveryNotes"><span class="text-gray-500">Notes:</span> {{ displayOrder.deliveryNotes }}</p>
-						</div>
-						<div class="pt-1.5 space-y-1">
-							<p class="text-xs font-medium text-gray-600 uppercase">Location & mode</p>
-							<p *ngIf="displayOrder.deliveryLocation"><span class="text-gray-500">Location:</span> {{ displayOrder.deliveryLocation }}</p>
-							<p *ngIf="displayOrder.deliveryMode"><span class="text-gray-500">Mode:</span> {{ displayOrder.deliveryMode }}</p>
-							<p *ngIf="displayOrder.deliveryCost && displayOrder.deliveryCost > 0"><span class="text-gray-500">Cost:</span> {{ formatCurrency(displayOrder.deliveryCost) }}</p>
-						</div>
-						<div class="pt-1.5 space-y-1" *ngIf="displayOrder.driverName || displayOrder.driverPhone || displayOrder.vehicleNumber">
-							<p class="text-xs font-medium text-gray-600 uppercase">Driver & vehicle</p>
-							<p *ngIf="displayOrder.driverName"><span class="text-gray-500">Driver:</span> {{ displayOrder.driverName }}</p>
-							<p *ngIf="displayOrder.driverPhone"><span class="text-gray-500">Phone:</span> {{ displayOrder.driverPhone }}</p>
-							<p *ngIf="displayOrder.vehicleNumber"><span class="text-gray-500">Vehicle:</span> {{ displayOrder.vehicleNumber }}</p>
-						</div>
-						<p *ngIf="displayOrder.expectedDeliveryDate" class="pt-1"><span class="text-gray-500">Expected:</span> {{ formatDate(displayOrder.expectedDeliveryDate) }}</p>
-					</ng-container>
 
-					<!-- Timeline (all types) -->
-					<div class="pt-1.5 border-t border-gray-100 mt-1.5 space-y-0.5">
-						<p class="text-xs font-medium text-gray-600 uppercase mb-0.5">Timeline</p>
-						<p *ngIf="displayOrder.placedAt" class="text-gray-600">Placed: {{ formatDate(displayOrder.placedAt) }}</p>
-						<p *ngIf="displayOrder.confirmedAt" class="text-gray-600">Confirmed: {{ formatDate(displayOrder.confirmedAt) }}</p>
-						<p *ngIf="displayOrder.shippingAt" class="text-gray-600">Shipped: {{ formatDate(displayOrder.shippingAt) }}</p>
-						<p *ngIf="displayOrder.deliveredAt" class="text-gray-600">Delivered: {{ formatDate(displayOrder.deliveredAt) }}</p>
-					</div>
-				</div>
-			</div>
-		</div>
+		</section>
 
-		<!-- Order Items: full width -->
-		<div class="w-full">
-			<div class="bg-white border border-gray-200 rounded-lg p-4">
-				<h4 class="text-sm font-semibold text-gray-900 mb-3 pb-2 border-b border-gray-200">Order Items</h4>
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm">
-						<thead>
-							<tr class="border-b border-gray-200">
-								<th class="text-left py-2 px-2 font-semibold text-gray-600">Product</th>
-								<th class="text-center py-2 px-2 font-semibold text-gray-600">Qty</th>
-								<th class="text-right py-2 px-2 font-semibold text-gray-600">Unit</th>
-								<th class="text-right py-2 px-2 font-semibold text-gray-600">Discount</th>
-								<th class="text-right py-2 px-2 font-semibold text-gray-600">Total</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr *ngFor="let item of displayOrder.orderItems || []" class="border-b border-gray-100">
-								<td class="py-2 px-2">{{ item.product?.title || 'N/A' }}</td>
-								<td class="py-2 px-2 text-center">{{ item.quantity }}</td>
-								<td class="py-2 px-2 text-right">{{ formatCurrency(item.unitPrice) }}</td>
-								<td class="py-2 px-2 text-right">{{ formatCurrency(item.discountApplied || 0) }}</td>
-								<td class="py-2 px-2 text-right font-medium">{{ formatCurrency(item.lineTotal) }}</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-
-		<div class="bg-white border border-gray-200 rounded-lg p-3">
-			<h4 class="text-xs font-semibold text-gray-900 mb-2 pb-2 border-b border-gray-200 uppercase tracking-wide">Internal Notes</h4>
-			<p class="text-sm text-gray-700">{{ displayOrder.internalNotes || '—' }}</p>
-		</div>
+		<!-- Internal Notes & History -->
+		<section class="bg-slate-50 border border-slate-200 rounded-lg p-4 mt-4">
+			<h4 class="text-slate-500 text-xs font-bold uppercase mb-2">History</h4>
+			<ul class="text-xs space-y-2 text-slate-600 m-0 list-none p-0">
+				<li *ngIf="displayOrder.placedAt"><i class="pi pi-clock mr-2"></i> Placed: {{
+					formatDate(displayOrder.placedAt) }}</li>
+				<li *ngIf="displayOrder.confirmedAt"><i class="pi pi-check mr-2"></i> Confirmed: {{
+					formatDate(displayOrder.confirmedAt) }}</li>
+				<li *ngIf="displayOrder.shippingAt"><i class="pi pi-truck mr-2"></i> Shipped: {{
+					formatDate(displayOrder.shippingAt) }}</li>
+				<li *ngIf="displayOrder.deliveredAt"><i class="pi pi-check-circle mr-2"></i> Delivered: {{
+					formatDate(displayOrder.deliveredAt) }}</li>
+			</ul>
+		</section>
 	</div>
 </div>
 
-<div *ngIf="loading" class="flex items-center justify-center p-8 border-t border-gray-200 bg-gray-50">
+<div *ngIf="loading" class="flex items-center justify-center p-8 border-t border-slate-200 bg-slate-50">
 	<p-progressSpinner [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
-	<span class="ml-2 text-sm text-gray-600">Loading order…</span>
+	<span class="ml-2 text-sm text-slate-600">Loading order…</span>
 </div>
 
-<div *ngIf="!displayOrder && !loading" class="flex flex-col items-center justify-center flex-1 p-8 text-center text-gray-500 border-t border-gray-200 bg-gray-50">
+<div *ngIf="!displayOrder && !loading"
+	class="flex flex-col items-center justify-center flex-1 p-8 text-center text-slate-500 border-t border-slate-200 bg-slate-50">
 	<i class="pi pi-inbox text-4xl mb-3"></i>
 	<p class="text-sm font-medium">No order selected</p>
 	<p class="text-xs mt-1">Click an order in the table to view details</p>
 </div>
+
+<!-- Cancel Order Dialog -->
+<p-dialog [(visible)]="showCancelDialog" header="Cancel Order" [modal]="true" [style]="{ width: '500px' }"
+	[closable]="true">
+	<div class="space-y-4">
+		<p class="text-sm text-slate-600 m-0">
+			Are you sure you want to cancel order
+			<strong>{{ selectedOrderForCancel?.orderNumber }}</strong>?
+		</p>
+		<div>
+			<label class="block text-sm font-medium text-slate-700 mb-2">Cancellation Reason (Optional)</label>
+			<textarea pInputTextarea [(ngModel)]="actionNotes" placeholder="Reason for cancellation..." rows="3"
+				class="w-full"></textarea>
+		</div>
+	</div>
+	<ng-template pTemplate="footer">
+		<p-button label="Cancel" icon="pi pi-times" severity="secondary" [outlined]="true"
+			(onClick)="showCancelDialog = false"></p-button>
+		<p-button label="Confirm Cancellation" icon="pi pi-check" severity="danger"
+			(onClick)="cancelOrder()"></p-button>
+	</ng-template>
+</p-dialog>
 
 <p-toast></p-toast>

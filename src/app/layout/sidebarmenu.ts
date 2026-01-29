@@ -74,12 +74,7 @@ export const ADMINSIDEBARITEMS = [
 				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
 			
-			{
-				label: 'SMS Templates',
-				icon: 'pi pi-fw pi-send',
-				routerLink: ['/admin/orders/sms-templates'],
-				roles: [USERROLESENUM.ADMIN],
-			},
+		
 			{
 				label: 'Customers',
 				icon: 'pi pi-fw pi-users',

@@ -1,6 +1,9 @@
 <div class="w-full max-w-full overflow-hidden" *ngIf="order">
 	<!-- Content -->
 	<div class="p-4 sm:p-6 bg-gray-50 max-w-full overflow-hidden">
+		<!-- Payment pending: show Receive Payment notice -->
+		<p-message *ngIf="paymentPending" severity="warn" text="Payment pending. Receive payment for this order before or after shipping." styleClass="w-full mb-4" [closable]="false"></p-message>
+
 		<!-- Order Summary -->
 		<p-card styleClass="mb-4 w-full max-w-full">
 			<ng-template pTemplate="content">

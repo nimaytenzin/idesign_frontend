@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { OrderService } from '../../../../core/dataservice/order/order.service';
 import { Order, ShipOrderDto } from '../../../../core/dataservice/order/order.interface';
+import { PaymentStatus } from '../../../../core/constants/enums';
 import { PrimeNgModules } from '../../../../primeng.modules';
 
 @Component({
@@ -34,6 +35,12 @@ export class AdminShipOrderComponent implements OnInit {
 
 	get isUpdateMode(): boolean {
 		return this.config?.data?.mode === 'update';
+	}
+
+	/** True when order payment is pending or partial — show "Receive Payment" notice. */
+	get paymentPending(): boolean {
+		if (!this.order) return false;
+		return this.order.paymentStatus === PaymentStatus.PENDING || this.order.paymentStatus === PaymentStatus.PARTIAL;
 	}
 
 	ngOnInit() {
