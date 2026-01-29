@@ -422,31 +422,19 @@ export class AdminPlaceOrderComponent implements OnInit {
 			this.cdr.markForCheck();
 		};
 
+		// All admin counter orders use POST /orders/instore/place-order (orderSource forced to COUNTER). Online flow is for public orders.
 		const fulfillment = this.getFulfillmentType();
-		if (this.payNowOrLater === 'PAY_NOW') {
-			const dto: CreateOrderDto = {
-				...base,
-				orderSource: OrderSource.COUNTER,
-				fulfillmentType: fulfillment,
-				paymentMethod: this.paymentMethod!,
-				bankAccountId: this.needsBankAccount() && this.selectedBankAccountId ? this.selectedBankAccountId : undefined,
-				deliveryCost: needsDelivery ? deliveryCostVal : undefined,
-				deliveryRateId: needsDelivery ? this.selectedDeliveryRate?.id : undefined,
-				shippingAddress: needsDelivery ? this.shippingAddress : undefined,
-			};
-			this.orderService.instorePlaceOrder(dto).subscribe({ next: onSuccess, error: onError });
-		} else {
-			// Pay later: no paymentMethod; use createOnlineOrder (PLACED + PENDING) with orderSource COUNTER
-			const dto: CreateOrderDto = {
-				...base,
-				orderSource: OrderSource.COUNTER,
-				fulfillmentType: fulfillment,
-				deliveryCost: needsDelivery ? deliveryCostVal : undefined,
-				deliveryRateId: needsDelivery ? this.selectedDeliveryRate?.id : undefined,
-				shippingAddress: needsDelivery ? this.shippingAddress : undefined,
-			};
-			this.orderService.createOnlineOrder(dto).subscribe({ next: onSuccess, error: onError });
-		}
+		const dto: CreateOrderDto = {
+			...base,
+			orderSource: OrderSource.COUNTER,
+			fulfillmentType: fulfillment,
+			paymentMethod: this.payNowOrLater === 'PAY_NOW' ? this.paymentMethod! : undefined,
+			bankAccountId: this.payNowOrLater === 'PAY_NOW' && this.needsBankAccount() && this.selectedBankAccountId ? this.selectedBankAccountId : undefined,
+			deliveryCost: needsDelivery ? deliveryCostVal : undefined,
+			deliveryRateId: needsDelivery ? this.selectedDeliveryRate?.id : undefined,
+			shippingAddress: needsDelivery ? this.shippingAddress : undefined,
+		};
+		this.orderService.instorePlaceOrder(dto).subscribe({ next: onSuccess, error: onError });
 	}
 
 	cancel() {

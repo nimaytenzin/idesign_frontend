@@ -72,8 +72,11 @@ export class OrderService {
 
 
 	/**
+	 * Instore place order: pay now, INSTORE (collect at shop) or DELIVERY (deliver to address).
+	 * Same behavior as POST /orders/admin/counter with paymentMethod + fulfillmentType INSTORE or DELIVERY.
+	 * Backend forces orderSource to COUNTER.
 	 * POST /orders/instore/place-order
-	 * Counter: pay-now. Frontend sends fulfillmentStatus: CONFIRMED. bankAccountId required when paymentMethod is not CASH (MBOB, BDB_EPAY, TPAY, BNB_MPAY, ZPSS); omit for CASH.
+	 * bankAccountId required when paymentMethod is not CASH; omit for CASH.
 	 */
 	instorePlaceOrder(orderData: CreateOrderDto): Observable<Order> {
 		return this.http.post<Order>(`${this.apiUrl}/instore/place-order`, orderData);
