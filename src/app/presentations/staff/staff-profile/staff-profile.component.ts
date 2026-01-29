@@ -160,7 +160,7 @@ export class StaffProfileComponent implements OnInit {
 	}
 
 	getProfileImageUrl(profileImageUrl: string | undefined): string {
-		if (!profileImageUrl) return '/assets/images/no-image.png';
+		if (!profileImageUrl) return '/product-placeholder.png';
 		return `${environment.BASEAPI_URL}${profileImageUrl}`;
 	}
 

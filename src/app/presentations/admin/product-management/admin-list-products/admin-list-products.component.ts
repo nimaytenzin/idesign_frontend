@@ -494,7 +494,7 @@ export class AdminListProductsComponent implements OnInit {
 			p.id,
 			p.title,
 			p.price,
-			p.material,
+			p.material ?? '',
 			this.getCategoryName(p),
 			p.isAvailable ? 'Yes' : 'No',
 			p.isFeatured ? 'Yes' : 'No',
@@ -506,14 +506,6 @@ export class AdminListProductsComponent implements OnInit {
 		return csv;
 	}
 
-
-	public getStockStatusClasses(stockQuantity: number): string {
-		if (stockQuantity > 0) {
-			return 'text-xs rounded-full px-2 py-0.5 font-medium bg-green-50 text-green-700 dark:bg-green-500 dark:bg-opacity-15 dark:text-green-500';
-		} else {
-			return 'text-xs rounded-full px-2 py-0.5 font-medium bg-red-50 text-red-700 dark:bg-red-500 dark:bg-opacity-15 dark:text-red-500';
-		}
-	}
 
 	public onCategoryFilterChange(event: any): void {
 		this.categoryFilter = event.value;

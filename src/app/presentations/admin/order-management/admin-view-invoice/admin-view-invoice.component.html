@@ -91,7 +91,7 @@
 							<td class="p-3 text-sm text-slate-800 w-[40%]">{{ item.product?.title || 'N/A' }}</td>
 							<td class="p-3 text-sm text-slate-800 text-right w-[10%]">{{ item.quantity }}</td>
 							<td class="p-3 text-sm text-slate-800 text-right w-[20%]">{{ formatCurrency(item.unitPrice) }}</td>
-							<td class="p-3 text-sm text-slate-800 text-right w-[15%]">{{ formatCurrency(item.discountApplied || 0) }}</td>
+							<td class="p-3 text-sm text-slate-800 text-right w-[15%]">{{ formatCurrency(getItemDiscountDisplay(item)) }}</td>
 							<td class="p-3 text-sm text-slate-800 text-right w-[15%]">{{ formatCurrency(item.lineTotal) }}</td>
 						</tr>
 					</tbody>

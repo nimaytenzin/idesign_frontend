@@ -19,13 +19,15 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 // Services
 import { CartService, CartItem } from '../../../core/services/cart.service';
 import { OrderService } from '../../../core/dataservice/order/order.service';
+import { DeliveryRateService } from '../../../core/dataservice/delivery-rate/delivery-rate.service';
+import { DeliveryRate, getTransportModeLabel } from '../../../core/dataservice/delivery-rate/delivery-rate.interface';
 import { PaymentMethod } from '../../../core/dataservice/account/account.interface';
 import { MessageService } from 'primeng/api';
 import { ImageUtilityService } from '../../../core/utility/image-utility.service';
 import { Discount, DiscountValueType, DiscountCalculationResult } from '../../../core/dataservice/discount/discount.interface';
 import { DiscountService } from '../../../core/dataservice/discount/discount.service';
-import { CreateOrderDto, Order } from '../../../core/dataservice';
-import { OrderSource } from '../../../core/constants/enums';
+import { CreateOrderDto, Order, OrderCheckoutResponseDto } from '../../../core/dataservice';
+import { OrderSource, FulfillmentType } from '../../../core/constants/enums';
 
 @Component({
 	selector: 'app-public-checkout',
@@ -73,14 +75,31 @@ export class PublicCheckoutComponent implements OnInit {
 	placingOrder = false;
 	orderId: number | null = null;
 	orderNumber: string | null = null;
+	/** Set when order was created but payment initiation failed; user can retry payment. */
+	checkoutOrderCreatedPaymentFailed: Order | null = null;
+	checkoutPaymentError: string | null = null;
 	voucherCodeApplied: boolean = false;
 	voucherCodeError: string | null = null;
 	voucherDiscountResult: DiscountCalculationResult | null = null;
 	validatingVoucher: boolean = false;
 
+	// Fulfillment: Delivery (requires delivery rate + address) or Pickup
+	FulfillmentType = FulfillmentType;
+	fulfillmentType: FulfillmentType = FulfillmentType.DELIVERY;
+	deliveryRates: DeliveryRate[] = [];
+	selectedDeliveryRate: DeliveryRate | null = null;
+	deliveryCost = 0;
+	getTransportModeLabel = getTransportModeLabel;
+
+	fulfillmentOptions = [
+		{ label: 'Delivery', value: FulfillmentType.DELIVERY },
+		{ label: 'Pickup', value: FulfillmentType.PICKUP },
+	];
+
 	constructor(
 		private cartService: CartService,
 		private orderService: OrderService,
+		private deliveryRateService: DeliveryRateService,
 		private discountService: DiscountService,
 		private imageUtilityService: ImageUtilityService,
 		private messageService: MessageService,
@@ -90,6 +109,47 @@ export class PublicCheckoutComponent implements OnInit {
 
 	ngOnInit() {
 		this.loadCartItems();
+		this.loadDeliveryRates();
+	}
+
+	loadDeliveryRates() {
+		this.deliveryRateService.getDeliveryRates().subscribe({
+			next: (data) => {
+				this.deliveryRates = data || [];
+				this.cdr.markForCheck();
+			},
+			error: () => {
+				this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Could not load delivery rates' });
+				this.cdr.markForCheck();
+			},
+		});
+	}
+
+	onFulfillmentTypeChange() {
+		if (this.fulfillmentType !== FulfillmentType.DELIVERY) {
+			this.selectedDeliveryRate = null;
+			this.deliveryCost = 0;
+		}
+		this.cdr.markForCheck();
+	}
+
+	onDeliveryRateChange() {
+		if (this.selectedDeliveryRate) {
+			const rate = this.selectedDeliveryRate.rate;
+			this.deliveryCost = typeof rate === 'string' ? parseFloat(rate) : Number(rate) || 0;
+		} else {
+			this.deliveryCost = 0;
+		}
+		this.cdr.markForCheck();
+	}
+
+	getDeliveryRateDisplay(rate: DeliveryRate): string {
+		if (!rate) return '';
+		return rate.deliveryLocation?.name || `Location ${rate.deliveryLocationId}`;
+	}
+
+	formatDeliveryCurrency(value: number): string {
+		return `Nu. ${(value ?? 0).toFixed(2)}`;
 	}
 
 	loadCartItems() {
@@ -131,7 +191,8 @@ export class PublicCheckoutComponent implements OnInit {
 	getTotal(): number {
 		const subtotal = this.getSubtotal();
 		const voucherDiscount = this.getVoucherDiscount();
-		return Math.max(0, subtotal - voucherDiscount);
+		const delivery = this.fulfillmentType === FulfillmentType.DELIVERY ? this.deliveryCost : 0;
+		return Math.max(0, subtotal - voucherDiscount + delivery);
 	}
 
 	/**
@@ -366,6 +427,25 @@ export class PublicCheckoutComponent implements OnInit {
 			return;
 		}
 
+		if (this.fulfillmentType === FulfillmentType.DELIVERY) {
+			if (!this.selectedDeliveryRate) {
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Validation Error',
+					detail: 'Please select a delivery location and mode',
+				});
+				return;
+			}
+			if (!this.customerForm.address?.trim()) {
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Validation Error',
+					detail: 'Shipping address is required for delivery',
+				});
+				return;
+			}
+		}
+
 		this.placingOrder = true;
 		this.cdr.markForCheck();
 
@@ -373,6 +453,7 @@ export class PublicCheckoutComponent implements OnInit {
 		const cleanedPhoneNumber = this.customerForm.phoneNumber.replace(/\D/g, '');
 
 		// Prepare order data
+		const isDelivery = this.fulfillmentType === FulfillmentType.DELIVERY;
 		const orderData: CreateOrderDto = {
 			customer: {
 				name: this.customerForm.name,
@@ -391,50 +472,81 @@ export class PublicCheckoutComponent implements OnInit {
 				};
 			}),
 			orderSource: OrderSource.ONLINE, // Public orders are always ONLINE
+			fulfillmentType: this.fulfillmentType,
 			paymentMethod: this.customerForm.paymentMethod!,
 			internalNotes: this.customerForm.remarks || undefined,
 			voucherCode: this.customerForm.voucherCode?.trim().toUpperCase() || undefined,
+			// Required when fulfillmentType is DELIVERY
+			...(isDelivery &&
+				this.selectedDeliveryRate && {
+					deliveryRateId: this.selectedDeliveryRate.id,
+					shippingAddress: this.customerForm.address?.trim() || undefined,
+					deliveryCost: this.deliveryCost,
+				}),
 		};
 
-		// Create order
-		this.orderService.createOrder(orderData).subscribe({
-			next: (order: Order) => {
+		// Single entry: create order + initiate payment (POST /orders/online/checkout)
+		this.orderService.createOnlineCheckout(orderData).subscribe({
+			next: (response: OrderCheckoutResponseDto) => {
 				this.placingOrder = false;
+				const order = response.order;
 				this.orderId = order.id;
 				this.orderNumber = order.orderNumber;
-				
-				// Clear cart
+
+				// Clear cart on success (order created)
 				this.cartService.clearCart();
-				
+
+				if (response.paymentFailed && response.paymentError) {
+					// Order created but payment initiation failed – offer retry
+					this.checkoutOrderCreatedPaymentFailed = order;
+					this.checkoutPaymentError = response.paymentError;
+					this.messageService.add({
+						severity: 'warn',
+						summary: 'Order Placed – Payment Not Started',
+						detail: response.paymentError + ' You can retry payment below.',
+						life: 8000,
+					});
+					this.cdr.markForCheck();
+					return;
+				}
+
+				if (response.paymentInitiation) {
+					// Success: order + payment initiated – go to payment page with state (no extra initiate call)
+					this.messageService.add({
+						severity: 'success',
+						summary: 'Order Placed',
+						detail: `Order #${order.orderNumber} created. Complete payment below.`,
+						life: 5000,
+					});
+					this.cdr.markForCheck();
+					this.router.navigate(['/order-payment'], {
+						queryParams: { orderId: order.id },
+						state: { order, paymentInitiation: response.paymentInitiation },
+					});
+					return;
+				}
+
+				// Fallback: order only (shouldn't happen per API spec)
 				this.messageService.add({
 					severity: 'success',
-					summary: 'Order Placed Successfully!',
-					detail: `Your order #${order.orderNumber} has been placed. Order ID: ${order.id}`,
+					summary: 'Order Placed',
+					detail: `Order #${order.orderNumber} has been placed.`,
 					life: 5000,
 				});
-				
 				this.cdr.markForCheck();
-				
-				// Navigate to payment page immediately after order placement
-				setTimeout(() => {
-					this.router.navigate(['/order-payment'], {
-						queryParams: {
-							orderId: order.id,
-						},
-					});
-				}, 2000);
+				this.router.navigate(['/order-payment'], {
+					queryParams: { orderId: order.id },
+				});
 			},
 			error: (error) => {
 				this.placingOrder = false;
-				console.error('Error placing order:', error);
-				
+				console.error('Error during checkout:', error);
 				this.messageService.add({
 					severity: 'error',
-					summary: 'Order Failed',
-					detail: 'Failed to place order. Please try again or contact support.',
+					summary: 'Checkout Failed',
+					detail: error.error?.message || 'Failed to place order. Please try again or contact support.',
 					life: 5000,
 				});
-				
 				this.cdr.markForCheck();
 			},
 		});
@@ -447,6 +559,14 @@ export class PublicCheckoutComponent implements OnInit {
 
 	goToProducts() {
 		this.router.navigate(['/products']);
+	}
+
+	/** Navigate to payment page to retry (uses POST /payment-settlement/initiate-payment with orderId + amount). */
+	goToRetryPayment() {
+		if (!this.checkoutOrderCreatedPaymentFailed) return;
+		this.router.navigate(['/order-payment'], {
+			queryParams: { orderId: this.checkoutOrderCreatedPaymentFailed.id },
+		});
 	}
 
 	/**

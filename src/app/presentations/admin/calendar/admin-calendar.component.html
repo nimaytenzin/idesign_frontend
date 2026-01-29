@@ -1,6 +1,7 @@
 <div class="min-h-screen bg-gray-50 p-4 md:p-6">
 	<div class="max-w-[95vw] mx-auto">
 		<p-toast></p-toast>
+		<p-confirmDialog></p-confirmDialog>
 
 		<!-- Header -->
 		<div class="flex items-center justify-between mb-6">
@@ -8,12 +9,22 @@
 				<h1 class="text-2xl font-semibold text-gray-900">Calendar</h1>
 				<p class="text-sm text-gray-500 mt-1">Manage events and schedules</p>
 			</div>
-			<p-button
-				label="New Event"
-				icon="pi pi-plus"
-				size="small"
-				(onClick)="openNewEventDialog()"
-			></p-button>
+			<div class="flex items-center gap-2">
+				<p-button
+					label="New Recurring Event"
+					icon="pi pi-refresh"
+					size="small"
+					severity="secondary"
+					[outlined]="true"
+					(onClick)="openRecurringEventDialog()"
+				></p-button>
+				<p-button
+					label="New Event"
+					icon="pi pi-plus"
+					size="small"
+					(onClick)="openNewEventDialog()"
+				></p-button>
+			</div>
 		</div>
 
 		<!-- Calendar Container -->
@@ -26,157 +37,3 @@
 		</div>
 	</div>
 </div>
-
-<!-- Event Dialog -->
-<p-dialog
-	[(visible)]="showEventDialog"
-	[header]="selectedEvent ? 'Edit Event' : 'Create Event'"
-	[modal]="true"
-	[style]="{ width: '600px' }"
-	[closable]="true"
-	[dismissableMask]="true"
-	styleClass="p-dialog-maximized-responsive"
->
-	<div class="space-y-6 py-2">
-		<!-- Title Field -->
-		<div class="space-y-2">
-			<label class="block text-sm font-semibold text-gray-900">
-				Title <span class="text-red-500">*</span>
-			</label>
-			<input
-				type="text"
-				pInputText
-				[(ngModel)]="eventForm.title"
-				placeholder="Enter event title"
-				class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
-				required
-			/>
-		</div>
-
-		<!-- Description Field -->
-		<div class="space-y-2">
-			<label class="block text-sm font-semibold text-gray-900">Description</label>
-			<textarea
-				pInputTextarea
-				[(ngModel)]="eventForm.description"
-				placeholder="Enter event description (optional)"
-				rows="4"
-				class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors resize-none"
-			></textarea>
-		</div>
-
-		<!-- Date Fields Grid -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<!-- Start Date -->
-			<div class="space-y-2">
-				<label class="block text-sm font-semibold text-gray-900">
-					Start Date <span class="text-red-500">*</span>
-				</label>
-				<p-calendar
-					[(ngModel)]="eventForm.startDate"
-					[showTime]="!eventForm.isAllDay"
-					[showIcon]="true"
-					dateFormat="yy-mm-dd"
-					[hourFormat]="'24'"
-					styleClass="w-full"
-					placeholder="Select start date"
-					inputStyleClass="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-				></p-calendar>
-			</div>
-
-			<!-- End Date -->
-			<div class="space-y-2">
-				<label class="block text-sm font-semibold text-gray-900">
-					End Date
-					<span class="text-xs font-normal text-gray-500 ml-1">(optional)</span>
-				</label>
-				<p-calendar
-					[(ngModel)]="eventForm.endDate"
-					[showTime]="!eventForm.isAllDay"
-					[showIcon]="true"
-					dateFormat="yy-mm-dd"
-					[hourFormat]="'24'"
-					styleClass="w-full"
-					placeholder="Select end date"
-					inputStyleClass="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-				></p-calendar>
-			</div>
-		</div>
-
-		<!-- Location Field -->
-		<div class="space-y-2">
-			<label class="block text-sm font-semibold text-gray-900">Location</label>
-			<input
-				type="text"
-				pInputText
-				[(ngModel)]="eventForm.location"
-				placeholder="Enter event location (optional)"
-				class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
-			/>
-		</div>
-
-		<!-- Color and All Day Row -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<!-- Color Picker -->
-			<div class="space-y-2">
-				<label class="block text-sm font-semibold text-gray-900">Event Color</label>
-				<div class="flex items-center gap-3">
-					<input
-						type="color"
-						[(ngModel)]="eventForm.color"
-						class="w-16 h-10 rounded-lg border-2 border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
-					/>
-					<div class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
-						{{ eventForm.color }}
-					</div>
-				</div>
-			</div>
-
-			<!-- All Day Toggle -->
-			<div class="space-y-2">
-				<label class="block text-sm font-semibold text-gray-900">Event Type</label>
-				<div class="flex items-center gap-3 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg">
-					<p-inputSwitch [(ngModel)]="eventForm.isAllDay"></p-inputSwitch>
-					<label class="text-sm font-medium text-gray-700 cursor-pointer">
-						All Day Event
-					</label>
-				</div>
-			</div>
-		</div>
-
-		<!-- Delete Button Section -->
-		<div *ngIf="selectedEvent" class="pt-4 border-t border-gray-200">
-			<p-button
-				label="Delete Event"
-				icon="pi pi-trash"
-				severity="danger"
-				[outlined]="true"
-				(onClick)="deleteEvent()"
-				styleClass="w-full"
-			></p-button>
-		</div>
-	</div>
-
-	<ng-template pTemplate="footer">
-		<div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-			<p-button
-				label="Cancel"
-				icon="pi pi-times"
-				severity="secondary"
-				[outlined]="true"
-				(onClick)="closeEventDialog()"
-				[disabled]="loading"
-				styleClass="px-6"
-			></p-button>
-			<p-button
-				[label]="selectedEvent ? 'Update Event' : 'Create Event'"
-				icon="pi pi-check"
-				severity="success"
-				[loading]="loading"
-				[disabled]="loading"
-				(onClick)="saveEvent()"
-				styleClass="px-6"
-			></p-button>
-		</div>
-	</ng-template>
-</p-dialog>

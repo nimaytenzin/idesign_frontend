@@ -32,16 +32,26 @@ export class AdminShipOrderComponent implements OnInit {
 		public config: DynamicDialogConfig
 	) {}
 
+	get isUpdateMode(): boolean {
+		return this.config?.data?.mode === 'update';
+	}
+
 	ngOnInit() {
 		if (this.config.data?.order) {
-			this.order = this.config.data.order;
-			// Pre-populate deliveryNotes if it exists
-			if (this.order?.deliveryNotes) {
-				this.deliveryNotes = this.order.deliveryNotes;
-			}
+			const o = this.config.data.order;
+			this.order = o;
+			this.prefillFromOrder(o);
 		} else if (this.config.data?.orderId) {
 			this.loadOrder(this.config.data.orderId);
 		}
+	}
+
+	private prefillFromOrder(o: Order) {
+		if (o.deliveryNotes) this.deliveryNotes = o.deliveryNotes;
+		if (o.driverName) this.driverName = o.driverName;
+		if (o.driverPhone) this.driverPhone = o.driverPhone;
+		if (o.vehicleNumber) this.vehicleNumber = o.vehicleNumber;
+		if (o.expectedDeliveryDate) this.expectedDeliveryDate = new Date(o.expectedDeliveryDate);
 	}
 
 	loadOrder(orderId: number) {
@@ -49,10 +59,7 @@ export class AdminShipOrderComponent implements OnInit {
 		this.orderService.getOrderById(orderId).subscribe({
 			next: (order) => {
 				this.order = order;
-				// Pre-populate deliveryNotes if it exists
-				if (order.deliveryNotes) {
-					this.deliveryNotes = order.deliveryNotes;
-				}
+				this.prefillFromOrder(order);
 				this.loading = false;
 			},
 			error: () => {
@@ -103,14 +110,7 @@ export class AdminShipOrderComponent implements OnInit {
 			return;
 		}
 
-		if (this.order.fulfillmentStatus !== 'PROCESSING') {
-			this.messageService.add({
-				severity: 'warn',
-				summary: 'Validation',
-				detail: 'Only PROCESSING orders can be shipped',
-			});
-			return;
-		}
+		
 
 		this.loading = true;
 		const shipData: ShipOrderDto = {
@@ -121,12 +121,16 @@ export class AdminShipOrderComponent implements OnInit {
 			deliveryNotes: this.deliveryNotes?.trim() || undefined,
 		};
 
-		this.orderService.shipOrder(this.order.id, shipData).subscribe({
+		const req = this.isUpdateMode
+			? this.orderService.updateOrderDeliveryDetails(this.order.id, shipData)
+			: this.orderService.shipOrder(this.order.id, shipData);
+
+		req.subscribe({
 			next: (updatedOrder) => {
 				this.messageService.add({
 					severity: 'success',
 					summary: 'Success',
-					detail: 'Order shipped successfully',
+					detail: this.isUpdateMode ? 'Delivery details updated' : 'Order shipped successfully',
 				});
 				this.ref.close(updatedOrder);
 			},
@@ -135,7 +139,7 @@ export class AdminShipOrderComponent implements OnInit {
 				this.messageService.add({
 					severity: 'error',
 					summary: 'Error',
-					detail: error.error?.message || 'Failed to ship order',
+					detail: error.error?.message || (this.isUpdateMode ? 'Failed to update delivery details' : 'Failed to ship order'),
 				});
 			},
 		});

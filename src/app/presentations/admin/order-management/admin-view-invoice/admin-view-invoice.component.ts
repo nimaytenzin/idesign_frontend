@@ -5,7 +5,7 @@ import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { OrderService } from '../../../../core/dataservice/order/order.service';
 import { PrimeNgModules } from '../../../../primeng.modules';
 import { PaymentStatus } from '../../../../core/constants/enums';
-import { Order } from '../../../../core/dataservice';
+import { Order, OrderItem } from '../../../../core/dataservice';
 
 @Component({
 	selector: 'app-admin-view-invoice',
@@ -65,6 +65,19 @@ export class AdminViewInvoiceComponent implements OnInit {
 			minimumFractionDigits: 2,
 			maximumFractionDigits: 2,
 		}).format(value || 0)}`;
+	}
+
+	/**
+	 * Get the discount to display for an order item.
+	 * When no discount was applied (lineTotal === unitPrice * quantity), show 0
+	 * even if discountApplied was incorrectly set to the full amount by the backend.
+	 */
+	getItemDiscountDisplay(item: OrderItem): number {
+		const preDiscount = (item.unitPrice ?? 0) * (item.quantity ?? 0);
+		if (preDiscount > 0 && (item.lineTotal ?? 0) === preDiscount) {
+			return 0;
+		}
+		return item.discountApplied ?? 0;
 	}
 
 	formatDate(date: Date | string | null | undefined): string {

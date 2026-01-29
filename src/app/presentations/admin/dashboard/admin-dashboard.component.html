@@ -1,340 +1,308 @@
 <!-- Admin Dashboard -->
-<div class="min-h-screen bg-gray-50 p-6">
-	<!-- Header Section -->
-	<div class="mb-8">
-		<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+<div class="dashboard min-h-screen bg-gray-50 dark:bg-gray-900/30 p-4 md:p-6">
+	<!-- Header + Month selector -->
+	<header class="mb-6 md:mb-8">
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div>
-				<h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-				<p class="text-gray-600">
-					Welcome back! Here's what's happening today.
-				</p>
+				<h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Dashboard</h1>
+				<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Overview for the selected month</p>
 			</div>
-			<div class="mt-4 lg:mt-0 flex space-x-3">
-				<p-button
-					label="Export Report"
-					icon="pi pi-download"
-					styleClass="p-button-outlined"
-					size="small"
-				>
-				</p-button>
+			<div class="flex flex-wrap items-center gap-3">
+				<div class="dashboard-month-picker flex items-center gap-2">
+					<label class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Month</label>
+					<p-calendar [(ngModel)]="selectedMonthDate" view="month" dateFormat="mm/yy" [showIcon]="true" [showButtonBar]="true" [readonlyInput]="true" [appendTo]="'body'" styleClass="dashboard-calendar" (onSelect)="onMonthDateChange()"></p-calendar>
+				</div>
+				<p-button icon="pi pi-refresh" label="Refresh" severity="secondary" [outlined]="true" size="small" (onClick)="loadDashboard()" [loading]="loading"></p-button>
+				<p-button label="Export" icon="pi pi-download" severity="secondary" [outlined]="true" size="small"></p-button>
 			</div>
 		</div>
-	</div>
+	</header>
 
-	<!-- Stats Overview Cards -->
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-		<!-- Total Revenue Card -->
-		<p-card
-			styleClass="shadow-lg border-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-		>
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-blue-100 text-sm font-medium">Total Revenue</p>
-					<p class="text-2xl font-bold mt-1">
-						{{ formatCurrency(stats.totalRevenue) }}
-					</p>
-					<p class="text-blue-100 text-xs mt-1">
-						<i class="pi pi-arrow-up text-green-300"></i> +12.5% from last month
-					</p>
-				</div>
-				<div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
-					<i class="pi pi-dollar text-2xl"></i>
-				</div>
-			</div>
-		</p-card>
-
-		<!-- Total Bookings Card -->
-		<p-card
-			styleClass="shadow-lg border-0 bg-gradient-to-r from-green-500 to-green-600 text-white"
-		>
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-green-100 text-sm font-medium">Total Bookings</p>
-					<p class="text-2xl font-bold mt-1">
-						{{ stats.totalBookings.toLocaleString() }}
-					</p>
-					<p class="text-green-100 text-xs mt-1">
-						<i class="pi pi-arrow-up text-green-300"></i> +8.2% from last month
-					</p>
-				</div>
-				<div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
-					<i class="pi pi-ticket text-2xl"></i>
-				</div>
-			</div>
-		</p-card>
-
-		<!-- Occupancy Rate Card -->
-		<p-card
-			styleClass="shadow-lg border-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white"
-		>
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-orange-100 text-sm font-medium">Occupancy Rate</p>
-					<p class="text-2xl font-bold mt-1">{{ stats.occupancyRate }}%</p>
-					<p class="text-orange-100 text-xs mt-1">
-						<i class="pi pi-arrow-up text-orange-300"></i> +5.3% from last week
-					</p>
-				</div>
-				<div class="bg-orange-400 bg-opacity-30 p-3 rounded-full">
-					<i class="pi pi-users text-2xl"></i>
-				</div>
-			</div>
-		</p-card>
-	</div>
-
-	<!-- Main Content Grid -->
-	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-		<!-- Revenue Chart -->
-		<div class="lg:col-span-2">
-			<p-card styleClass="shadow-lg border-0 h-full">
-				<ng-template pTemplate="header">
-					<div class="p-4 border-b">
-						<h3 class="text-lg font-semibold text-gray-900">Revenue Trend</h3>
-						<p class="text-gray-600 text-sm">
-							Monthly revenue for the last 6 months
+	<!-- Stats 2x2 (left) + Today's Orders (right) -->
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+		<!-- Left: 2x2 stats -->
+		<div class="grid grid-cols-2 gap-4 md:gap-5">
+			<p-card styleClass="dashboard-stat-card">
+				<div class="flex items-start justify-between gap-3">
+					<div class="min-w-0">
+						<p class="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-2">
+							Revenue
+							<span *ngIf="deltaRevenue != null" class="text-xs font-semibold" [ngClass]="deltaClass(deltaRevenue)">{{ formatDelta(deltaRevenue) }}</span>
 						</p>
+						<p class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mt-1 truncate">{{ formatCurrency(stats.totalRevenue) }}</p>
+						<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">vs last month</p>
 					</div>
-				</ng-template>
-
-				<div class="p-4">
-					<p-chart
-						type="line"
-						[data]="revenueData"
-						[options]="revenueChartOptions"
-						class="h-[10rem]"
-					>
-					</p-chart>
+					<div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+						<i class="pi pi-wallet text-xl text-gray-600 dark:text-gray-300"></i>
+					</div>
+				</div>
+			</p-card>
+			<p-card styleClass="dashboard-stat-card">
+				<div class="flex items-start justify-between gap-3">
+					<div class="min-w-0">
+						<p class="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-2">
+							Orders
+							<span *ngIf="deltaOrders != null" class="text-xs font-semibold" [ngClass]="deltaClass(deltaOrders)">{{ formatDelta(deltaOrders) }}</span>
+						</p>
+						<p class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ stats.totalOrders }}</p>
+						<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">vs last month</p>
+					</div>
+					<div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+						<i class="pi pi-shopping-cart text-xl text-gray-600 dark:text-gray-300"></i>
+					</div>
+				</div>
+			</p-card>
+			<p-card styleClass="dashboard-stat-card">
+				<div class="flex items-start justify-between gap-3">
+					<div class="min-w-0">
+						<p class="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-2">
+							Expenses
+							<span *ngIf="deltaExpenses != null" class="text-xs font-semibold" [ngClass]="deltaClass(deltaExpenses, true)">{{ formatDelta(deltaExpenses) }}</span>
+						</p>
+						<p class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mt-1 truncate">{{ formatCurrency(stats.totalExpenses) }}</p>
+						<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Lower is better</p>
+					</div>
+					<div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+						<i class="pi pi-money-bill text-xl text-gray-600 dark:text-gray-300"></i>
+					</div>
+				</div>
+			</p-card>
+			<p-card styleClass="dashboard-stat-card">
+				<div class="flex items-start justify-between gap-3">
+					<div class="min-w-0">
+						<p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
+						<p class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ stats.pendingOrders }}</p>
+						<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">To confirm or process</p>
+					</div>
+					<div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+						<i class="pi pi-inbox text-xl text-gray-600 dark:text-gray-300"></i>
+					</div>
 				</div>
 			</p-card>
 		</div>
 
-		<!-- Today's Stats -->
-		<div>
-			<p-card styleClass="shadow-lg border-0 h-full">
-				<ng-template pTemplate="header">
-					<div class="p-4 border-b">
-						<h3 class="text-lg font-semibold text-gray-900">
-							Today's Overview
-						</h3>
-						<p class="text-gray-600 text-sm">Real-time statistics</p>
-					</div>
-				</ng-template>
-
-				<div class="p-4 space-y-6">
-					<!-- Today's Bookings -->
-					<div class="text-center">
-						<p-knob
-							[(ngModel)]="stats.todayBookings"
-							[max]="100"
-							[size]="120"
-							strokeWidth="8"
-							fill="#f3f4f6"
-							textColor="#374151"
-							colorRange="#10b981,#f59e0b,#ef4444"
-							[readonly]="true"
-						>
-						</p-knob>
-						<p class="text-sm text-gray-600 mt-2">Today's Bookings</p>
-					</div>
-
-					<!-- Quick Stats -->
-					<div class="space-y-4">
-						<div class="flex justify-between items-center">
-							<span class="text-sm text-gray-600">Active Theaters</span>
-							<p-tag
-								[value]="stats.totalTheaters.toString()"
-								severity="success"
-							></p-tag>
-						</div>
-						<div class="flex justify-between items-center">
-							<span class="text-sm text-gray-600">Pending Bookings</span>
-							<p-tag value="12" severity="warning"></p-tag>
-						</div>
-						<div class="flex justify-between items-center">
-							<span class="text-sm text-gray-600">Cancelled Today</span>
-							<p-tag value="3" severity="danger"></p-tag>
-						</div>
-					</div>
+		<!-- Right: Today's Orders -->
+		<p-card styleClass="dashboard-content-card h-full">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b border-gray-100 dark:border-gray-700">
+					<h3 class="text-base font-semibold text-gray-900 dark:text-white">Today's Orders</h3>
 				</div>
-			</p-card>
-		</div>
+			</ng-template>
+			<div class="p-4 space-y-4">
+				<div class="flex justify-between items-center">
+					<span class="text-gray-600 dark:text-gray-400">Orders today</span>
+					<span class="text-xl font-bold text-gray-900 dark:text-white">{{ stats.todayOrders }}</span>
+				</div>
+				<div class="flex justify-between items-center text-sm">
+					<span class="text-gray-600 dark:text-gray-400">Pending</span>
+					<p-tag [value]="stats.pendingOrders.toString()" severity="warning"></p-tag>
+				</div>
+				<div class="flex justify-between items-center text-sm">
+					<span class="text-gray-600 dark:text-gray-400">To ship</span>
+					<p-tag [value]="stats.ordersToShip.toString()" severity="info"></p-tag>
+				</div>
+				<div class="flex justify-between items-center text-sm">
+					<span class="text-gray-600 dark:text-gray-400">Expenses (month)</span>
+					<span class="font-semibold text-gray-900 dark:text-white">{{ formatCurrency(stats.expensesThisMonth) }}</span>
+				</div>
+			</div>
+		</p-card>
 	</div>
 
-	<!-- Theaters Section -->
-	<div class="grid grid-cols-1 xl:grid-cols-1 gap-6 mb-8">
-		<!-- Theater Status -->
-		<p-card styleClass="shadow-lg border-0">
-			<ng-template pTemplate="header">
-				<div class="p-4 border-b flex justify-between items-center">
-					<div>
-						<h3 class="text-lg font-semibold text-gray-900">Theater Status</h3>
-						<p class="text-gray-600 text-sm">Current occupancy and status</p>
+	<!-- One row: Revenue & Expenses Trend (2/3) | Financial Statement (1/3) -->
+	<div class="grid grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+		<!-- Chart: 2/3 width -->
+		<div class="col-span-2">
+			<p-card styleClass="col-span-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm h-full ">
+				<ng-template pTemplate="header">
+					<div class="p-4 border-b border-gray-100 dark:border-gray-700">
+						<h3 class="text-base font-semibold text-gray-900 dark:text-white">Revenue & Expenses Trend</h3>
+						<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Last 6 months – gap between lines is profit margin</p>
 					</div>
-					<p-button
-						icon="pi pi-cog"
-						styleClass="p-button-text p-button-sm"
-						pTooltip="Manage Theaters"
-					>
-					</p-button>
+				</ng-template>
+				<div class="p-4">
+					<p-chart type="line" [data]="revenueData" [options]="revenueChartOptions" class="h-[10rem] w-full"></p-chart>
+				</div>
+			</p-card>
+		</div>
+
+		<div class="col-span-1">
+			<!-- Summary: 1/3 width -->
+		<p-card styleClass="rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm h-full ">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center gap-2">
+					<div>
+						<h3 class="text-base font-bold text-gray-900 dark:text-white">Financial Statement</h3>
+						<p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">{{ summaryMonthTitle }}</p>
+					</div>
+					<span class="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-medium uppercase">Monthly</span>
 				</div>
 			</ng-template>
 
-			<div class="p-4">
-				<div class="space-y-4">
-					<div
-						*ngFor="let theater of theaters"
-						class="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
-					>
-						<div class="flex justify-between items-start mb-3">
-							<div>
-								<h4 class="font-medium text-gray-900">{{ theater.name }}</h4>
-								<p class="text-sm text-gray-600">{{ theater.location }}</p>
+			<div class="p-4 flex flex-col justify-center">
+				<div *ngIf="financialSummaryPeriods.length === 0" class="text-center py-6 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+					<i class="pi pi-chart-bar text-2xl text-gray-300 dark:text-gray-600 mb-2 block"></i>
+					<p class="text-gray-500 dark:text-gray-400 text-sm">No summary data</p>
+				</div>
+
+				<div class="space-y-0.5">
+					<ng-container *ngFor="let p of financialSummaryPeriods">
+						<div *ngFor="let r of p.rows"
+							[ngClass]="r.isNetProfit ?
+								'mt-3 p-3 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 flex items-center justify-between' :
+								'flex items-center justify-between p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50'">
+
+							<div class="flex items-center gap-2 min-w-0">
+								<div *ngIf="!r.isNetProfit"
+									class="w-1 h-4 rounded-full flex-shrink-0"
+									[ngClass]="r.item.includes('Sale') ? 'bg-emerald-500' : 'bg-rose-400'">
+								</div>
+								<span class="text-sm truncate"
+									[class.font-bold]="r.isNetProfit"
+									[class.text-gray-600]="!r.isNetProfit"
+									[class.dark:text-gray-400]="!r.isNetProfit">
+									{{ r.isNetProfit ? 'Net Profit / Loss' : r.item }}
+								</span>
 							</div>
-							<p-tag
-								[value]="theater.status"
-								[severity]="getStatusSeverity(theater.status)"
-							>
-							</p-tag>
+
+							<div class="text-right flex-shrink-0 ml-2 mt-6">
+								<p class="text-sm font-bold tabular-nums"
+									[class.text-emerald-600]="r.item.includes('Sale') && !r.isNetProfit"
+									[class.dark:text-emerald-400]="r.item.includes('Sale') && !r.isNetProfit">
+									{{ formatFinancialValue(r.value) }}
+								</p>
+								<p *ngIf="r.isNetProfit" class="text-[10px] opacity-70 uppercase">After all deductions</p>
+							</div>
 						</div>
-						<div class="flex justify-between items-center text-sm">
-							<span class="text-gray-600"
-								>Capacity: {{ theater.capacity }}</span
-							>
-							<span class="font-medium">{{ theater.occupancy }}% occupied</span>
+					</ng-container>
+				</div>
+			</div>
+		</p-card>
+		</div>
+	</div>
+
+
+
+	<!-- Recent Orders, Recent Expenses & Events this month -->
+	<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+		<div class="lg:col-span-2">
+			<p-card styleClass="dashboard-content-card">
+				<ng-template pTemplate="header">
+					<div class="p-4 border-b border-gray-100 dark:border-gray-700 flex flex-wrap justify-between items-center gap-2">
+						<div>
+							<h3 class="text-base font-semibold text-gray-900 dark:text-white">Recent Orders</h3>
+							<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Latest orders and status</p>
 						</div>
-						<p-progressBar
-							[value]="theater.occupancy"
-							styleClass="mt-2"
-							[showValue]="false"
-						>
-						</p-progressBar>
+						<div class="flex gap-2">
+							<p-button icon="pi pi-refresh" styleClass="p-button-text p-button-sm" pTooltip="Refresh" (onClick)="loadDashboard()"></p-button>
+							<p-button icon="pi pi-external-link" styleClass="p-button-text p-button-sm" pTooltip="View all" routerLink="/admin/orders"></p-button>
+						</div>
 					</div>
+				</ng-template>
+				<div class="p-4">
+					<p-table [value]="recentOrders" [paginator]="recentOrders.length > 5" [rows]="5" [responsive]="true" styleClass="p-datatable-sm p-datatable-striped">
+						<ng-template pTemplate="header">
+							<tr>
+								<th>Order</th>
+								<th>Customer</th>
+								<th>Items</th>
+								<th>Total</th>
+								<th>Fulfillment</th>
+								<th>Payment</th>
+								<th>Placed</th>
+								<th></th>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="body" let-order>
+							<tr>
+								<td><span class="font-mono text-sm">{{ order.orderNumber }}</span></td>
+								<td><span class="font-medium">{{ order.customerName }}</span></td>
+								<td>{{ order.itemCount }}</td>
+								<td><span class="font-semibold">{{ formatCurrency(order.total) }}</span></td>
+								<td>
+									<span class="inline-flex items-center gap-1.5">
+										<span class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="getStatusDotClass(order.fulfillmentStatus)"></span>
+										<span class="text-sm">{{ order.fulfillmentStatus }}</span>
+									</span>
+								</td>
+								<td>
+									<span class="inline-flex items-center gap-1.5">
+										<span class="w-2 h-2 rounded-full flex-shrink-0" [ngClass]="getStatusDotClass(order.paymentStatus)"></span>
+										<span class="text-sm">{{ order.paymentStatus }}</span>
+									</span>
+								</td>
+								<td><span class="text-sm text-gray-600 dark:text-gray-400">{{ formatDate(order.placedAt) }}</span></td>
+								<td>
+									<p-button icon="pi pi-eye" styleClass="p-button-text p-button-sm" pTooltip="View orders" routerLink="/admin/orders"></p-button>
+								</td>
+							</tr>
+						</ng-template>
+						<ng-template pTemplate="emptymessage">
+							<tr><td colspan="8" class="text-center py-8 text-gray-500"><i class="pi pi-inbox text-3xl mb-2 block"></i><p>No orders</p></td></tr>
+						</ng-template>
+					</p-table>
+				</div>
+			</p-card>
+		</div>
+		<div>
+			<p-card styleClass="dashboard-content-card">
+				<ng-template pTemplate="header">
+					<div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+						<div>
+							<h3 class="text-base font-semibold text-gray-900 dark:text-white">Recent Expenses</h3>
+							<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Latest recorded</p>
+						</div>
+						<p-button icon="pi pi-external-link" styleClass="p-button-text p-button-sm" pTooltip="View all" routerLink="/admin/expenses"></p-button>
+					</div>
+				</ng-template>
+				<div class="p-4">
+					<div class="space-y-3">
+						<div *ngFor="let ex of recentExpenses" class="flex justify-between items-start py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+							<div class="min-w-0">
+								<p class="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">{{ ex.description }}</p>
+								<p class="text-xs text-gray-500 dark:text-gray-400">{{ expenseSubtypeLabel(ex.type, ex.subtype) }} · {{ ex.date }}</p>
+							</div>
+							<span class="font-semibold text-gray-900 dark:text-white flex-shrink-0 ml-2">{{ formatCurrency(ex.amount) }}</span>
+						</div>
+					</div>
+					<div *ngIf="recentExpenses.length === 0" class="py-8 text-center text-gray-500">
+						<i class="pi pi-inbox text-3xl mb-2 block"></i>
+						<p class="text-sm">No recent expenses</p>
+					</div>
+				</div>
+			</p-card>
+		</div>
+	</div>
+
+	<!-- Events in this month (server UTC) -->
+	<div class="mb-6 md:mb-8">
+		<p-card styleClass="dashboard-content-card">
+			<ng-template pTemplate="header">
+				<div class="p-4 border-b border-gray-100 dark:border-gray-700 flex flex-wrap justify-between items-center gap-2">
+					<div>
+						<h3 class="text-base font-semibold text-gray-900 dark:text-white">Events in this month</h3>
+					</div>
+					<p-button icon="pi pi-external-link" styleClass="p-button-text p-button-sm" pTooltip="View calendar" routerLink="/admin/calendar"></p-button>
+				</div>
+			</ng-template>
+			<div class="p-4">
+				<div class="space-y-3">
+					<div *ngFor="let event of eventsThisMonth" class="flex justify-between items-start gap-4 py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+						<div class="min-w-0 flex-1">
+							<p class="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">{{ event.title }}</p>
+							<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+								{{ formatEventDate(event.start, event.end ?? null, event.allDay) }}
+								<span *ngIf="event.extendedProps?.location" class="ml-1"> · {{ event.extendedProps?.location }}</span>
+							</p>
+						</div>
+						<span *ngIf="event.backgroundColor" class="w-3 h-3 rounded-full flex-shrink-0 mt-1.5" [style.background-color]="event.backgroundColor"></span>
+					</div>
+				</div>
+				<div *ngIf="eventsThisMonth.length === 0" class="py-8 text-center text-gray-500">
+					<i class="pi pi-calendar text-3xl mb-2 block"></i>
+					<p class="text-sm">No events this month</p>
 				</div>
 			</div>
 		</p-card>
 	</div>
-
-	<!-- Recent Bookings Table -->
-	<p-card styleClass="shadow-lg border-0">
-		<ng-template pTemplate="header">
-			<div class="p-4 border-b flex justify-between items-center">
-				<div>
-					<h3 class="text-lg font-semibold text-gray-900">Recent Bookings</h3>
-					<p class="text-gray-600 text-sm">
-						Latest customer bookings and transactions
-					</p>
-				</div>
-				<div class="flex space-x-2">
-					<p-button
-						icon="pi pi-refresh"
-						styleClass="p-button-text p-button-sm"
-						pTooltip="Refresh"
-					>
-					</p-button>
-					<p-button
-						icon="pi pi-external-link"
-						styleClass="p-button-text p-button-sm"
-						pTooltip="View All Bookings"
-					>
-					</p-button>
-				</div>
-			</div>
-		</ng-template>
-
-		<div class="p-4">
-			<p-table
-				[value]="recentBookings"
-				[paginator]="true"
-				[rows]="10"
-				[responsive]="true"
-				styleClass="p-datatable-sm"
-			>
-				<ng-template pTemplate="header">
-					<tr>
-						<th>Booking ID</th>
-						<th>Customer</th>
-						<th>Movie</th>
-						<th>Show Time</th>
-						<th>Seats</th>
-						<th>Amount</th>
-						<th>Status</th>
-						<th>Actions</th>
-					</tr>
-				</ng-template>
-
-				<ng-template pTemplate="body" let-booking>
-					<tr>
-						<td>
-							<span class="font-mono text-sm">#{{ booking.id }}</span>
-						</td>
-						<td>
-							<div class="flex items-center space-x-2">
-								<p-avatar
-									[label]="booking.customerName.charAt(0)"
-									styleClass="bg-blue-100 text-blue-800"
-								>
-								</p-avatar>
-								<span class="font-medium">{{ booking.customerName }}</span>
-							</div>
-						</td>
-						<td>
-							<span class="font-medium">{{ booking.movieTitle }}</span>
-						</td>
-						<td>
-							<span class="text-sm">{{ booking.showTime }}</span>
-						</td>
-						<td>
-							<div class="flex flex-wrap gap-1">
-								<p-chip
-									*ngFor="let seat of booking.seats"
-									[label]="seat"
-									styleClass="text-xs"
-								>
-								</p-chip>
-							</div>
-						</td>
-						<td>
-							<span class="font-semibold">{{
-								formatCurrency(booking.amount)
-							}}</span>
-						</td>
-						<td>
-							<p-tag
-								[value]="booking.status"
-								[severity]="getStatusSeverity(booking.status)"
-							>
-							</p-tag>
-						</td>
-						<td>
-							<div class="flex space-x-1">
-								<p-button
-									icon="pi pi-eye"
-									styleClass="p-button-text p-button-sm"
-									pTooltip="View Details"
-								>
-								</p-button>
-								<p-button
-									icon="pi pi-pencil"
-									styleClass="p-button-text p-button-sm"
-									pTooltip="Edit Booking"
-								>
-								</p-button>
-							</div>
-						</td>
-					</tr>
-				</ng-template>
-
-				<ng-template pTemplate="emptymessage">
-					<tr>
-						<td colspan="8" class="text-center py-8">
-							<div class="text-gray-500">
-								<i class="pi pi-inbox text-3xl mb-2 block"></i>
-								<p>No bookings found</p>
-							</div>
-						</td>
-					</tr>
-				</ng-template>
-			</p-table>
-		</div>
-	</p-card>
 </div>

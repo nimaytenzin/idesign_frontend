@@ -1,0 +1,47 @@
+:host {
+	display: block;
+}
+
+.expense-list {
+	.expense-list-card {
+		transition: box-shadow 0.2s ease;
+		&:hover {
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+		}
+	}
+
+	::ng-deep .expense-list-calendar.p-calendar .p-inputtext {
+		min-width: 140px;
+	}
+
+	::ng-deep .expense-list-table {
+		.p-datatable-thead > tr > th {
+			background: rgba(249, 250, 251, 0.8);
+			border-bottom: 1px solid #e5e7eb;
+		}
+		.p-datatable-tbody > tr {
+			transition: background-color 0.15s ease;
+			&:hover {
+				background-color: rgba(249, 250, 251, 0.8) !important;
+			}
+		}
+		.p-datatable-tfoot > tr > td {
+			border-top: 2px solid #e5e7eb;
+		}
+	}
+
+	@media (prefers-color-scheme: dark) {
+		::ng-deep .expense-list-table {
+			.p-datatable-thead > tr > th {
+				background: rgba(31, 41, 55, 0.5);
+				border-bottom-color: #374151;
+			}
+			.p-datatable-tbody > tr:hover {
+				background-color: rgba(31, 41, 55, 0.4) !important;
+			}
+			.p-datatable-tfoot > tr > td {
+				border-top-color: #4b5563;
+			}
+		}
+	}
+}

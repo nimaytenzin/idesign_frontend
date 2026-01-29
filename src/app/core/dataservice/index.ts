@@ -46,6 +46,14 @@ export * from './leave-management/leave-management.service';
 export * from './order/order.interface';
 export * from './order/order.service';
 
+// Bank Account exports
+export * from './bank-account/bank-account.interface';
+export * from './bank-account/bank-account.service';
+
+// Payment Receipt exports
+export * from './payment-receipt/payment-receipt.interface';
+export * from './payment-receipt/payment-receipt.service';
+
 // Customer exports
 export * from './customer/customer.interface';
 export * from './customer/customer.service';
@@ -99,6 +107,9 @@ export * from './delivery-location/delivery-location.service';
 // Delivery Rate exports
 export * from './delivery-rate/delivery-rate.interface';
 export * from './delivery-rate/delivery-rate.service';
+
+// Expense exports (POST/GET/PATCH/DELETE /expenses, GET /expenses/by-month)
+export * from './expense/expense.service';
 
 // Existing exports
 export * from './auth/auth.service';

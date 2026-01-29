@@ -80,7 +80,7 @@ export class HeroSliderComponent implements OnInit, OnDestroy {
 
 	getImageUrl(imageUri: string): string {
 		if (!imageUri) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (imageUri.startsWith('http')) {
 			return imageUri;

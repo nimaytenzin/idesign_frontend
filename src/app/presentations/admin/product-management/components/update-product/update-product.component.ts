@@ -33,11 +33,10 @@ export class UpdateProductComponent implements OnInit {
 		dimensions: '',
 		weight: 0,
 		price: 0,
-		material: '',
+		material: undefined,
 		isAvailable: true,
 		isFeatured: false,
 		productSubCategoryId: 0,
-		stockQuantity: 0,
 	};
 
 	// Categories
@@ -174,11 +173,10 @@ export class UpdateProductComponent implements OnInit {
 					dimensions: data.dimensions,
 					weight: data.weight,
 					price: data.price,
-					material: data.material,
+					material: data.material ?? undefined,
 					isAvailable: data.isAvailable,
 					isFeatured: data.isFeatured,
 					productSubCategoryId: data.productSubCategoryId,
-					stockQuantity: data.stockQuantity,
 				} as Partial<CreateProductDto>;
 				this.productImages = data.images || [];
 				this.updateFilteredSubCategories();
@@ -535,7 +533,6 @@ export class UpdateProductComponent implements OnInit {
 			this.product.title &&
 			this.product.shortDescription &&
 			this.product.price &&
-			this.product.material &&
 			this.product.productSubCategoryId &&
 			this.selectedCategoryId
 		);
@@ -551,7 +548,7 @@ export class UpdateProductComponent implements OnInit {
 
 	getImageUrl(imagePath: string): string {
 		if (!imagePath) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (imagePath.startsWith('http')) {
 			return imagePath;

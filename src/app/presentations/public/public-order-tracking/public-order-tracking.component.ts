@@ -198,6 +198,7 @@ export class PublicOrderTrackingComponent {
 	getPaymentStatusSeverity(status: PaymentStatus): 'success' | 'warning' | 'danger' | null {
 		const severityMap: { [key in PaymentStatus]: 'success' | 'warning' | 'danger' | null } = {
 			PENDING: 'warning',
+			PARTIAL: 'warning',
 			PAID: 'success',
 			FAILED: 'danger',
 		};
@@ -207,6 +208,7 @@ export class PublicOrderTrackingComponent {
 	getPaymentStatusClass(status: PaymentStatus): string {
 		const statusClasses: { [key in PaymentStatus]: string } = {
 			PENDING: 'bg-yellow-100 text-yellow-800',
+			PARTIAL: 'bg-amber-100 text-amber-800',
 			PAID: 'bg-green-100 text-green-800',
 			FAILED: 'bg-red-100 text-red-800',
 		};

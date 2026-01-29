@@ -1,0 +1,124 @@
+<div class="expense-list min-h-screen bg-gray-50 dark:bg-gray-900/30 p-4 md:p-6">
+	<div class="max-w-7xl mx-auto">
+		<!-- Page header -->
+		<header class="mb-6">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Expense Management</h1>
+					<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Record and manage expenses by month</p>
+				</div>
+				<p-button
+					label="Record Expense"
+					icon="pi pi-plus"
+					size="small"
+					(onClick)="openCreate()"
+				></p-button>
+			</div>
+			<nav class="mt-3">
+				<ol class="flex items-center gap-1.5 text-sm">
+					<li>
+						<a routerLink="/admin" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">Home</a>
+					</li>
+					<li class="text-gray-400 dark:text-gray-500">/</li>
+					<li class="font-medium text-gray-800 dark:text-white">Expenses</li>
+				</ol>
+			</nav>
+		</header>
+
+		<!-- Card -->
+		<div class="expense-list-card rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 shadow-sm overflow-hidden">
+			<!-- Toolbar: month + actions -->
+			<div class="flex flex-wrap items-center gap-4 px-4 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30">
+				<div class="flex items-center gap-2">
+					<label class="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Month</label>
+					<p-calendar
+						[(ngModel)]="selectedMonthDate"
+						view="month"
+						dateFormat="mm/yy"
+						[showIcon]="true"
+						[showButtonBar]="true"
+						[readonlyInput]="true"
+						[appendTo]="'body'"
+						styleClass="expense-list-calendar"
+						(onSelect)="onMonthDateChange()"
+					></p-calendar>
+				</div>
+				<div class="flex items-center gap-2">
+					<p-button icon="pi pi-filter" label="Apply" size="small" severity="secondary" [outlined]="true" (onClick)="applyFilters()"></p-button>
+					<p-button icon="pi pi-times" label="Clear" size="small" severity="secondary" [outlined]="true" (onClick)="clearFilters()"></p-button>
+				</div>
+			</div>
+
+			<!-- Table -->
+			<div class="overflow-x-auto">
+				<p-table
+					[value]="expenses"
+					[loading]="loading"
+					[rows]="rows"
+					[first]="first"
+					[totalRecords]="totalRecords"
+					[paginator]="true"
+					[rowsPerPageOptions]="[10, 20, 50]"
+					(onPage)="onPage($event)"
+					styleClass="p-datatable-sm p-datatable-striped expense-list-table"
+					[tableStyle]="{ 'min-width': '100%' }"
+					[responsive]="true"
+				>
+					<ng-template pTemplate="header">
+						<tr>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Date</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Type</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Subtype</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Description</th>
+							<th class="text-right py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Notes</th>
+							<th class="text-center py-3 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-24">Actions</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-e>
+						<tr class="expense-row">
+							<td class="py-3 px-4 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ formatDate(e.date) }}</td>
+							<td class="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ formatType(e.type) }}</td>
+							<td class="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ formatSubtype(e.type, e.subtype) }}</td>
+							<td class="py-3 px-4">
+								<span class="text-sm font-medium text-gray-900 dark:text-white">{{ e.description }}</span>
+							</td>
+							<td class="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white text-right tabular-nums whitespace-nowrap">{{ formatCurrency(e.amount) }}</td>
+							<td class="py-3 px-4 text-sm text-gray-500 dark:text-gray-400 max-w-[220px] truncate" [pTooltip]="e.notes || ''">{{ e.notes || '—' }}</td>
+							<td class="py-3 px-4 whitespace-nowrap">
+								<div class="flex items-center justify-center gap-0.5">
+									<p-button icon="pi pi-pencil" [text]="true" severity="secondary" size="small" (onClick)="openEdit(e)" pTooltip="Edit"></p-button>
+									<p-button icon="pi pi-trash" [text]="true" severity="secondary" size="small" (onClick)="deleteExpense(e)" pTooltip="Delete" styleClass="p-button-danger"></p-button>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="emptymessage">
+						<tr>
+							<td colspan="7" class="py-16 text-center">
+								<div class="flex flex-col items-center gap-3 text-gray-500 dark:text-gray-400">
+									<div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+										<i class="pi pi-wallet text-2xl"></i>
+									</div>
+									<p class="font-medium">No expenses in this month</p>
+									<p class="text-sm">Select another month or record a new expense.</p>
+									<p-button label="Record Expense" icon="pi pi-plus" size="small" (onClick)="openCreate()" styleClass="mt-1"></p-button>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="footer" *ngIf="expenses.length > 0">
+						<tr class="bg-gray-100 dark:bg-gray-800/80 border-t-2 border-gray-200 dark:border-gray-700">
+							<td colspan="4" class="py-3 px-4 text-right font-semibold text-gray-700 dark:text-gray-300">Total</td>
+							<td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white tabular-nums">{{ formatCurrency(getTotalAmount()) }}</td>
+							<td colspan="2"></td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

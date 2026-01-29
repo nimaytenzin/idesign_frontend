@@ -39,11 +39,10 @@ export class CreateProductComponent implements OnInit {
 		dimensions: '',
 		weight: 0,
 		price: 0,
-		material: '',
+		material: undefined,
 		isAvailable: true,
 		isFeatured: false,
 		productSubCategoryId: 0,
-		stockQuantity: 0,
 	};
 
 	// Categories
@@ -139,11 +138,10 @@ export class CreateProductComponent implements OnInit {
 					dimensions: data.dimensions,
 					weight: data.weight,
 					price: data.price,
-					material: data.material,
+					material: data.material ?? undefined,
 					isAvailable: data.isAvailable,
 					isFeatured: false, // Don't duplicate featured status
 					productSubCategoryId: data.productSubCategoryId,
-					stockQuantity: data.stockQuantity,
 				} as Partial<CreateProductDto>;
 				
 				// Set parent category based on subcategory
@@ -345,7 +343,6 @@ export class CreateProductComponent implements OnInit {
 			this.product.title &&
 			this.product.shortDescription &&
 			this.product.price &&
-			this.product.material &&
 			this.product.productSubCategoryId &&
 			this.selectedCategoryId
 		);
@@ -365,7 +362,7 @@ export class CreateProductComponent implements OnInit {
 
 	getImageUrl(imagePath: string): string {
 		if (!imagePath) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (imagePath.startsWith('http')) {
 			return imagePath;

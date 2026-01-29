@@ -136,28 +136,22 @@
 					<!-- Product Details Grid -->
 					<div class="space-y-4">
 						<!-- Material -->
-						<div class="flex items-center gap-4">
+						<div *ngIf="product.material" class="flex items-center gap-4">
 							<h4 class="text-gray-900 font-medium min-w-[120px]">Material:</h4>
 							<p class="text-gray-700">{{ product.material }}</p>
-							</div>
+						</div>
 
 						<!-- Weight -->
 						<div *ngIf="product.weight" class="flex items-center gap-4">
 							<h4 class="text-gray-900 font-medium min-w-[120px]">Weight:</h4>
 							<p class="text-gray-700">{{ product.weight }} grams</p>
-								</div>
+						</div>
 
 						<!-- Dimensions -->
 						<div *ngIf="product.dimensions" class="flex items-center gap-4">
 							<h4 class="text-gray-900 font-medium min-w-[120px]">Dimensions:</h4>
 							<p class="text-gray-700">{{ product.dimensions }}</p>
-							</div>
-
-						<!-- Stock Quantity -->
-						<div class="flex items-center gap-4">
-							<h4 class="text-gray-900 font-medium min-w-[120px]">Stock:</h4>
-							<p class="text-gray-700">{{ product.stockQuantity || 0 }} units</p>
-					</div>
+						</div>
 
 						<!-- Availability -->
 						<div class="flex items-center gap-4">

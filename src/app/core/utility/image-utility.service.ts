@@ -10,9 +10,12 @@ export class ImageUtilityService {
 	 * @param imagePath - The relative image path from the server
 	 * @returns The complete image URL
 	 */
+	/** Default placeholder when no image (asset path). */
+	readonly placeholderAssetUrl = '/assets/product-placeholder.png';
+
 	getImageUrl(imagePath: string): string {
 		if (!imagePath) {
-			return 'product-placeholder.png';
+			return this.placeholderAssetUrl;
 		}
 
 		// Remove leading slash if present to avoid double slashes
@@ -32,7 +35,7 @@ export class ImageUtilityService {
 		images?: { imagePath: string; isPrimary: boolean }[]
 	): string {
 		if (!images || images.length === 0) {
-			return 'product-placeholder.png';
+			return this.placeholderAssetUrl;
 		}
 
 		const primaryImage = images.find((img) => img.isPrimary);
@@ -52,7 +55,7 @@ export class ImageUtilityService {
 	 */
 	getAllImageUrls(images?: { imagePath: string }[]): string[] {
 		if (!images || images.length === 0) {
-			return ['product-placeholder.png'];
+			return [this.placeholderAssetUrl];
 		}
 
 		return images.map((img) => this.getImageUrl(img.imagePath));
@@ -64,7 +67,7 @@ export class ImageUtilityService {
 	 * @returns True if the image URL is valid, false otherwise
 	 */
 	isValidImageUrl(imageUrl: string): boolean {
-		return imageUrl !== 'product-placeholder.png' && imageUrl.trim() !== '';
+		return imageUrl !== this.placeholderAssetUrl && imageUrl.trim() !== '';
 	}
 
 	/**
@@ -81,7 +84,7 @@ export class ImageUtilityService {
 	): string {
 		const baseUrl = this.getImageUrl(imagePath);
 
-		if (baseUrl === 'product-placeholder.png') {
+		if (baseUrl === this.placeholderAssetUrl) {
 			return baseUrl;
 		}
 

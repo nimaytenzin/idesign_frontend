@@ -14,7 +14,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -47,8 +48,9 @@ import { Order } from '../../../core/dataservice';
 		ProgressSpinnerModule,
 		DropdownModule,
 		ToastModule,
+		ConfirmDialogModule,
 	],
-	providers: [MessageService],
+	providers: [MessageService, ConfirmationService],
 	templateUrl: './public-order-payment.component.html',
 	styleUrls: ['./public-order-payment.component.scss'],
 })
@@ -91,11 +93,14 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 	sessionTimer: any = null;
 	sessionExpired = false;
 
+	cancelingOrder = false;
+
 	constructor(
 		private route: ActivatedRoute,
 		private router: Router,
 		private fb: FormBuilder,
 		private messageService: MessageService,
+		private confirmationService: ConfirmationService,
 		private orderService: OrderService,
 		private paymentService: PaymentSettlementDataService
 	) {
@@ -109,6 +114,21 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 		this.route.queryParams.subscribe((params) => {
 			this.orderId = params['orderId'] ? Number(params['orderId']) : null;
+			// From checkout success: state has order + paymentInitiation (no need to call initiate-payment)
+			const state = history.state || {};
+			if (state?.order && state?.paymentInitiation && state.order?.id === this.orderId) {
+				this.order = state.order as Order;
+				this.amount = Number(this.order.totalPayable ?? 0);
+				this.banks = (state.paymentInitiation.bankList || []) as PGBank[];
+				this.bfsTransactionId = state.paymentInitiation.bfsTransactionId || '';
+				this.paymentInstructionNumber = state.paymentInitiation.paymentInstructionNumber || '';
+				this.loadingOrder = false;
+				this.loading = false;
+				this.activeStep = 2;
+				this.currentStep = 'bank';
+				this.startPaymentSessionTimer();
+				return;
+			}
 			if (this.orderId) {
 				this.loadOrderDetails();
 			} else {
@@ -122,7 +142,6 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 			}
 		});
 
-		// Start payment session timer
 		this.startPaymentSessionTimer();
 	}
 
@@ -142,49 +161,56 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 	loadOrderDetails() {
 		if (!this.orderId) return;
 
-		// this.orderService.getOrderById(this.orderId).subscribe({
-		// 	next: (order) => {
-		// 		this.order = order;
-		// 		// Ensure amount is always a number
-		// 		this.amount = typeof order.totalAmount === 'string' 
-		// 			? parseFloat(order.totalAmount) 
-		// 			: Number(order.totalAmount);
-		// 		this.loadingOrder = false;
-		// 		this.loading = false;
+		this.orderService.getOrderById(this.orderId).subscribe({
+			next: (order) => {
+				this.order = order;
+				this.amount = Number(order.totalPayable ?? 0);
+				this.loadingOrder = false;
+				this.loading = false;
 
-		// 		// Check if order is already paid or completed
-		// 		if (order.fulfillmentStatus === FulfillmentStatus.DELIVERED) {
-		// 			this.messageService.add({
-		// 				severity: 'info',
-		// 				summary: 'Order Already Paid',
-		// 				detail: 'This order has already been paid.',
-		// 			});
-		// 			this.router.navigate(['/order-confirmation'], {
-		// 				queryParams: { orderId: this.orderId },
-		// 			});
-		// 			return;
-		// 		}
+				if (order.fulfillmentStatus === FulfillmentStatus.DELIVERED) {
+					this.messageService.add({
+						severity: 'info',
+						summary: 'Order Already Delivered',
+						detail: 'This order has already been delivered.',
+					});
+					this.router.navigate(['/order-confirmation'], {
+						queryParams: { orderId: this.orderId },
+					});
+					return;
+				}
 
-		// 		// Check if order is confirmed
-		// 		if (order.fulfillmentStatus !== 'CONFIRMED') {
-		// 			this.messageService.add({
-		// 				severity: 'warn',
-		// 				summary: 'Order Not Ready',
-		// 				detail: 'Order must be in CONFIRMED status to proceed with payment.',
-		// 			});
-		// 		}
-		// 	},
-		// 	error: (error) => {
-		// 		console.error('Error loading order:', error);
-		// 		this.loadingOrder = false;
-		// 		this.loading = false;
-		// 		this.messageService.add({
-		// 			severity: 'error',
-		// 			summary: 'Error Loading Order',
-		// 			detail: 'Failed to load order details. Please try again.',
-		// 		});
-		// 	},
-		// });
+				if (order.paymentStatus === 'PAID') {
+					this.messageService.add({
+						severity: 'info',
+						summary: 'Order Already Paid',
+						detail: 'This order has already been paid.',
+					});
+					this.router.navigate(['/order-confirmation'], {
+						queryParams: { orderId: this.orderId },
+					});
+					return;
+				}
+
+				if (order.fulfillmentStatus !== FulfillmentStatus.PLACED) {
+					this.messageService.add({
+						severity: 'warn',
+						summary: 'Order Not Ready',
+						detail: 'Order must be in PLACED status to proceed with payment.',
+					});
+				}
+			},
+			error: (error) => {
+				console.error('Error loading order:', error);
+				this.loadingOrder = false;
+				this.loading = false;
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Error Loading Order',
+					detail: 'Failed to load order details. Please try again.',
+				});
+			},
+		});
 	}
 
 	// Step 1: Initiate Payment
@@ -637,7 +663,7 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 			return 0;
 		}
 		return this.order.orderItems.reduce((sum, item) => {
-			return sum + (item.discountApplied || 0) * item.quantity;
+			return sum + Number(item.discountApplied || 0) * Number(item.quantity || 0);
 		}, 0);
 	}
 
@@ -649,12 +675,66 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 			return 0;
 		}
 		return this.order.orderItems.reduce((sum, item) => {
-			return sum + (item.unitPrice * item.quantity);
+			return sum + Number(item.unitPrice || 0) * Number(item.quantity || 0);
 		}, 0);
+	}
+
+	/** Line discount total (discountApplied * quantity) for display; handles string values from API. */
+	getItemDiscountTotal(item: { discountApplied?: number | string; quantity?: number | string }): number {
+		return Number(item.discountApplied || 0) * Number(item.quantity || 0);
+	}
+
+	/** Line total before discount (unitPrice * quantity) for display; handles string values from API. */
+	getItemPriceBeforeDiscount(item: { unitPrice?: number | string; quantity?: number | string }): number {
+		return Number(item.unitPrice || 0) * Number(item.quantity || 0);
 	}
 
 	trackByBank(index: number, bank: PGBank): string {
 		return bank.bankCode;
+	}
+
+	/** Cancel order (payment initiated but not completed). POST /orders/:id/cancel */
+	requestCancelOrder() {
+		if (!this.orderId) return;
+
+		const orderLabel = this.order?.orderNumber ?? `#${this.orderId}`;
+		this.confirmationService.confirm({
+			message: `Cancel order ${orderLabel}? You will need to place a new order if you want to purchase later.`,
+			header: 'Cancel Order',
+			icon: 'pi pi-exclamation-triangle',
+			acceptButtonStyleClass: 'p-button-danger',
+			rejectLabel: 'Keep order',
+			acceptLabel: 'Yes, cancel order',
+			accept: () => {
+				this.cancelingOrder = true;
+				this.orderService
+					.cancelOrder(this.orderId!, { reason: 'Customer abandoned payment' })
+					.pipe(takeUntil(this.destroy$))
+					.subscribe({
+						next: () => {
+							this.cancelingOrder = false;
+							const label = this.order?.orderNumber ?? `#${this.orderId}`;
+							this.messageService.add({
+								severity: 'info',
+								summary: 'Order Canceled',
+								detail: `Order ${label} has been canceled.`,
+								life: 5000,
+							});
+							this.router.navigate(['/order-cancelled'], {
+								queryParams: { orderId: this.orderId, orderNumber: this.order?.orderNumber ?? undefined },
+							});
+						},
+						error: (error) => {
+							this.cancelingOrder = false;
+							this.messageService.add({
+								severity: 'error',
+								summary: 'Cancel Failed',
+								detail: error.error?.message || 'Failed to cancel order. Please try again.',
+							});
+						},
+					});
+			},
+		});
 	}
 
 	onOtpInput(event: any): void {
@@ -677,8 +757,8 @@ export class PublicOrderPaymentComponent implements OnInit, OnDestroy {
 	}
 
 	cancelPayment() {
-		this.router.navigate(['/order-confirmation'], {
-			queryParams: { orderId: this.orderId },
+		this.router.navigate(['/order-cancelled'], {
+			queryParams: { orderId: this.orderId, orderNumber: this.order?.orderNumber ?? undefined },
 		});
 	}
 }

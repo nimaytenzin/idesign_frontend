@@ -155,7 +155,7 @@ export class AdminCompanyClientListComponent implements OnInit {
 
 	getImageUrl(logoUri?: string): string {
 		if (!logoUri) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (logoUri.startsWith('http')) {
 			return logoUri;

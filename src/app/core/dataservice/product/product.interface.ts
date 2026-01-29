@@ -21,13 +21,12 @@ export interface Product {
 	dimensions: string;
 	weight: number; // FLOAT
 	price: number; // FLOAT
-	material: string;
+	material: string | null;
 	isAvailable: boolean; // Default: true
 	isFeatured: boolean; // Default: false
 	productSubCategoryId: number;
 	rating: number; // FLOAT, Default: 0
 	salesCount: number; // Default: 0
-	stockQuantity: number; // Default: 0
 	productSubCategory?: ProductSubCategory;
 	images: ProductImage[];
 	discountProducts?: any[]; // DiscountProduct[] relationship (to avoid circular dependency)
@@ -42,11 +41,10 @@ export interface CreateProductDto {
 	dimensions: string;
 	weight: number;
 	price: number;
-	material: string;
+	material?: string; // Optional
 	isAvailable?: boolean; // Default: true
 	isFeatured?: boolean; // Default: false
 	productSubCategoryId: number;
-	stockQuantity?: number; // Default: 0
 }
 
 export interface UpdateProductDto {
@@ -60,7 +58,6 @@ export interface UpdateProductDto {
 	isAvailable?: boolean;
 	isFeatured?: boolean;
 	productSubCategoryId?: number;
-	stockQuantity?: number;
 }
 
 export interface ProductQueryDto {

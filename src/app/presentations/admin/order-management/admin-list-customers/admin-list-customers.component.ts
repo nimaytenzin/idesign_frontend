@@ -166,7 +166,24 @@ export class AdminListCustomersComponent implements OnInit {
 	}
 
 	onGlobalFilter(event: any) {
-		const value = event.target.value.toLowerCase();
+		const value = (event?.target?.value ?? '').toLowerCase();
+		this.applyFilter(value);
+	}
+
+	onGlobalFilterFromValue(value: string) {
+		this.applyFilter((value ?? '').toLowerCase());
+	}
+
+	clearSearch() {
+		this.globalFilter = '';
+		this.filteredCustomers = [...this.customers];
+	}
+
+	private applyFilter(value: string) {
+		if (!value.trim()) {
+			this.filteredCustomers = [...this.customers];
+			return;
+		}
 		this.filteredCustomers = this.customers.filter(
 			(c) =>
 				(c.name && c.name.toLowerCase().includes(value)) ||

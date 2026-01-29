@@ -1,16 +1,30 @@
 <div class="min-h-screen bg-slate-50 py-8">
 	<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 		<!-- Header -->
-		<div class="mb-8">
-			<div class="flex items-center gap-3 mb-3">
-				<div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
-					<i class="pi pi-credit-card text-white text-lg"></i>
+		<div class="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+			<div>
+				<div class="flex items-center gap-3 mb-3">
+					<div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
+						<i class="pi pi-credit-card text-white text-lg"></i>
+					</div>
+					<h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Payment</h1>
 				</div>
-				<h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Payment</h1>
+				<p class="text-slate-600 text-sm sm:text-base ml-0 sm:ml-14">
+					Complete your payment securely
+				</p>
 			</div>
-			<p class="text-slate-600 text-sm sm:text-base ml-0 sm:ml-14">
-				Complete your payment securely
-			</p>
+			<!-- Cancel order: visible when we have orderId (e.g. /order-payment?orderId=20) -->
+			<div *ngIf="orderId" class="sm:ml-auto">
+				<p-button
+					label="Cancel order"
+					icon="pi pi-times"
+					severity="secondary"
+					[outlined]="true"
+					[loading]="cancelingOrder"
+					[disabled]="cancelingOrder"
+					(click)="requestCancelOrder()"
+				></p-button>
+			</div>
 		</div>
 
 		<!-- Loading State -->
@@ -31,7 +45,20 @@
 						</div>
 						<div class="flex justify-between items-center">
 							<span class="text-gray-600 font-medium">Total Amount:</span>
-							<span class="text-xl font-bold text-gray-900">Nu {{ amount.toFixed(2) }}</span>
+							<span class="text-xl font-bold text-gray-900">Nu {{ amount | number:'1.2-2' }}</span>
+						</div>
+						<div class="pt-2 border-t border-gray-100">
+							<p-button
+								label="Cancel order"
+								icon="pi pi-times"
+								severity="secondary"
+								[outlined]="true"
+								[loading]="cancelingOrder"
+								[disabled]="cancelingOrder"
+								size="small"
+								styleClass="w-full sm:w-auto"
+								(click)="requestCancelOrder()"
+							></p-button>
 						</div>
 					</div>
 				</p-card>
@@ -262,18 +289,18 @@
 										{{ item.product?.title || 'Product' }}
 									</p>
 									<p class="text-gray-500 text-xs">
-										Qty: {{ item.quantity }} × Nu {{ item.unitPrice.toFixed(2) }}
+										Qty: {{ item.quantity }} × Nu {{ item.unitPrice | number:'1.2-2' }}
 										<span *ngIf="item.discountApplied && item.discountApplied > 0" class="text-green-600 ml-2">
-											(Discount: -Nu {{ (item.discountApplied * item.quantity).toFixed(2) }})
+											(Discount: -Nu {{ getItemDiscountTotal(item) | number:'1.2-2' }})
 										</span>
 									</p>
 								</div>
 								<div class="flex flex-col items-end ml-2">
 									<p class="font-semibold text-gray-900" [ngClass]="{'text-red-600': item.discountApplied && item.discountApplied > 0}">
-										Nu {{ item.lineTotal.toFixed(2) }}
+										Nu {{ item.lineTotal | number:'1.2-2' }}
 									</p>
 									<p *ngIf="item.discountApplied && item.discountApplied > 0" class="text-xs text-gray-500 line-through">
-										Nu {{ ((item.unitPrice * item.quantity)).toFixed(2) }}
+										Nu {{ getItemPriceBeforeDiscount(item) | number:'1.2-2' }}
 									</p>
 								</div>
 							</div>
@@ -282,7 +309,7 @@
 						<div class="pt-4 border-t border-gray-200 space-y-2">
 							<div class="flex justify-between text-sm">
 								<span class="text-gray-600">Subtotal</span>
-								<span class="font-medium text-gray-900">Nu {{ getSubtotal().toFixed(2) }}</span>
+								<span class="font-medium text-gray-900">Nu {{ getSubtotal() | number:'1.2-2' }}</span>
 							</div>
 							<div 
 								*ngIf="getTotalDiscount() > 0"
@@ -293,12 +320,12 @@
 									Discount
 								</span>
 								<span class="font-medium text-green-600">
-									-Nu {{ getTotalDiscount().toFixed(2) }}
+									-Nu {{ getTotalDiscount() | number:'1.2-2' }}
 								</span>
 							</div>
 							<div class="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
 								<span class="text-gray-900">Total</span>
-								<span class="text-gray-900">Nu {{ amount.toFixed(2) }}</span>
+								<span class="text-gray-900">Nu {{ amount | number:'1.2-2' }}</span>
 							</div>
 						</div>
 
@@ -328,4 +355,5 @@
 
 <!-- Toast for notifications -->
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 

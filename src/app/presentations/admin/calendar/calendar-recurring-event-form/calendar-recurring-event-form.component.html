@@ -1,0 +1,191 @@
+<div class="space-y-6 py-2">
+	<!-- Title -->
+	<div class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">
+			Title <span class="text-red-500">*</span>
+		</label>
+		<input
+			type="text"
+			pInputText
+			[(ngModel)]="form.title"
+			placeholder="e.g. Weekly standup"
+			class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
+		/>
+	</div>
+
+	<!-- Recurrence type -->
+	<div class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">
+			Recurrence <span class="text-red-500">*</span>
+		</label>
+		<p-dropdown
+			[(ngModel)]="form.recurrenceType"
+			[options]="recurrenceTypes"
+			optionLabel="label"
+			optionValue="value"
+			placeholder="Select type"
+			styleClass="w-full"
+		></p-dropdown>
+	</div>
+
+	<!-- WEEKLY: day of week -->
+	<div *ngIf="form.recurrenceType === 'WEEKLY'" class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Day of week</label>
+		<p-dropdown
+			[(ngModel)]="form.dayOfWeek"
+			[options]="dayOfWeekOptions"
+			optionLabel="label"
+			optionValue="value"
+			placeholder="Select day"
+			styleClass="w-full"
+		></p-dropdown>
+	</div>
+
+	<!-- MONTHLY / ANNUALLY: day of month -->
+	<div *ngIf="form.recurrenceType === 'MONTHLY' || form.recurrenceType === 'ANNUALLY'" class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Day of month (1–31)</label>
+		<p-inputNumber
+			[(ngModel)]="form.dayOfMonth"
+			[min]="1"
+			[max]="31"
+			[showButtons]="true"
+			styleClass="w-full"
+			[inputStyleClass]="'w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg'"
+		></p-inputNumber>
+	</div>
+
+	<!-- ANNUALLY: month -->
+	<div *ngIf="form.recurrenceType === 'ANNUALLY'" class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Month (1–12)</label>
+		<p-inputNumber
+			[(ngModel)]="form.month"
+			[min]="1"
+			[max]="12"
+			[showButtons]="true"
+			styleClass="w-full"
+			[inputStyleClass]="'w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg'"
+		></p-inputNumber>
+	</div>
+
+	<!-- Time (when not all-day) -->
+	<div *ngIf="!form.allDay" class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Time of day</label>
+		<input
+			type="time"
+			[(ngModel)]="form.time"
+			class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+		/>
+	</div>
+
+	<!-- Date range -->
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="space-y-2">
+			<label class="block text-sm font-semibold text-gray-900">
+				Start date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				[(ngModel)]="form.startFrom"
+				[showTime]="false"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				styleClass="w-full"
+				placeholder="First occurrence"
+				inputStyleClass="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+			></p-calendar>
+		</div>
+		<div class="space-y-2">
+			<label class="block text-sm font-semibold text-gray-900">
+				End date <span class="text-red-500">*</span>
+			</label>
+			<p-calendar
+				[(ngModel)]="form.endAt"
+				[showTime]="false"
+				[showIcon]="true"
+				dateFormat="yy-mm-dd"
+				styleClass="w-full"
+				placeholder="Last occurrence"
+				inputStyleClass="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+			></p-calendar>
+		</div>
+	</div>
+
+	<!-- Duration (when not all-day) -->
+	<div *ngIf="!form.allDay" class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Duration (minutes)</label>
+		<p-inputNumber
+			[(ngModel)]="form.durationMinutes"
+			[min]="1"
+			[max]="1440"
+			[showButtons]="true"
+			styleClass="w-full"
+			[inputStyleClass]="'w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg'"
+		></p-inputNumber>
+	</div>
+
+	<!-- All day -->
+	<div class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">All day</label>
+		<div class="flex items-center gap-3 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+			<p-inputSwitch [(ngModel)]="form.allDay"></p-inputSwitch>
+			<label class="text-sm font-medium text-gray-700 cursor-pointer">All day event</label>
+		</div>
+	</div>
+
+	<!-- Location -->
+	<div class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Location</label>
+		<input
+			type="text"
+			pInputText
+			[(ngModel)]="form.location"
+			placeholder="Optional"
+			class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
+		/>
+	</div>
+
+	<!-- Description -->
+	<div class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Description</label>
+		<textarea
+			pInputTextarea
+			[(ngModel)]="form.description"
+			placeholder="Optional"
+			rows="3"
+			class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors resize-none"
+		></textarea>
+	</div>
+
+	<!-- Color -->
+	<div class="space-y-2">
+		<label class="block text-sm font-semibold text-gray-900">Event color</label>
+		<div class="flex items-center gap-3">
+			<input
+				type="color"
+				[(ngModel)]="form.backgroundColor"
+				class="w-16 h-10 rounded-lg border-2 border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
+			/>
+			<span class="text-sm text-gray-600">{{ form.backgroundColor }}</span>
+		</div>
+	</div>
+</div>
+
+<div class="flex items-center justify-end gap-3 pt-4 mt-4 border-t border-gray-200">
+	<p-button
+		label="Cancel"
+		icon="pi pi-times"
+		severity="secondary"
+		[outlined]="true"
+		(onClick)="cancel()"
+		[disabled]="loading"
+		styleClass="px-6"
+	></p-button>
+	<p-button
+		label="Create recurring events"
+		icon="pi pi-check"
+		severity="success"
+		[loading]="loading"
+		[disabled]="loading"
+		(onClick)="save()"
+		styleClass="px-6"
+	></p-button>
+</div>

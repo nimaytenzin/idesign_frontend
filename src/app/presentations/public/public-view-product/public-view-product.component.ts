@@ -130,7 +130,7 @@ export class PublicViewProductComponent implements OnInit {
 
 	getImageUrl(imagePath: string): string {
 		if (!imagePath) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (imagePath.startsWith('http')) {
 			return imagePath;
@@ -158,7 +158,7 @@ export class PublicViewProductComponent implements OnInit {
 
 	getPrimaryImage(): string {
 		if (!this.product?.images || this.product.images.length === 0) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		const primaryImage = this.product.images.find(img => img.isPrimary);
 		const imagePath = primaryImage?.imagePath || this.product.images[0]?.imagePath;
@@ -171,14 +171,7 @@ export class PublicViewProductComponent implements OnInit {
 
 	// Quantity management
 	incrementQuantity() {
-		if (this.product && this.product.stockQuantity) {
-			const maxQuantity = this.product.stockQuantity;
-			if (this.quantity < maxQuantity) {
-				this.quantity++;
-			}
-		} else {
-			this.quantity++;
-		}
+		this.quantity++;
 	}
 
 	decrementQuantity() {

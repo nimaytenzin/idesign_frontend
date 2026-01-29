@@ -1,104 +1,138 @@
-<div class="customer-management-container">
-	<div class="page-header">
-		<div>
-			<h1 class="page-title">Customer Management</h1>
-			<p class="page-subtitle">Manage customer information and create orders</p>
-		</div>
-		<p-button
-			label="New Customer"
-			icon="pi pi-plus"
-			severity="success"
-			(onClick)="openNew()"
-			[raised]="true"
-		></p-button>
-	</div>
+<div class="admin-list-customers min-h-screen bg-gray-50 p-4 md:p-6">
+	<div class="max-w-[95vw] xl:max-w-7xl mx-auto">
+		<p-toast></p-toast>
 
-	<div class="content-card">
-		<div class="toolbar">
-			<span class="p-input-icon-left search-input">
-				<i class="pi pi-search"></i>
-				<input
-					type="text"
-					pInputText
-					placeholder="Search customers..."
-					(input)="onGlobalFilter($event)"
-					class="w-full"
-				/>
-			</span>
-		</div>
+		<!-- Page header -->
+		<header class="mb-6">
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Customer Management</h1>
+					<p class="text-sm text-gray-500 mt-0.5">Manage customer information and create orders</p>
+				</div>
+				<p-button
+					label="New Customer"
+					icon="pi pi-plus"
+					size="small"
+					severity="success"
+					(onClick)="openNew()"
+				></p-button>
+			</div>
+		</header>
 
-		<p-table
-			[value]="filteredCustomers"
-			[loading]="loading"
-			[rows]="25"
-			[paginator]="true"
-			[rowsPerPageOptions]="[10, 25, 50, 100]"
-			styleClass="p-datatable-striped"
-		>
-			<ng-template pTemplate="header">
-				<tr>
-					<th style="width: 50px">ID</th>
-					<th>Name</th>
-					<th>Email</th>
-					<th>Phone</th>
-					<th>Shipping Address</th>
-					<th style="width: 200px">Actions</th>
-				</tr>
-			</ng-template>
-			<ng-template pTemplate="body" let-customer>
-				<tr>
-					<td>{{ customer.id }}</td>
-					<td>
-						<span class="customer-name">{{ customer.name }}</span>
-					</td>
-					<td>{{ customer.email }}</td>
-					<td>{{ customer.phoneNumber || 'N/A' }}</td>
-					<td>{{ customer.shippingAddress || 'N/A' }}</td>
-					<td>
-						<div class="action-buttons">
-							<p-button
-								icon="pi pi-shopping-cart"
-								[text]="true"
-								severity="success"
-								(onClick)="createOrderForCustomer(customer)"
-								pTooltip="Create Order"
-							></p-button>
-							<p-button
-								icon="pi pi-pencil"
-								[text]="true"
-								severity="info"
-								(onClick)="editCustomer(customer)"
-								pTooltip="Edit"
-							></p-button>
-							<p-button
-								icon="pi pi-trash"
-								[text]="true"
-								severity="danger"
-								(onClick)="deleteCustomer(customer)"
-								pTooltip="Delete"
-							></p-button>
-						</div>
-					</td>
-				</tr>
-			</ng-template>
-			<ng-template pTemplate="emptymessage">
-				<tr>
-					<td colspan="6" class="text-center p-6">
-						<div class="empty-state">
-							<i class="pi pi-users text-6xl text-gray-400 mb-4"></i>
-							<p class="text-gray-600 text-lg">No customers found</p>
-							<p-button
-								label="Create First Customer"
-								icon="pi pi-plus"
-								severity="success"
-								(onClick)="openNew()"
-								class="mt-4"
-							></p-button>
-						</div>
-					</td>
-				</tr>
-			</ng-template>
-		</p-table>
+		<!-- Card -->
+		<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+			<!-- Toolbar: search with InputGroup + Addon -->
+			<div class="flex flex-wrap items-center gap-4 px-4 py-4 border-b border-gray-100 bg-gray-50/50">
+				<div class="flex flex-col min-w-0 flex-1 sm:max-w-md">
+					<label class="text-xs font-medium text-gray-600 mb-1.5">Search customers</label>
+					<p-inputgroup>
+						<p-inputgroup-addon>
+							<i class="pi pi-search text-gray-500"></i>
+						</p-inputgroup-addon>
+						<input
+							pInputText
+							type="text"
+							[ngModel]="globalFilter"
+							(ngModelChange)="globalFilter = $event; onGlobalFilterFromValue($event)"
+							placeholder="By name, email or phone..."
+							class="w-full"
+						/>
+						<p-inputgroup-addon *ngIf="globalFilter" class="cursor-pointer" (click)="clearSearch()">
+							<i class="pi pi-times text-gray-500 hover:text-gray-700"></i>
+						</p-inputgroup-addon>
+					</p-inputgroup>
+				</div>
+			</div>
+
+			<!-- Table -->
+			<div class="overflow-x-auto">
+				<p-table
+					[value]="filteredCustomers"
+					[loading]="loading"
+					[rows]="25"
+					[paginator]="true"
+					[rowsPerPageOptions]="[10, 25, 50, 100]"
+					styleClass="p-datatable-sm p-datatable-striped admin-list-customers-table"
+					[tableStyle]="{ 'min-width': '100%' }"
+					[responsive]="true"
+				>
+					<ng-template pTemplate="header">
+						<tr>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">ID</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Phone</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Shipping Address</th>
+							<th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider w-36">Actions</th>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="body" let-customer>
+						<tr class="hover:bg-gray-50/80 transition-colors">
+							<td class="py-3 px-4 text-sm text-gray-700 font-mono">{{ customer.id }}</td>
+							<td class="py-3 px-4">
+								<span class="font-medium text-gray-900">{{ customer.name }}</span>
+							</td>
+							<td class="py-3 px-4 text-sm text-gray-600">{{ customer.email }}</td>
+							<td class="py-3 px-4 text-sm text-gray-600">{{ customer.phoneNumber || '—' }}</td>
+							<td class="py-3 px-4 text-sm text-gray-600 max-w-xs truncate" [title]="customer.shippingAddress || ''">{{ customer.shippingAddress || '—' }}</td>
+							<td class="py-3 px-4">
+								<div class="flex items-center gap-1">
+									<p-button
+										icon="pi pi-shopping-cart"
+										[text]="true"
+										severity="success"
+										size="small"
+										(onClick)="createOrderForCustomer(customer)"
+										pTooltip="Create Order"
+									></p-button>
+									<p-button
+										icon="pi pi-pencil"
+										[text]="true"
+										severity="info"
+										size="small"
+										(onClick)="editCustomer(customer)"
+										pTooltip="Edit"
+									></p-button>
+									<p-button
+										icon="pi pi-trash"
+										[text]="true"
+										severity="danger"
+										size="small"
+										(onClick)="deleteCustomer(customer)"
+										pTooltip="Delete"
+									></p-button>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="emptymessage">
+						<tr>
+							<td colspan="6" class="text-center py-12 px-4">
+								<div class="flex flex-col items-center justify-center gap-3">
+									<i class="pi pi-users text-5xl text-gray-300"></i>
+									<p class="text-gray-600 font-medium">No customers found</p>
+									<p class="text-sm text-gray-500">Try a different search or add your first customer.</p>
+									<p-button
+										label="New Customer"
+										icon="pi pi-plus"
+										size="small"
+										severity="success"
+										(onClick)="openNew()"
+									></p-button>
+								</div>
+							</td>
+						</tr>
+					</ng-template>
+					<ng-template pTemplate="loadingbody">
+						<tr>
+							<td colspan="6" class="py-8 text-center">
+								<p-progressSpinner strokeWidth="4" styleClass="w-10 h-10"></p-progressSpinner>
+							</td>
+						</tr>
+					</ng-template>
+				</p-table>
+			</div>
+		</div>
 	</div>
 
 	<!-- Customer Dialog -->
@@ -106,12 +140,15 @@
 		[(visible)]="customerDialog"
 		[header]="customer.id ? 'Edit Customer' : 'New Customer'"
 		[modal]="true"
-		[style]="{ width: '600px' }"
+		[style]="{ width: 'min(600px, 95vw)' }"
+		[contentStyle]="{ overflow: 'visible' }"
 		[closable]="true"
+		styleClass="admin-list-customers-dialog"
+		(dragDisabled)="true"
 	>
-		<div class="form-dialog">
-			<div class="field-group">
-				<label for="customerName">Name <span class="required">*</span></label>
+		<div class="form-dialog flex flex-col gap-5 py-2">
+			<div class="flex flex-col gap-2">
+				<label for="customerName" class="text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
 				<input
 					id="customerName"
 					type="text"
@@ -121,11 +158,11 @@
 					class="w-full"
 					[class.ng-invalid]="submitted && !customer.name"
 				/>
-				<small class="p-error" *ngIf="submitted && !customer.name">Name is required</small>
+				<small class="p-error text-sm" *ngIf="submitted && !customer.name">Name is required</small>
 			</div>
 
-			<div class="field-group">
-				<label for="customerEmail">Email <span class="required">*</span></label>
+			<div class="flex flex-col gap-2">
+				<label for="customerEmail" class="text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
 				<input
 					id="customerEmail"
 					type="email"
@@ -135,11 +172,11 @@
 					class="w-full"
 					[class.ng-invalid]="submitted && !customer.email"
 				/>
-				<small class="p-error" *ngIf="submitted && !customer.email">Email is required</small>
+				<small class="p-error text-sm" *ngIf="submitted && !customer.email">Email is required</small>
 			</div>
 
-			<div class="field-group">
-				<label for="customerPhone">Phone Number</label>
+			<div class="flex flex-col gap-2">
+				<label for="customerPhone" class="text-sm font-medium text-gray-700">Phone Number</label>
 				<input
 					id="customerPhone"
 					type="text"
@@ -150,43 +187,35 @@
 				/>
 			</div>
 
-			<div class="field-group">
-				<label for="shippingAddress">Shipping Address</label>
+			<div class="flex flex-col gap-2">
+				<label for="shippingAddress" class="text-sm font-medium text-gray-700">Shipping Address</label>
 				<textarea
 					id="shippingAddress"
 					pInputTextarea
 					[(ngModel)]="customer.shippingAddress"
 					placeholder="Enter shipping address"
 					rows="3"
-					class="w-full"
+					class="w-full resize-none"
 				></textarea>
 			</div>
 
-			<div class="field-group">
-				<label for="billingAddress">Billing Address</label>
+			<div class="flex flex-col gap-2">
+				<label for="billingAddress" class="text-sm font-medium text-gray-700">Billing Address</label>
 				<textarea
 					id="billingAddress"
 					pInputTextarea
 					[(ngModel)]="customer.billingAddress"
 					placeholder="Enter billing address"
 					rows="3"
-					class="w-full"
+					class="w-full resize-none"
 				></textarea>
 			</div>
 		</div>
 		<ng-template pTemplate="footer">
-			<p-button
-				label="Cancel"
-				icon="pi pi-times"
-				[text]="true"
-				(onClick)="customerDialog = false"
-			></p-button>
-			<p-button
-				label="Save"
-				icon="pi pi-check"
-				severity="success"
-				(onClick)="saveCustomer()"
-			></p-button>
+			<div class="flex justify-end gap-2">
+				<p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="customerDialog = false"></p-button>
+				<p-button label="Save" icon="pi pi-check" severity="success" (onClick)="saveCustomer()"></p-button>
+			</div>
 		</ng-template>
 	</p-dialog>
 
@@ -195,28 +224,21 @@
 		[(visible)]="deleteCustomerDialog"
 		header="Delete Customer"
 		[modal]="true"
-		[style]="{ width: '450px' }"
+		[style]="{ width: 'min(450px, 95vw)' }"
+		[closable]="true"
+		styleClass="admin-list-customers-dialog"
 	>
-		<div class="confirmation-content">
-			<i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-			<span>Are you sure you want to delete <b>{{ customer.name }}</b>?</span>
+		<div class="flex items-start gap-3 py-2">
+			<i class="pi pi-exclamation-triangle text-2xl text-amber-500 flex-shrink-0 mt-0.5"></i>
+			<p class="text-gray-700">
+				Are you sure you want to delete <strong>{{ customer.name }}</strong>? This action cannot be undone.
+			</p>
 		</div>
 		<ng-template pTemplate="footer">
-			<p-button
-				label="Cancel"
-				icon="pi pi-times"
-				[text]="true"
-				(onClick)="deleteCustomerDialog = false"
-			></p-button>
-			<p-button
-				label="Delete"
-				icon="pi pi-check"
-				severity="danger"
-				(onClick)="confirmDelete()"
-			></p-button>
+			<div class="flex justify-end gap-2">
+				<p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="deleteCustomerDialog = false"></p-button>
+				<p-button label="Delete" icon="pi pi-check" severity="danger" (onClick)="confirmDelete()"></p-button>
+			</div>
 		</ng-template>
 	</p-dialog>
-
-	<p-toast></p-toast>
 </div>
-

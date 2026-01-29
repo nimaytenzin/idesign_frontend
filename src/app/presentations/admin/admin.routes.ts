@@ -20,7 +20,9 @@ import { AdminDiscountListComponent } from './discount-management/admin-discount
 import { AdminCalendarComponent } from './calendar/admin-calendar.component';
 import { AdminTodoManagementComponent } from './todo-management/admin-todo-management.component';
 import { AdminListDocumentsComponent } from './documents-archive/admin-list-documents/admin-list-documents.component';
+import { AdminExpenseListComponent } from './expenses/admin-expense-list/admin-expense-list.component';
 import { DeliveryLocationsWithRatesComponent } from './settings/delivery/delivery-locations-with-rates/delivery-locations-with-rates.component';
+import { AdminListBankAccountsComponent } from './settings/bank-accounts/admin-list-bank-accounts/admin-list-bank-accounts.component';
 import { AdminGuard } from '../../core/guards/auth.guard';
 import { AdminListAdministratorComponent } from './admin-management/admin-list-administrator/admin-list-administrator.component';
 import { AdminListStaffsComponent } from './hr-management/admin-list-staffs/admin-list-staffs.component';
@@ -87,6 +89,10 @@ export const adminRoutes: Routes = [
 				path: 'expense-recording',
 				component: AdminExpenseRecordingComponent,
 			},
+			{
+				path: 'expenses',
+				component: AdminExpenseListComponent,
+			},
 			// Company Profile Route
 			{
 				path: 'company-profile',
@@ -145,6 +151,10 @@ export const adminRoutes: Routes = [
 			{
 				path: 'settings/delivery',
 				component: DeliveryLocationsWithRatesComponent,
+			},
+			{
+				path: 'settings/bank-accounts',
+				component: AdminListBankAccountsComponent,
 			},
 			// Document Archive Route
 			{

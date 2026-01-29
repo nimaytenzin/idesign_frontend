@@ -54,3 +54,66 @@ nav + #navbar-spacer {
 	}
 }
 
+/* Mobile: Floating Cart FAB - visible when cart has items */
+.floating-cart-fab {
+	position: fixed;
+	bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+	right: calc(1.5rem + env(safe-area-inset-right, 0px));
+	z-index: 9999;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background: #0d9488; /* teal-600 */
+	color: white;
+	border: none;
+	box-shadow: 0 4px 14px rgba(13, 148, 136, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.floating-cart-fab:hover {
+	background: #0f766e; /* teal-700 */
+	box-shadow: 0 6px 20px rgba(13, 148, 136, 0.5);
+}
+
+.floating-cart-fab:active {
+	transform: scale(0.96);
+}
+
+.floating-cart-badge {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	min-width: 22px;
+	height: 22px;
+	padding: 0 6px;
+	background: white;
+	color: #0d9488;
+	font-size: 12px;
+	font-weight: 700;
+	border-radius: 11px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Pop animation when item is added to cart */
+@keyframes floatingCartPop {
+	0%, 100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.12);
+	}
+}
+
+.floating-cart-animated {
+	animation: floatingCartPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+

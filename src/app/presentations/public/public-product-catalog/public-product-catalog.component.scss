@@ -7,3 +7,15 @@
     z-index: 9999 !important;
 }
 
+/* Mobile: PrimeNG filters sidebar – width for drawer */
+:host ::ng-deep .catalog-filters-sidebar.p-sidebar {
+    width: min(320px, 90vw) !important;
+    max-width: 100%;
+}
+
+/* Keep dropdown overlay above sidebar content when appendTo is .catalog-filters-sidebar */
+:host ::ng-deep .catalog-filters-sidebar .p-dropdown-panel,
+:host ::ng-deep .catalog-filters-sidebar .p-overlay {
+    z-index: 110;
+}
+

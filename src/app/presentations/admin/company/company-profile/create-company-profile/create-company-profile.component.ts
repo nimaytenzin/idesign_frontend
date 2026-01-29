@@ -87,6 +87,7 @@ export class CreateCompanyProfileComponent implements OnInit {
 			businessLicenseNumber: [''],
 			slogan: ['', [Validators.maxLength(255)]],
 			facebookLink: ['', [this.urlValidator]],
+			instagramLink: ['', [this.instagramLinkValidator]],
 			tiktokLink: ['', [this.urlValidator]],
 			description: [''],
 			isActive: [true],
@@ -119,6 +120,32 @@ export class CreateCompanyProfileComponent implements OnInit {
 			}
 			return { invalidUrl: true };
 		}
+	}
+
+	/** Accepts full URL or handle (e.g. yourhandle, @yourhandle). Normalize via toInstagramUrl before submit. */
+	instagramLinkValidator(control: AbstractControl): ValidationErrors | null {
+		if (!control.value) return null;
+		const v = (control.value || '').trim();
+		if (!v) return null;
+		if (/^https?:\/\//i.test(v)) {
+			try {
+				new URL(v);
+				return null;
+			} catch {
+				return { invalidUrl: true };
+			}
+		}
+		if (/^@?[\w.]+$/.test(v)) return null;
+		return { invalidInstagram: true };
+	}
+
+	/** Normalize handle (yourhandle, @yourhandle) to full Instagram URL; return as-is if already URL. */
+	private toInstagramUrl(value: string): string | null {
+		const v = (value || '').trim();
+		if (!v) return null;
+		if (/^https?:\/\//i.test(v)) return v;
+		const handle = v.replace(/^@/, '').replace(/\/$/, '');
+		return `https://www.instagram.com/${handle}/`;
 	}
 
 	numberValidator(control: AbstractControl): ValidationErrors | null {
@@ -170,6 +197,15 @@ export class CreateCompanyProfileComponent implements OnInit {
 					cleaned[field] = trimmed;
 				}
 				// If empty string, omit the field entirely (don't include in cleaned object)
+			}
+		}
+
+		// Instagram: normalize handle to URL via toInstagramUrl; omit if empty
+		if (data.instagramLink && typeof data.instagramLink === 'string') {
+			const v = data.instagramLink.trim();
+			if (v.length > 0) {
+				const u = this.toInstagramUrl(v);
+				if (u) cleaned.instagramLink = u;
 			}
 		}
 
@@ -343,6 +379,9 @@ export class CreateCompanyProfileComponent implements OnInit {
 			if (control.errors['invalidUrl']) {
 				return 'Please enter a valid URL';
 			}
+			if (control.errors['invalidInstagram']) {
+				return 'Enter a valid Instagram URL or handle';
+			}
 			if (control.errors['invalidNumber']) {
 				return 'Please enter a valid number';
 			}
@@ -353,12 +392,13 @@ export class CreateCompanyProfileComponent implements OnInit {
 		return '';
 	}
 
-	getFieldLabel(fieldName: string): string {
+		getFieldLabel(fieldName: string): string {
 		const labels: { [key: string]: string } = {
 			name: 'Company Name',
 			email: 'Email Address',
 			website: 'Website',
 			facebookLink: 'Facebook Link',
+			instagramLink: 'Instagram Link',
 			tiktokLink: 'TikTok Link',
 			lat: 'Latitude',
 			long: 'Longitude',

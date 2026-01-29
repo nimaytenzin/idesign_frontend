@@ -7,6 +7,7 @@ import { PublicCheckoutComponent } from './public-checkout/public-checkout.compo
 import { PublicOrderConfirmationComponent } from './public-order-confirmation/public-order-confirmation.component';
 import { PublicOrderPaymentComponent } from './public-order-payment/public-order-payment.component';
 import { PublicOrderTrackingComponent } from './public-order-tracking/public-order-tracking.component';
+import { PublicOrderCancelledComponent } from './public-order-cancelled/public-order-cancelled.component';
 import { PublicAboutComponent } from './public-about/public-about.component';
 
 export const publicRoutes: Routes = [
@@ -21,6 +22,7 @@ export const publicRoutes: Routes = [
 			{ path: 'checkout', component: PublicCheckoutComponent },
 			{ path: 'order-confirmation', component: PublicOrderConfirmationComponent },
 			{ path: 'order-payment', component: PublicOrderPaymentComponent },
+			{ path: 'order-cancelled', component: PublicOrderCancelledComponent },
 			{ path: 'track-order', component: PublicOrderTrackingComponent },
 			{ path: 'track', redirectTo: 'track-order', pathMatch: 'full' },
 			{ path: 'about', component: PublicAboutComponent },

@@ -14,24 +14,6 @@ export const ADMINSIDEBARITEMS = [
 				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
 
-			{
-				label: 'Company Profile	',
-				icon: 'pi pi-fw pi-building',
-				routerLink: ['/admin/company-profile'],
-				roles: [USERROLESENUM.ADMIN],
-			},
-			{
-				label: 'Document Archive',
-				icon: 'pi pi-fw pi-folder',
-				routerLink: ['/admin/documents-archive'],
-				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
-			},
-			{
-				label: 'Administrators',
-				icon: 'pi pi-fw pi-user',
-				routerLink: ['/admin/admins'],
-				roles: [USERROLESENUM.ADMIN],
-			},
 		],
 	},
 	 
@@ -76,7 +58,7 @@ export const ADMINSIDEBARITEMS = [
 		],
 	},
 	{
-		label: 'Sales',
+		label: 'Sales & Expenses',
 		items: [
 			{
 				label: 'Orders',
@@ -84,6 +66,14 @@ export const ADMINSIDEBARITEMS = [
 				routerLink: ['/admin/orders'],
 				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
+
+			{
+				label: 'Expense',
+				icon: 'pi pi-fw pi-wallet',
+				routerLink: ['/admin/expenses'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
+			},
+			
 			{
 				label: 'SMS Templates',
 				icon: 'pi pi-fw pi-send',
@@ -96,42 +86,7 @@ export const ADMINSIDEBARITEMS = [
 				routerLink: ['/admin/customers'],
 				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
 			},
-			{
-				label: 'Analytics',
-				icon: 'pi pi-fw pi-chart-line',
-				routerLink: ['/admin/analytics'],
-				roles: [USERROLESENUM.ADMIN],
-			},
-		],
-	},
-	{
-		label: 'Accounts',
-		items: [
-			{
-				label: 'Charts of Accouts',
-				icon: 'pi pi-fw pi-list',
-				routerLink: ['/admin/chart-of-accounts'],
-				roles: [USERROLESENUM.ADMIN],
-			},
-			{
-				label: 'General Ledger',
-				icon: 'pi pi-fw pi-book',
-				routerLink: ['/admin/general-ledger'],
-				roles: [USERROLESENUM.ADMIN],
-			},
-
-			{
-				label: 'Profit & Loss',
-				icon: 'pi pi-fw pi-money-bill',
-				routerLink: ['/admin/profit-loss'],
-				roles: [USERROLESENUM.ADMIN],
-			},
-			{
-				label: 'Expense Recording',
-				icon: 'pi pi-fw pi-file-pdf',
-				routerLink: ['/admin/expense-recording'],
-				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
-			},
+			
 		],
 	},
 	{
@@ -181,6 +136,18 @@ export const ADMINSIDEBARITEMS = [
 		label: 'Content Management',
 		items: [
 			{
+				label: 'Company Profile	',
+				icon: 'pi pi-fw pi-building',
+				routerLink: ['/admin/company-profile'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Document Archive',
+				icon: 'pi pi-fw pi-folder',
+				routerLink: ['/admin/documents-archive'],
+				roles: [USERROLESENUM.ADMIN, USERROLESENUM.STAFF],
+			},
+			{
 				label: 'Services & Clients',
 				icon: 'pi pi-fw pi-users',
 				routerLink: ['/admin/company-clients'],
@@ -198,6 +165,20 @@ export const ADMINSIDEBARITEMS = [
 		label: 'Settings',
 		items: [
 			{
+				label: 'View Analytics',
+				icon: 'pi pi-fw pi-chart-line',
+				routerLink: ['/admin/analytics'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+
+		
+			{
+				label: 'Administrators',
+				icon: 'pi pi-fw pi-user',
+				routerLink: ['/admin/admins'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
 				label: 'General Settings',
 				icon: 'pi pi-fw pi-cog',
 				routerLink: ['/admin/settings'],
@@ -207,6 +188,12 @@ export const ADMINSIDEBARITEMS = [
 				label: 'Delivery Locations & Rates',
 				icon: 'pi pi-fw pi-map-marker',
 				routerLink: ['/admin/settings/delivery'],
+				roles: [USERROLESENUM.ADMIN],
+			},
+			{
+				label: 'Bank Accounts',
+				icon: 'pi pi-fw pi-wallet',
+				routerLink: ['/admin/settings/bank-accounts'],
 				roles: [USERROLESENUM.ADMIN],
 			},
 			{

@@ -1,82 +1,166 @@
-<div class="min-h-screen bg-slate-50 py-12">
+<div class="min-h-screen bg-slate-50 py-12 print:py-4">
 	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-		<div class="text-center mb-8">
-			<div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
-			
-			>
-				
-			</div>
+		<!-- Header (no image) -->
+		<div class="text-center mb-8 print:mb-4">
 			<h1 class="text-3xl font-bold text-slate-900 mb-2">
-				
+				Order Confirmed
 			</h1>
-			
+			<p class="text-slate-600">Thank you for your order.</p>
 		</div>
 
-		<div class="bg-white rounded-lg border border-slate-200 p-8 mb-8">
-			<div class="space-y-4">
+		<!-- Loading -->
+		<div *ngIf="loading" class="text-center py-12">
+			<i class="pi pi-spin pi-spinner text-4xl text-teal-600"></i>
+			<p class="mt-4 text-slate-600">Loading order details...</p>
+		</div>
+
+		<ng-container *ngIf="!loading && order">
+			<!-- Order number & summary card -->
+			<div class="bg-white rounded-lg border border-slate-200 p-8 mb-6 print:shadow-none">
 				<div class="flex justify-between items-center pb-4 border-b border-slate-200">
-					<span class="text-slate-600">Order Number:</span>
-					<span class="text-lg font-semibold text-slate-900">{{ orderNumber || order?.orderNumber || 'N/A' }}</span>
+					<span class="text-slate-600">Order Number</span>
+					<span class="text-lg font-semibold text-slate-900">{{ orderNumber || order.orderNumber || 'N/A' }}</span>
 				</div>
 
-				
-
-				<div *ngIf="order" class="space-y-2 pt-4">
-					<!-- Voucher Code Display -->
-					<div *ngIf="order.voucherCode" class="mb-3 p-3 bg-teal-50 border border-teal-200 rounded-lg">
-						<div class="flex items-center gap-2 mb-1">
-							<i class="pi pi-tag text-teal-600"></i>
-							<span class="text-sm font-semibold text-teal-900">Voucher Code Applied</span>
-						</div>
-						
+				<!-- Delivery / fulfillment mode -->
+				<div class="pt-4 pb-4 border-b border-slate-200">
+					<span class="text-slate-600 block mb-1">Delivery mode</span>
+					<span class="font-medium text-slate-900">{{ getFulfillmentLabel() }}</span>
+					<div *ngIf="order.fulfillmentType === 'DELIVERY' && (order.shippingAddress || order.deliveryLocation)" class="mt-2 text-sm text-slate-600">
+						<span *ngIf="order.shippingAddress">{{ order.shippingAddress }}</span>
+						<span *ngIf="order.deliveryLocation"> · {{ order.deliveryLocation }}</span>
+						<span *ngIf="order.deliveryMode" class="block mt-1">Mode: {{ order.deliveryMode }}</span>
 					</div>
+				</div>
 
-	
+				<!-- Voucher -->
+				<div *ngIf="order.voucherCode" class="mt-3 p-3 bg-teal-50 border border-teal-200 rounded-lg">
+					<div class="flex items-center gap-2 mb-1">
+						<i class="pi pi-tag text-teal-600"></i>
+						<span class="text-sm font-semibold text-teal-900">Voucher applied</span>
+					</div>
+					<span class="text-sm text-teal-800">{{ order.voucherCode }}</span>
+				</div>
 			</div>
-		</div>
 
-		<div class="flex flex-col sm:flex-row gap-4 justify-center">
-			<!-- <button
-				*ngIf="order && order.paymentStatus === PaymentStatus.PENDING && order.paymentMethod === 'ZPSS'"
-				type="button"
-				class="inline-flex items-center justify-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-				(click)="goToPayment()"
-			>
-				<i class="pi pi-credit-card mr-2"></i>
-				Pay Now
-			</button> -->
-			<button
-				*ngIf="order && order.orderItems && order.orderItems.length > 0"
-				type="button"
-				class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-				(click)="openRatingDialog()"
-			>
-				<i class="pi pi-star mr-2"></i>
-				Rate Products
-			</button>
-			<button
-				type="button"
-				class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-				(click)="goToProducts()"
-			>
-				<i class="pi pi-shopping-bag mr-2"></i>
-				Continue Shopping
-			</button>
-			<button
-				type="button"
-				class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-				(click)="goToHome()"
-			>
-				<i class="pi pi-home mr-2"></i>
-				Go to Home
-			</button>
+			<!-- Order items (no images) -->
+			<div class="bg-white rounded-lg border border-slate-200 overflow-hidden mb-6 print:break-inside-avoid">
+				<div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+					<h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+						<i class="pi pi-shopping-bag text-slate-600"></i>
+						Order items
+					</h2>
+				</div>
+				<ul class="divide-y divide-slate-200">
+					<li
+						*ngFor="let item of order.orderItems"
+						class="flex justify-between gap-4 p-4 hover:bg-slate-50/50 transition-colors"
+					>
+						<div class="flex-1 min-w-0">
+							<h3 class="font-medium text-slate-900">{{ item.product?.title || 'Product' }}</h3>
+							<p class="text-sm text-slate-600 mt-0.5">Qty: {{ item.quantity }} × {{ formatPrice(item.unitPrice) }}</p>
+							<p *ngIf="item.discountApplied > 0" class="text-sm text-teal-600 mt-0.5">Line discount: {{ formatPrice(item.discountApplied) }}</p>
+						</div>
+						<div class="flex-shrink-0 text-right">
+							<span class="font-semibold text-slate-900">{{ formatPrice(item.lineTotal) }}</span>
+						</div>
+					</li>
+				</ul>
+			</div>
+
+			<!-- Discount details -->
+			<div class="bg-white rounded-lg border border-slate-200 p-6 mb-6" *ngIf="order.discount > 0 || (order.orderDiscounts && order.orderDiscounts.length > 0)">
+				<h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+					<i class="pi pi-tag text-teal-600"></i>
+					Discount details
+				</h2>
+				<div class="space-y-3">
+					<ng-container *ngIf="order.orderDiscounts && order.orderDiscounts.length > 0">
+						<div *ngFor="let d of order.orderDiscounts" class="flex justify-between items-center py-2 border-b border-slate-100 last:border-0">
+							<div>
+								<span class="font-medium text-slate-900">{{ d.discountName }}</span>
+								<span *ngIf="d.voucherCode" class="text-slate-600 text-sm ml-2">({{ d.voucherCode }})</span>
+							</div>
+							<span class="text-teal-600 font-medium">− {{ formatPrice(d.discountAmount) }}</span>
+						</div>
+					</ng-container>
+					<div class="flex justify-between items-center pt-2 border-t border-slate-200" *ngIf="order.discount > 0">
+						<span class="font-semibold text-slate-900">Total discount / You saved</span>
+						<span class="font-semibold text-teal-600">{{ formatPrice(order.discount) }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Totals -->
+			<div class="bg-white rounded-lg border border-slate-200 p-6 mb-6">
+				<div class="space-y-2">
+					<div class="flex justify-between text-slate-600">
+						<span>Subtotal</span>
+						<span>{{ formatPrice(order.subTotal) }}</span>
+					</div>
+					<div *ngIf="order.discount > 0" class="flex justify-between text-teal-600">
+						<span>Discount</span>
+						<span>− {{ formatPrice(order.discount) }}</span>
+					</div>
+					<div *ngIf="order.deliveryCost > 0" class="flex justify-between text-slate-600">
+						<span>Delivery</span>
+						<span>{{ formatPrice(order.deliveryCost) }}</span>
+					</div>
+					<div class="flex justify-between text-lg font-semibold text-slate-900 pt-2 border-t border-slate-200">
+						<span>Total</span>
+						<span>{{ formatPrice(order.totalPayable) }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Actions: Print / Save, Rate, Continue, Home -->
+			<div class="flex flex-col sm:flex-row gap-4 justify-center print:hidden">
+				<button
+					type="button"
+					pButton
+					label="Print / Save order"
+					icon="pi pi-print"
+					class="p-button-outlined"
+					(click)="printOrderSummary()"
+				></button>
+				<button
+					*ngIf="order.orderItems && order.orderItems.length > 0"
+					type="button"
+					pButton
+					label="Rate Products"
+					icon="pi pi-star"
+					class="p-button-outlined"
+					(click)="openRatingDialog()"
+				></button>
+				<button
+					type="button"
+					pButton
+					label="Continue Shopping"
+					icon="pi pi-shopping-bag"
+					class="p-button-outlined"
+					(click)="goToProducts()"
+				></button>
+				<button
+					type="button"
+					pButton
+					label="Go to Home"
+					icon="pi pi-home"
+					class="p-button-outlined"
+					(click)="goToHome()"
+				></button>
+			</div>
+		</ng-container>
+
+		<!-- No order -->
+		<div *ngIf="!loading && !order && !orderId" class="bg-white rounded-lg border border-slate-200 p-8 text-center">
+			<p class="text-slate-600">No order specified. Use a valid order link.</p>
+			<button type="button" pButton label="Go to Home" icon="pi pi-home" class="mt-4" (click)="goToHome()"></button>
 		</div>
 	</div>
-
-	<!-- Product Rating Dialog -->
-	<app-product-rating-dialog
-		[(visible)]="ratingDialogVisible"
-		[orderItems]="order?.orderItems || []"
-	></app-product-rating-dialog>
 </div>
 
+<!-- Product Rating Dialog -->
+<app-product-rating-dialog
+	[(visible)]="ratingDialogVisible"
+	[orderItems]="order?.orderItems || []"
+></app-product-rating-dialog>

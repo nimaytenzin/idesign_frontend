@@ -128,7 +128,7 @@ export class CompanyProfileComponent implements OnInit {
 
 	getLogoUrl(): string {
 		if (!this.company) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		// Use the logo endpoint to get the logo
 		return this.companyService.getLogoUrl();

@@ -164,3 +164,20 @@
 
 <!-- Spacer for fixed navbar - matches navbar height exactly -->
 <div class="h-16 w-full" id="navbar-spacer"></div>
+
+<!-- Mobile: Floating Cart Button - visible when cart has items -->
+<button
+	*ngIf="cartItemCount > 0"
+	(click)="goToCheckout()"
+	class="floating-cart-fab md:hidden"
+	[class.floating-cart-animated]="cartIconAnimated"
+	title="View cart"
+	[attr.aria-label]="'View shopping cart (' + cartItemCount + ' items)'"
+>
+	<i class="pi pi-shopping-cart text-xl"></i>
+	<span
+		class="floating-cart-badge"
+		aria-hidden="true"
+		>{{ cartItemCount }}</span
+	>
+</button>

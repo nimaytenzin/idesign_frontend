@@ -201,10 +201,65 @@
 							<p class="text-xs text-slate-500 mt-1">Enter 8-digit phone number</p>
 						</div>
 
+						<!-- Fulfillment: Delivery or Pickup -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">
+								<i class="pi pi-truck text-slate-500 mr-2"></i>
+								How would you like to receive your order? <span class="text-red-500">*</span>
+							</label>
+							<p-selectButton
+								[options]="fulfillmentOptions"
+								optionLabel="label"
+								optionValue="value"
+								[(ngModel)]="fulfillmentType"
+								name="fulfillmentType"
+								(onChange)="onFulfillmentTypeChange()"
+							></p-selectButton>
+						</div>
+
+						<!-- Delivery: location + mode (delivery rate) -->
+						<div *ngIf="fulfillmentType === FulfillmentType.DELIVERY" class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-slate-700 mb-2">
+									<i class="pi pi-map-marker text-slate-500 mr-2"></i>
+									Delivery location and mode <span class="text-red-500">*</span>
+								</label>
+								<p-dropdown
+									[options]="deliveryRates"
+									[(ngModel)]="selectedDeliveryRate"
+									name="selectedDeliveryRate"
+									(onChange)="onDeliveryRateChange()"
+									placeholder="Select delivery location and mode"
+									styleClass="w-full"
+									[filter]="true"
+									[loading]="deliveryRates.length === 0"
+								>
+									<ng-template let-rate pTemplate="item">
+										<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 gap-1">
+											<span>{{ getDeliveryRateDisplay(rate) }}</span>
+											<span class="text-xs text-slate-500">
+												{{ formatDeliveryCurrency(rate.rate) }} – {{ getTransportModeLabel(rate.transportMode) }}
+											</span>
+										</div>
+									</ng-template>
+									<ng-template let-rate pTemplate="selectedItem">
+										<span>{{ getDeliveryRateDisplay(rate) }} – {{ getTransportModeLabel(rate.transportMode) }}</span>
+									</ng-template>
+								</p-dropdown>
+							</div>
+							<div *ngIf="selectedDeliveryRate" class="p-3 bg-teal-50 rounded-lg">
+								<div class="flex items-center gap-2 text-sm text-teal-700">
+									<i class="pi pi-info-circle"></i>
+									<span>Delivery cost: <strong>{{ formatDeliveryCurrency(selectedDeliveryRate.rate) }}</strong></span>
+								</div>
+							</div>
+						</div>
+
 						<div>
 							<label class="block text-sm font-medium text-slate-700 mb-2">
 								<i class="pi pi-map-marker text-slate-500 mr-2"></i>
-								Address
+								<ng-container *ngIf="fulfillmentType === FulfillmentType.DELIVERY">Shipping Address <span class="text-red-500">*</span></ng-container>
+								<ng-container *ngIf="fulfillmentType !== FulfillmentType.DELIVERY">Address</ng-container>
 							</label>
 							<textarea
 								pInputTextarea
@@ -212,7 +267,7 @@
 								name="address"
 								rows="3"
 								class="w-full border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-								placeholder="Enter your complete address"
+								[placeholder]="fulfillmentType === FulfillmentType.DELIVERY ? 'Enter your full shipping address' : 'Enter your address (optional for pickup)'"
 							></textarea>
 						</div>
 
@@ -239,7 +294,7 @@
 									*ngIf="!voucherCodeApplied"
 									class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
 									(click)="applyVoucherCode()"
-									[disabled]="validatingVoucher || placingOrder || !customerForm.voucherCode?.trim()"
+									[disabled]="validatingVoucher || placingOrder || !customerForm.voucherCode.trim()"
 								>
 									<span *ngIf="!validatingVoucher">Apply</span>
 									<span *ngIf="validatingVoucher">Validating...</span>
@@ -359,6 +414,17 @@
 									-Nu {{ getVoucherDiscount().toFixed(2) }}
 								</span>
 							</div>
+
+							<div 
+								*ngIf="fulfillmentType === FulfillmentType.DELIVERY && deliveryCost > 0"
+								class="flex justify-between items-center py-3 border-b border-slate-200"
+							>
+								<span class="text-base font-medium text-slate-600">
+									<i class="pi pi-truck mr-1"></i>
+									Delivery
+								</span>
+								<span class="text-base font-semibold text-slate-900">Nu {{ deliveryCost.toFixed(2) }}</span>
+							</div>
 							
 							<div class="pt-4 border-t-2 border-slate-300">
 								<div class="flex justify-between items-center">
@@ -368,11 +434,25 @@
 							</div>
 						</div>
 
+						<!-- Retry payment (order created but payment initiation failed) -->
+						<div *ngIf="checkoutOrderCreatedPaymentFailed" class="mb-4 p-4 rounded-lg border border-amber-200 bg-amber-50">
+							<p class="text-sm font-medium text-amber-800 mb-1">Order #{{ checkoutOrderCreatedPaymentFailed.orderNumber }} was placed.</p>
+							<p class="text-sm text-amber-700 mb-2" *ngIf="checkoutPaymentError">{{ checkoutPaymentError }}</p>
+							<p class="text-sm text-slate-600 mb-3">Amount: Nu {{ checkoutOrderCreatedPaymentFailed.totalPayable | number:'1.2-2' }}</p>
+							<button
+								type="button"
+								class="w-full px-4 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 text-sm font-semibold transition-colors"
+								(click)="goToRetryPayment()"
+							>
+								Retry payment
+							</button>
+						</div>
+
 						<!-- Place Order Button -->
 						<button
 							type="button"
 							class="w-full px-4 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-base font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
-							[disabled]="placingOrder || cartItems.length === 0"
+							[disabled]="placingOrder || cartItems.length === 0 || (fulfillmentType === FulfillmentType.DELIVERY && !selectedDeliveryRate)"
 							(click)="placeOrder()"
 						>
 							<span *ngIf="!placingOrder">Place Order</span>

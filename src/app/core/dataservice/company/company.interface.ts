@@ -25,6 +25,7 @@ export interface Company {
 	businessLicenseNumber?: string;
 	slogan?: string;
 	facebookLink?: string;
+	instagramLink?: string;
 	tiktokLink?: string;
 	description?: string;
 	logo?: string;
@@ -53,6 +54,7 @@ export interface CreateCompanyDto {
 	businessLicenseNumber?: string;
 	slogan?: string;
 	facebookLink?: string;
+	instagramLink?: string;
 	tiktokLink?: string;
 	description?: string;
 	logo?: string;

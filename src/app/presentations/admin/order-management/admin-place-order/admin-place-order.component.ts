@@ -7,16 +7,19 @@ import { DialogService, DynamicDialogRef, DynamicDialogConfig } from 'primeng/dy
 import { OrderService } from '../../../../core/dataservice/order/order.service';
 import { ProductService } from '../../../../core/dataservice/product/product.service';
 import { DeliveryRateService } from '../../../../core/dataservice/delivery-rate/delivery-rate.service';
+import { BankAccountService } from '../../../../core/dataservice/bank-account/bank-account.service';
+import { BankAccount } from '../../../../core/dataservice/bank-account/bank-account.interface';
 import {
 	CreateOrderDto,
 	CreateOrderItemDto,
 	CustomerDetailsDto,
+	Order,
 	OrderSource,
 } from '../../../../core/dataservice/order/order.interface';
 import { PaymentMethod } from '../../../../core/dataservice/account/account.interface';
 import { Product } from '../../../../core/dataservice/product/product.interface';
 import { DeliveryRate } from '../../../../core/dataservice/delivery-rate/delivery-rate.interface';
-import { FulfillmentType } from '../../../../core/constants/enums';
+import { FulfillmentStatus, FulfillmentType } from '../../../../core/constants/enums';
 import { PrimeNgModules } from '../../../../primeng.modules';
 
 @Component({
@@ -55,13 +58,17 @@ export class AdminPlaceOrderComponent implements OnInit {
 		billingAddress: '',
 	};
 
-	// Step 3: Fulfillment Type
-	fulfillmentType: FulfillmentType = FulfillmentType.INSTORE;
+	// Step 3: Two questions — (1) Pay now or Pay later, (2) How will customer receive (DELIVERY | PICKUP | INSTORE)
+	/** Counter orders: backend should set fulfillmentStatus to CONFIRMED regardless of payment. */
+	payNowOrLater: 'PAY_NOW' | 'PAY_LATER' = 'PAY_NOW';
+	receiveHow: FulfillmentType = FulfillmentType.INSTORE;
 	deliveryRates: DeliveryRate[] = [];
 	selectedDeliveryRate: DeliveryRate | null = null;
 	shippingAddress: string = '';
 	deliveryCost: number = 0;
 	paymentMethod: PaymentMethod | null = null;
+	bankAccounts: BankAccount[] = [];
+	selectedBankAccountId: number | null = null;
 	orderSource: OrderSource = OrderSource.COUNTER;
 	discount: number = 0;
 	voucherCode: string = '';
@@ -69,6 +76,17 @@ export class AdminPlaceOrderComponent implements OnInit {
 
 	// Enums for template
 	FulfillmentType = FulfillmentType;
+
+	payNowOrLaterOptions = [
+		{ label: 'Pay now', value: 'PAY_NOW' },
+		{ label: 'Pay later', value: 'PAY_LATER' },
+	];
+	receiveHowOptions = [
+		{ label: 'Delivery', value: FulfillmentType.DELIVERY },
+
+		{ label: 'Pickup Later', value: FulfillmentType.PICKUP },
+		{ label: 'In-store Purchase', value: FulfillmentType.INSTORE },
+	];
 
 	// Calculated
 	subtotal: number = 0;
@@ -85,6 +103,7 @@ export class AdminPlaceOrderComponent implements OnInit {
 		private orderService: OrderService,
 		private productService: ProductService,
 		private deliveryRateService: DeliveryRateService,
+		private bankAccountService: BankAccountService,
 		private messageService: MessageService,
 		private cdr: ChangeDetectorRef,
 		public ref?: DynamicDialogRef,
@@ -93,6 +112,19 @@ export class AdminPlaceOrderComponent implements OnInit {
 
 	ngOnInit() {
 		this.loadProducts();
+		this.loadBankAccounts();
+	}
+
+	loadBankAccounts() {
+		this.bankAccountService.getAll(true).subscribe({
+			next: (data) => {
+				this.bankAccounts = data || [];
+				this.cdr.markForCheck();
+			},
+			error: () => {
+				this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Failed to load bank accounts' });
+			},
+		});
 	}
 
 	loadDeliveryRates() {
@@ -111,19 +143,38 @@ export class AdminPlaceOrderComponent implements OnInit {
 		});
 	}
 
-	onFulfillmentTypeChange() {
-		if (this.fulfillmentType === FulfillmentType.DELIVERY) {
-			// Load delivery rates when DELIVERY is selected
-			if (this.deliveryRates.length === 0) {
-				this.loadDeliveryRates();
-			}
+	getFulfillmentType(): FulfillmentType {
+		return this.receiveHow;
+	}
+
+	onPayNowOrLaterChange() {
+		if (this.payNowOrLater === 'PAY_LATER') {
+			this.paymentMethod = null;
+			this.selectedBankAccountId = null;
+		}
+		this.calculateTotals();
+		this.cdr.markForCheck();
+	}
+
+	onPaymentMethodChange() {
+		if (this.paymentMethod === 'CASH') this.selectedBankAccountId = null;
+		this.cdr.markForCheck();
+	}
+
+	/** True when Pay now and paymentMethod is not CASH (MBOB, BDB_EPAY, TPAY, BNB_MPAY, ZPSS). */
+	needsBankAccount(): boolean {
+		return this.payNowOrLater === 'PAY_NOW' && !!this.paymentMethod && this.paymentMethod !== 'CASH';
+	}
+
+	onReceiveHowChange() {
+		if (this.receiveHow === FulfillmentType.DELIVERY) {
+			if (this.deliveryRates.length === 0) this.loadDeliveryRates();
 		} else {
-			// Clear delivery-related fields for INSTORE
 			this.selectedDeliveryRate = null;
 			this.shippingAddress = '';
 			this.deliveryCost = 0;
-			this.calculateTotals();
 		}
+		this.calculateTotals();
 		this.cdr.markForCheck();
 	}
 
@@ -295,34 +346,6 @@ export class AdminPlaceOrderComponent implements OnInit {
 				});
 				return;
 			}
-		} else if (this.activeStep === 2) {
-			// Step 3: Fulfillment Type
-			if (this.fulfillmentType === FulfillmentType.DELIVERY) {
-				if (!this.selectedDeliveryRate) {
-					this.messageService.add({
-						severity: 'warn',
-						summary: 'Warning',
-						detail: 'Please select a delivery rate',
-					});
-					return;
-				}
-				if (!this.shippingAddress || this.shippingAddress.trim() === '') {
-					this.messageService.add({
-						severity: 'warn',
-						summary: 'Warning',
-						detail: 'Shipping address is required for delivery orders',
-					});
-					return;
-				}
-			}
-			if (!this.paymentMethod) {
-				this.messageService.add({
-					severity: 'warn',
-					summary: 'Warning',
-					detail: 'Please select a payment method',
-				});
-				return;
-			}
 		}
 		this.activeStep++;
 	}
@@ -337,54 +360,37 @@ export class AdminPlaceOrderComponent implements OnInit {
 		this.submitted = true;
 
 		if (!this.customer.name && !this.customer.email) {
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'Customer name or email is required',
-			});
+			this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Customer name or email is required' });
 			return;
 		}
-
 		if (this.orderItems.length === 0) {
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'Please add at least one product',
-			});
+			this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please add at least one product' });
 			return;
 		}
 
-		if (this.fulfillmentType === FulfillmentType.DELIVERY) {
+		const needsDelivery = this.receiveHow === FulfillmentType.DELIVERY;
+		if (needsDelivery) {
 			if (!this.selectedDeliveryRate) {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'Error',
-					detail: 'Please select a delivery rate',
-				});
+				this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select a delivery rate' });
 				return;
 			}
 			if (!this.shippingAddress || this.shippingAddress.trim() === '') {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'Error',
-					detail: 'Shipping address is required for delivery orders',
-				});
+				this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Shipping address is required for delivery' });
 				return;
 			}
 		}
-
-		if (!this.paymentMethod) {
-			this.messageService.add({
-				severity: 'error',
-				summary: 'Error',
-				detail: 'Please select a payment method',
-			});
+		const needsPayment = this.payNowOrLater === 'PAY_NOW';
+		if (needsPayment && !this.paymentMethod) {
+			this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select a payment method' });
+			return;
+		}
+		if (this.needsBankAccount() && !this.selectedBankAccountId) {
+			this.messageService.add({ severity: 'error', summary: 'Error', detail: 'bankAccountId is required when payment method is not CASH' });
 			return;
 		}
 
 		this.loading = true;
-
-		const orderData: CreateOrderDto = {
+		const base = {
 			customer: {
 				name: this.customer.name || undefined,
 				email: this.customer.email || undefined,
@@ -398,43 +404,49 @@ export class AdminPlaceOrderComponent implements OnInit {
 				unitPrice: item.unitPrice,
 				discountApplied: item.discountApplied,
 			})),
-			orderSource: this.orderSource,
-			fulfillmentType: this.fulfillmentType,
-			paymentMethod: this.paymentMethod || undefined,
 			discount: this.discount > 0 ? this.discount : undefined,
 			voucherCode: this.voucherCode || undefined,
-			deliveryCost: this.deliveryCost > 0 ? (typeof this.deliveryCost === 'string' ? parseFloat(this.deliveryCost) : Number(this.deliveryCost)) : undefined,
-			deliveryRateId: this.selectedDeliveryRate?.id,
-			shippingAddress: this.fulfillmentType === FulfillmentType.DELIVERY ? this.shippingAddress : undefined,
 			internalNotes: this.internalNotes || undefined,
 		};
+		const deliveryCostVal = this.deliveryCost > 0 ? (typeof this.deliveryCost === 'string' ? parseFloat(this.deliveryCost) : Number(this.deliveryCost)) : undefined;
 
-		console.log(orderData);
+		const onSuccess = (data: Order) => {
+			this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully' });
+			if (this.ref) this.ref.close(data);
+			else this.router.navigate(['/admin/orders']);
+			this.orderCreated.emit();
+		};
+		const onError = (error: { error?: { message?: string } }) => {
+			this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Failed to create order' });
+			this.loading = false;
+			this.cdr.markForCheck();
+		};
 
-		this.orderService.instorePlaceOrder(orderData).subscribe({
-			next: (data) => {
-				this.messageService.add({
-					severity: 'success',
-					summary: 'Success',
-					detail: 'Order created successfully',
-				});
-				if (this.ref) {
-					this.ref.close(data);
-				} else {
-					this.router.navigate(['/admin/orders']);
-				}
-				this.orderCreated.emit();
-			},
-			error: (error) => {
-				this.messageService.add({
-					severity: 'error',
-					summary: 'Error',
-					detail: error.error?.message || 'Failed to create order',
-				});
-				this.loading = false;
-				this.cdr.markForCheck();
-			},
-		});
+		const fulfillment = this.getFulfillmentType();
+		if (this.payNowOrLater === 'PAY_NOW') {
+			const dto: CreateOrderDto = {
+				...base,
+				orderSource: OrderSource.COUNTER,
+				fulfillmentType: fulfillment,
+				paymentMethod: this.paymentMethod!,
+				bankAccountId: this.needsBankAccount() && this.selectedBankAccountId ? this.selectedBankAccountId : undefined,
+				deliveryCost: needsDelivery ? deliveryCostVal : undefined,
+				deliveryRateId: needsDelivery ? this.selectedDeliveryRate?.id : undefined,
+				shippingAddress: needsDelivery ? this.shippingAddress : undefined,
+			};
+			this.orderService.instorePlaceOrder(dto).subscribe({ next: onSuccess, error: onError });
+		} else {
+			// Pay later: no paymentMethod; use createOnlineOrder (PLACED + PENDING) with orderSource COUNTER
+			const dto: CreateOrderDto = {
+				...base,
+				orderSource: OrderSource.COUNTER,
+				fulfillmentType: fulfillment,
+				deliveryCost: needsDelivery ? deliveryCostVal : undefined,
+				deliveryRateId: needsDelivery ? this.selectedDeliveryRate?.id : undefined,
+				shippingAddress: needsDelivery ? this.shippingAddress : undefined,
+			};
+			this.orderService.createOnlineOrder(dto).subscribe({ next: onSuccess, error: onError });
+		}
 	}
 
 	cancel() {

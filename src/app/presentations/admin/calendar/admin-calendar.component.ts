@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PrimeNgModules } from '../../../primeng.modules';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions, EventInput, DateSelectArg, EventClickArg, EventApi } from '@fullcalendar/core';
+import { CalendarOptions, EventInput, DateSelectArg, EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -13,15 +14,19 @@ import multiMonthPlugin from '@fullcalendar/multimonth';
 import {
 	CalendarEventService,
 	CalendarEventResponseDto,
-	CreateCalendarEventDto,
 	UpdateCalendarEventDto,
 } from '../../../core/dataservice';
+import {
+	CalendarEventFormComponent,
+	CalendarEventFormData,
+} from './calendar-event-form/calendar-event-form.component';
+import { CalendarRecurringEventFormComponent } from './calendar-recurring-event-form/calendar-recurring-event-form.component';
 
 @Component({
 	selector: 'app-admin-calendar',
 	standalone: true,
 	imports: [CommonModule, FormsModule, PrimeNgModules, FullCalendarModule],
-	providers: [MessageService, ConfirmationService],
+	providers: [MessageService, ConfirmationService, DialogService],
 	templateUrl: './admin-calendar.component.html',
 	styleUrl: './admin-calendar.component.scss',
 	encapsulation: ViewEncapsulation.None,
@@ -59,32 +64,12 @@ export class AdminCalendarComponent implements OnInit {
 	};
 
 	loading = false;
-	showEventDialog = false;
-	selectedEvent: EventApi | null = null;
-	eventForm: {
-		title: string;
-		description: string;
-		startDate: Date | null;
-		endDate: Date | null;
-		location: string;
-		color: string;
-		isAllDay: boolean;
-	} = {
-		title: '',
-		description: '',
-		startDate: null,
-		endDate: null,
-		location: '',
-		color: '#3498db',
-		isAllDay: false,
-	};
-
-	currentEventId: number | null = null;
 
 	constructor(
 		private calendarEventService: CalendarEventService,
 		private messageService: MessageService,
 		private confirmationService: ConfirmationService,
+		private dialogService: DialogService,
 		private cdr: ChangeDetectorRef
 	) {}
 
@@ -131,39 +116,57 @@ export class AdminCalendarComponent implements OnInit {
 	}
 
 	handleDateSelect(selectInfo: DateSelectArg) {
-		this.selectedEvent = null;
 		const startDate = selectInfo.start;
 		const endDate = selectInfo.end || new Date(startDate.getTime() + 60 * 60 * 1000);
-
-		this.eventForm = {
+		const initialForm: CalendarEventFormData = {
 			title: '',
 			description: '',
-			startDate: startDate,
-			endDate: endDate,
+			startDate,
+			endDate,
 			location: '',
 			color: '#3498db',
 			isAllDay: selectInfo.allDay,
 		};
-		this.showEventDialog = true;
 		selectInfo.view.calendar.unselect();
+
+		const ref = this.dialogService.open(CalendarEventFormComponent, {
+			header: 'Create Event',
+			width: '600px',
+			modal: true,
+			dismissableMask: true,
+			styleClass: 'p-dialog-maximized-responsive',
+			data: { mode: 'create', initialForm },
+		});
+		ref.onClose.subscribe((result) => {
+			if (result) this.loadCalendarEvents();
+		});
 	}
 
 	handleEventClick(clickInfo: EventClickArg) {
-		this.selectedEvent = clickInfo.event;
-		this.currentEventId = typeof clickInfo.event.id === 'string' 
-			? parseInt(clickInfo.event.id, 10) 
-			: clickInfo.event.id as number;
-		
-		this.eventForm = {
+		const eventId = typeof clickInfo.event.id === 'string'
+			? parseInt(clickInfo.event.id, 10)
+			: (clickInfo.event.id as number);
+		const initialForm: CalendarEventFormData = {
 			title: clickInfo.event.title,
-			description: clickInfo.event.extendedProps['description'] || '',
+			description: (clickInfo.event.extendedProps as { description?: string })?.description ?? '',
 			startDate: clickInfo.event.start ? new Date(clickInfo.event.start) : null,
 			endDate: clickInfo.event.end ? new Date(clickInfo.event.end) : null,
-			location: clickInfo.event.extendedProps['location'] || '',
-			color: clickInfo.event.backgroundColor || '#3498db',
-			isAllDay: clickInfo.event.allDay || false,
+			location: (clickInfo.event.extendedProps as { location?: string })?.location ?? '',
+			color: clickInfo.event.backgroundColor ?? '#3498db',
+			isAllDay: clickInfo.event.allDay ?? false,
 		};
-		this.showEventDialog = true;
+
+		const ref = this.dialogService.open(CalendarEventFormComponent, {
+			header: 'Edit Event',
+			width: '600px',
+			modal: true,
+			dismissableMask: true,
+			styleClass: 'p-dialog-maximized-responsive',
+			data: { mode: 'edit', eventId, initialForm },
+		});
+		ref.onClose.subscribe((result) => {
+			if (result) this.loadCalendarEvents();
+		});
 	}
 
 	handleEventDrop(dropInfo: any) {
@@ -227,154 +230,45 @@ export class AdminCalendarComponent implements OnInit {
 		});
 	}
 
-	saveEvent() {
-		if (!this.eventForm.title || !this.eventForm.startDate) {
-			this.messageService.add({
-				severity: 'warn',
-				summary: 'Validation Error',
-				detail: 'Please fill in all required fields',
-			});
-			return;
-		}
-
-		this.loading = true;
-
-		if (this.currentEventId && this.selectedEvent) {
-			// Update existing event
-			const updateDto: UpdateCalendarEventDto = {
-				title: this.eventForm.title,
-				start: this.eventForm.startDate.toISOString(),
-				end: this.eventForm.endDate ? this.eventForm.endDate.toISOString() : undefined,
-				allDay: this.eventForm.isAllDay,
-				backgroundColor: this.eventForm.color,
-				borderColor: this.eventForm.color,
-				textColor: '#ffffff',
-				location: this.eventForm.location || undefined,
-				description: this.eventForm.description || undefined,
-			};
-
-			this.calendarEventService.updateCalendarEvent(this.currentEventId, updateDto).subscribe({
-				next: () => {
-					this.messageService.add({
-						severity: 'success',
-						summary: 'Success',
-						detail: 'Event updated successfully',
-					});
-					this.loadCalendarEvents();
-					this.closeEventDialog();
-				},
-				error: (error: any) => {
-					this.messageService.add({
-						severity: 'error',
-						summary: 'Error',
-						detail: error.error?.message || 'Failed to update event',
-					});
-					this.loading = false;
-				},
-			});
-		} else {
-			// Create new event
-			const createDto: CreateCalendarEventDto = {
-				title: this.eventForm.title,
-				start: this.eventForm.startDate.toISOString(),
-				end: this.eventForm.endDate ? this.eventForm.endDate.toISOString() : undefined,
-				allDay: this.eventForm.isAllDay || false,
-				backgroundColor: this.eventForm.color,
-				borderColor: this.eventForm.color,
-				textColor: '#ffffff',
-				location: this.eventForm.location || undefined,
-				description: this.eventForm.description || undefined,
-			};
-
-			this.calendarEventService.createCalendarEvent(createDto).subscribe({
-				next: () => {
-					this.messageService.add({
-						severity: 'success',
-						summary: 'Success',
-						detail: 'Event created successfully',
-					});
-					this.loadCalendarEvents();
-					this.closeEventDialog();
-				},
-				error: (error: any) => {
-					this.messageService.add({
-						severity: 'error',
-						summary: 'Error',
-						detail: error.error?.message || 'Failed to create event',
-					});
-					this.loading = false;
-				},
-			});
-		}
-	}
-
-	deleteEvent() {
-		if (!this.currentEventId || !this.selectedEvent) {
-			return;
-		}
-
-		this.confirmationService.confirm({
-			message: `Are you sure you want to delete "${this.selectedEvent.title}"?`,
-			header: 'Confirm Deletion',
-			icon: 'pi pi-exclamation-triangle',
-			acceptButtonStyleClass: 'p-button-danger',
-			accept: () => {
-				this.loading = true;
-				this.calendarEventService.deleteCalendarEvent(this.currentEventId!).subscribe({
-					next: () => {
-						this.messageService.add({
-							severity: 'success',
-							summary: 'Success',
-							detail: 'Event deleted successfully',
-						});
-						this.loadCalendarEvents();
-						this.closeEventDialog();
-					},
-					error: (error: any) => {
-						this.messageService.add({
-							severity: 'error',
-							summary: 'Error',
-							detail: error.error?.message || 'Failed to delete event',
-						});
-						this.loading = false;
-					},
-				});
-			},
-		});
-	}
-
 	openNewEventDialog() {
-		this.selectedEvent = null;
 		const now = new Date();
 		const startDate = new Date(now);
 		startDate.setHours(9, 0, 0, 0);
 		const endDate = new Date(startDate);
 		endDate.setHours(10, 0, 0, 0);
-
-		this.eventForm = {
+		const initialForm: CalendarEventFormData = {
 			title: '',
 			description: '',
-			startDate: startDate,
-			endDate: endDate,
+			startDate,
+			endDate,
 			location: '',
 			color: '#3498db',
 			isAllDay: false,
 		};
-		this.showEventDialog = true;
+
+		const ref = this.dialogService.open(CalendarEventFormComponent, {
+			header: 'Create Event',
+			width: '600px',
+			modal: true,
+			dismissableMask: true,
+			styleClass: 'p-dialog-maximized-responsive',
+			data: { mode: 'create', initialForm },
+		});
+		ref.onClose.subscribe((result) => {
+			if (result) this.loadCalendarEvents();
+		});
 	}
 
-	closeEventDialog() {
-		this.showEventDialog = false;
-		this.selectedEvent = null;
-		this.currentEventId = null;
-		this.eventForm = {
-			title: '',
-			description: '',
-			startDate: null,
-			endDate: null,
-			location: '',
-			color: '#3498db',
-			isAllDay: false,
-		};
+	openRecurringEventDialog() {
+		const ref = this.dialogService.open(CalendarRecurringEventFormComponent, {
+			header: 'Create Recurring Events',
+			width: '600px',
+			modal: true,
+			dismissableMask: true,
+			styleClass: 'p-dialog-maximized-responsive',
+		});
+		ref.onClose.subscribe((result) => {
+			if (result) this.loadCalendarEvents();
+		});
 	}
 }

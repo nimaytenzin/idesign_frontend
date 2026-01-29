@@ -123,7 +123,7 @@ export class ViewProductComponent implements OnInit {
 
 	getImageUrl(imagePath: string): string {
 		if (!imagePath) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (imagePath.startsWith('http')) {
 			return imagePath;
@@ -151,7 +151,7 @@ export class ViewProductComponent implements OnInit {
 
 	getPrimaryImage(): string {
 		if (!this.product?.images || this.product.images.length === 0) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		const primaryImage = this.product.images.find(img => img.isPrimary);
 		const imagePath = primaryImage?.imagePath || this.product.images[0]?.imagePath;

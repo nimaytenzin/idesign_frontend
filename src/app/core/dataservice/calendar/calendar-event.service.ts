@@ -5,6 +5,7 @@ import {
 	CalendarEvent,
 	CalendarEventResponseDto,
 	CreateCalendarEventDto,
+	CreateRecurringCalendarEventDto,
 	UpdateCalendarEventDto,
 	CalendarEventQueryDto,
 } from './calendar-event.interface';
@@ -31,6 +32,21 @@ export class CalendarEventService {
 	}
 
 	/**
+	 * Create recurring calendar events (one event per occurrence in date range)
+	 * POST /calendar-events/recurring
+	 * @param dto Recurring event data (WEEKLY, MONTHLY, or ANNUALLY)
+	 * @returns Observable of CalendarEventResponseDto array
+	 */
+	createRecurringCalendarEvents(
+		dto: CreateRecurringCalendarEventDto
+	): Observable<CalendarEventResponseDto[]> {
+		return this.http.post<CalendarEventResponseDto[]>(
+			`${this.apiUrl}/recurring`,
+			dto
+		);
+	}
+
+	/**
 	 * Get all calendar events with optional date range filter
 	 * GET /calendar-events
 	 * @param query Optional query parameters for filtering by date range
@@ -53,6 +69,18 @@ export class CalendarEventService {
 		return this.http.get<CalendarEventResponseDto[]>(this.apiUrl, {
 			params,
 		});
+	}
+
+	/**
+	 * Get all events that overlap the current month (server UTC).
+	 * GET /calendar-events/this-month
+	 * No query parameters. Ordered by start ascending.
+	 * @returns Observable of CalendarEventResponseDto array
+	 */
+	getEventsThisMonth(): Observable<CalendarEventResponseDto[]> {
+		return this.http.get<CalendarEventResponseDto[]>(
+			`${this.apiUrl}/this-month`
+		);
 	}
 
 	/**

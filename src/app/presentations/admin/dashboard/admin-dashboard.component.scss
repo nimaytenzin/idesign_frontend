@@ -1,3 +1,50 @@
+// Dashboard layout and month picker
+.dashboard {
+	.dashboard-month-picker {
+		::ng-deep .dashboard-calendar.p-calendar .p-inputtext {
+			min-width: 120px;
+		}
+	}
+}
+
+// Content cards (chart, overview, financial summary, recent lists)
+.dashboard ::ng-deep .dashboard-content-card {
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+	border-radius: 0.75rem;
+	transition: box-shadow 0.2s ease;
+
+	&:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	}
+
+	.p-card-body {
+		padding: 0;
+	}
+	.p-card-content {
+		padding: 0;
+	}
+}
+
+// Stat cards (neutral: no gradients, border + subtle shadow)
+.dashboard ::ng-deep .dashboard-stat-card {
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+	border-radius: 0.75rem;
+	transition: box-shadow 0.2s ease;
+	background: #fff;
+
+	&:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	}
+
+	.p-card-body,
+	.p-card-content {
+		background: transparent !important;
+		border: 0;
+	}
+}
+
 // Custom styles for admin dashboard
 .admin-dashboard {
     background-color: #f8fafc;

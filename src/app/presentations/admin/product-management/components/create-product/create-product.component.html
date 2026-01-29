@@ -126,27 +126,7 @@
 					</div>
 
 					<div>
-						<label for="stockQuantity" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-							Stock Quantity <span class="text-red-500">*</span>
-						</label>
-						<p-inputnumber
-							id="stockQuantity"
-							[(ngModel)]="product.stockQuantity"
-							[showButtons]="true"
-							[step]="1"
-							[min]="0"
-							[class.ng-invalid]="submitted && product.stockQuantity === undefined"
-							styleClass="w-full"
-						></p-inputnumber>
-						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && product.stockQuantity === undefined">Stock quantity is required</small>
-					</div>
-				</div>
-
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<label for="material" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
-							Material <span class="text-red-500">*</span>
-						</label>
+						<label for="material" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Material</label>
 						<p-dropdown
 							id="material"
 							[options]="materialOptions"
@@ -154,13 +134,13 @@
 							optionValue="value"
 							[(ngModel)]="product.material"
 							placeholder="Select material"
-							[class.ng-invalid]="submitted && !product.material"
 							styleClass="w-full"
 							appendTo="body"
 						></p-dropdown>
-						<small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !product.material">Material is required</small>
 					</div>
+				</div>
 
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div>
 						<label for="weight" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Weight (grams)</label>
 						<p-inputnumber
@@ -172,18 +152,18 @@
 							styleClass="w-full"
 						></p-inputnumber>
 					</div>
-				</div>
 
-				<div>
-					<label for="dimensions" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Dimensions</label>
-					<input
-						id="dimensions"
-						type="text"
-						pInputText
-						[(ngModel)]="product.dimensions"
-						placeholder="e.g., 10cm x 10cm x 5cm"
-						class="w-full"
-					/>
+					<div>
+						<label for="dimensions" class="block text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Dimensions</label>
+						<input
+							id="dimensions"
+							type="text"
+							pInputText
+							[(ngModel)]="product.dimensions"
+							placeholder="e.g., 10cm x 10cm x 5cm"
+							class="w-full"
+						/>
+					</div>
 				</div>
 
 				<div class="flex items-center gap-6 pt-4 border-t border-gray-200">

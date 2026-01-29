@@ -7,6 +7,7 @@ import { User } from '../user/user.interface';
 import { DeliveryRate } from '../delivery-rate/delivery-rate.interface';
 import { OrderSource, FulfillmentStatus, FulfillmentType, TransactionType, PaymentStatus } from '../../constants/enums';
 import { PaymentMethod } from '../account/account.interface';
+import { PaymentReceipt } from '../payment-receipt/payment-receipt.interface';
 export { AccountType };
 export { OrderSource, FulfillmentStatus, FulfillmentType, TransactionType, PaymentStatus };
 
@@ -38,6 +39,7 @@ export interface Order {
 	// ============================================
 	id: number;
 	orderNumber: string; // Unique
+	invoiceNumber?: string | null;
 	customerId: number; // FK → Customer
 	
 	// ============================================
@@ -109,6 +111,7 @@ export interface Order {
 	deliveryRate?: DeliveryRate;
 	orderItems?: OrderItem[];
 	orderDiscounts?: OrderDiscount[];
+	paymentReceipts?: PaymentReceipt[];
 	transactions?: Transaction[];
 	affiliateCommissions?: any[]; // AffiliateCommission[]
 }
@@ -119,6 +122,22 @@ export interface CustomerDetailsDto {
 	phoneNumber?: string;
 	shippingAddress?: string;
 	billingAddress?: string;
+}
+
+/**
+ * Response from POST /orders/online/checkout (single entry: create order + initiate payment).
+ * Always contains order; success adds paymentInitiation; failure adds paymentFailed + paymentError.
+ */
+export interface OrderCheckoutResponseDto {
+	order: Order;
+	paymentInitiation?: {
+		paymentInstructionNumber: string;
+		bfsTransactionId: string;
+		amount: number;
+		bankList: Array<{ bankCode: string; bankName: string; [key: string]: unknown }>;
+	};
+	paymentFailed?: boolean;
+	paymentError?: string;
 }
 
 export interface CreateOrderDto {
@@ -134,7 +153,9 @@ export interface CreateOrderDto {
 	
 	// Payment Information
 	paymentMethod?: PaymentMethod; // Optional (CASH | MBOB | BDB_EPAY | TPAY | BNB_MPAY | ZPSS)
-	
+	/** Required when paymentMethod is present and not CASH (i.e. MBOB, BDB_EPAY, TPAY, BNB_MPAY, ZPSS). Optional when CASH or missing. */
+	bankAccountId?: number;
+
 	// Financial Information
 	discount?: number; // Optional, min: 0
 	voucherCode?: string; // Optional
@@ -151,6 +172,12 @@ export interface CreateOrderDto {
 	
 	// User References
 	servedBy?: number; // Optional (auto-set for counter orders)
+}
+
+/** For POST /orders/counter/pay-now-pickup-later. paymentMethod required; fulfillmentType forced to PICKUP by backend. */
+export interface CounterPayNowPickupLaterDto extends CreateOrderDto {
+	paymentMethod: PaymentMethod; // Required
+	transactionId?: string; // Optional
 }
 
 export interface UpdateOrderDto {
@@ -196,6 +223,11 @@ export interface CancelOrderDto {
 	internalNotes?: string;
 }
 
+/** POST /orders/:id/mark-confirmed. Optional body; only internalNotes is used. PLACED → CONFIRMED, confirmedAt set; payment unchanged. */
+export interface MarkConfirmedDto {
+	internalNotes?: string;
+}
+
 export interface DeliverOrderDto {
 	internalNotes?: string; // Optional - Internal notes about delivery
 }
@@ -226,6 +258,31 @@ export interface GetOrdersPaginatedQueryDto {
 	page?: number; // Page number (minimum: 1, default: 1)
 	limit?: number; // Number of items per page (minimum: 1, maximum: 100, default: 10)
 	fulfillmentStatus?: FulfillmentStatus; // Optional filter by fulfillment status
+	paymentStatus?: PaymentStatus; // Optional filter by payment status
+	orderSource?: OrderSource; // Optional filter by order source (COUNTER | ONLINE)
+	fulfillmentType?: FulfillmentType; // Optional filter by fulfillment type (DELIVERY | PICKUP | INSTORE)
+	placedAtFrom?: string; // ISO date string
+	placedAtTo?: string; // ISO date string
+	deliveredAtFrom?: string; // ISO date string (for Completed: DELIVERED+PAID)
+	deliveredAtTo?: string; // ISO date string
+	updatedAtFrom?: string; // ISO date string (for Cancelled: CANCELED)
+	updatedAtTo?: string; // ISO date string
+}
+
+/** GET /orders/admin/completed: page, limit, deliveredAtFrom?, deliveredAtTo?. Omit From/To = current month. */
+export interface GetOrdersCompletedQueryDto {
+	page?: number;
+	limit?: number;
+	deliveredAtFrom?: string; // ISO date string (yy-mm-dd)
+	deliveredAtTo?: string; // ISO date string (yy-mm-dd)
+}
+
+/** GET /orders/admin/cancelled: page, limit, updatedAtFrom?, updatedAtTo?. Omit From/To = current month. */
+export interface GetOrdersCancelledQueryDto {
+	page?: number;
+	limit?: number;
+	updatedAtFrom?: string; // ISO date string (yy-mm-dd)
+	updatedAtTo?: string; // ISO date string (yy-mm-dd)
 }
 
 // Paginated Response DTO
@@ -324,6 +381,23 @@ export interface OrderStatisticsByMonthResponseDto {
 	completedRevenue: number;
 	cancelledOrders: number;
 	pendingOrders: number;
+}
+
+/** GET /orders/monthly-report – totalOrders (≠ PLACED), revenue, totalToCollect */
+export interface OrderMonthlyReportResponseDto {
+	year: number;
+	month: number;
+	totalOrders: number;
+	revenue: number;
+	totalToCollect: number;
+}
+
+/** GET /orders/daily-stats – daily summary (date, totalOrders, revenue, totalToCollect) */
+export interface OrderDailyStatsResponseDto {
+	date: string; // YYYY-MM-DD
+	totalOrders: number;
+	revenue: number;
+	totalToCollect: number;
 }
 
 // Chart of Accounts Interfaces

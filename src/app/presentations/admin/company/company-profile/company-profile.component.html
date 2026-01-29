@@ -344,7 +344,7 @@
 						</div>
 
 						<!-- Social Media -->
-						<div *ngIf="company.facebookLink || company.tiktokLink" class="pb-6 border-b border-gray-200">
+						<div *ngIf="company.facebookLink || company.instagramLink || company.tiktokLink" class="pb-6 border-b border-gray-200">
 							<h4 class="font-medium text-gray-500 uppercase mb-4">Social Media</h4>
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div *ngIf="company.facebookLink" class="flex items-center gap-3">
@@ -354,9 +354,23 @@
 									<a
 										[href]="company.facebookLink"
 										target="_blank"
+										rel="noopener noreferrer"
 										class="text-blue-600 hover:underline"
 									>
 										{{ company.facebookLink }}
+									</a>
+								</div>
+								<div *ngIf="company.instagramLink" class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-lg bg-pink-50 flex items-center justify-center flex-shrink-0">
+										<i class="pi pi-instagram text-pink-600"></i>
+									</div>
+									<a
+										[href]="company.instagramLink"
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-blue-600 hover:underline"
+									>
+										{{ company.instagramLink }}
 									</a>
 								</div>
 								<div *ngIf="company.tiktokLink" class="flex items-center gap-3">
@@ -366,6 +380,7 @@
 									<a
 										[href]="company.tiktokLink"
 										target="_blank"
+										rel="noopener noreferrer"
 										class="text-blue-600 hover:underline"
 									>
 										{{ company.tiktokLink }}

@@ -10,11 +10,13 @@ import { routes } from './app/app.routes';
 
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { DialogService } from 'primeng/dynamicdialog';
 import CustomTheme from './assets/custom-theme';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 
 bootstrapApplication(AppComponent, {
 	providers: [
+		DialogService,
 		provideRouter(
 			routes,
 			withInMemoryScrolling({

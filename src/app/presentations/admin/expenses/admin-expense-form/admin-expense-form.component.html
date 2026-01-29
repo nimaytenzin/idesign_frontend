@@ -1,0 +1,87 @@
+<div class="expense-form p-4">
+	<form (ngSubmit)="save()" class="space-y-4">
+		<!-- 1. Type -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+			<p-dropdown
+				[(ngModel)]="form.type"
+				name="type"
+				[options]="typeOptions"
+				optionLabel="label"
+				optionValue="value"
+				placeholder="Select type"
+				[showClear]="true"
+				styleClass="w-full"
+				(onChange)="onTypeChange()"
+			></p-dropdown>
+		</div>
+		<!-- 2. Subtype -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subtype</label>
+			<p-dropdown
+				[(ngModel)]="form.subtype"
+				name="subtype"
+				[options]="subtypeOptions"
+				optionLabel="label"
+				optionValue="value"
+				placeholder="Select subtype (depends on type)"
+				[showClear]="true"
+				[disabled]="!form.type"
+				styleClass="w-full"
+			></p-dropdown>
+		</div>
+		<!-- 3. Description -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description <span class="text-red-500">*</span></label>
+			<input
+				type="text"
+				pInputText
+				[(ngModel)]="form.description"
+				name="description"
+				maxlength="255"
+				class="w-full"
+				placeholder="e.g. Office supplies"
+			/>
+			<small class="text-red-500" *ngIf="submitted && !(form.description || '').trim()">Required</small>
+		</div>
+		<!-- 4. Amount -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount <span class="text-red-500">*</span></label>
+			<p-inputnumber
+				[(ngModel)]="form.amount"
+				name="amount"
+				[min]="0"
+				[minFractionDigits]="2"
+				[maxFractionDigits]="2"
+				mode="decimal"
+				styleClass="w-full"
+				inputStyleClass="w-full"
+			></p-inputnumber>
+			<small class="text-red-500" *ngIf="submitted && (form.amount == null || form.amount < 0)">Required, must be ≥ 0</small>
+		</div>
+		<!-- 5. Date -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date <span class="text-red-500">*</span></label>
+			<input type="date" pInputText [(ngModel)]="form.date" name="date" class="w-full" />
+			<small class="text-red-500" *ngIf="submitted && !form.date">Required</small>
+		</div>
+		<!-- 6. Notes -->
+		<div>
+			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>
+			<textarea
+				pInputTextarea
+				[(ngModel)]="form.notes"
+				name="notes"
+				[rows]="3"
+				maxlength="5000"
+				class="w-full"
+				placeholder="Optional"
+			></textarea>
+		</div>
+
+		<div class="flex justify-end gap-2 pt-2">
+			<p-button label="Cancel" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="cancel()" [disabled]="loading"></p-button>
+			<p-button [label]="isEditMode ? 'Update' : 'Save'" icon="pi pi-check" (onClick)="save()" [loading]="loading"></p-button>
+		</div>
+	</form>
+</div>

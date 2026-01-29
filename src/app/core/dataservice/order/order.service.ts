@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import {
 	Order,
 	CreateOrderDto,
+	OrderCheckoutResponseDto,
+	CounterPayNowPickupLaterDto,
 	UpdateOrderDto,
 	UpdateOrderStatusDto,
 	UpdateFulfillmentStatusDto,
@@ -11,15 +13,20 @@ import {
 	ProcessPaymentDto,
 	VerifyOrderDto,
 	CancelOrderDto,
+	MarkConfirmedDto,
 	DeliverOrderDto,
 	ConfirmOrderDto,
 	ShipOrderDto,
 	OrderQueryDto,
 	GetOrdersPaginatedQueryDto,
+	GetOrdersCompletedQueryDto,
+	GetOrdersCancelledQueryDto,
 	PaginatedResponseDto,
 	MonthQueryDto,
 	OrdersByMonthResponseDto,
 	OrderStatisticsByMonthResponseDto,
+	OrderMonthlyReportResponseDto,
+	OrderDailyStatsResponseDto,
 	ChartOfAccount,
 	CreateChartOfAccountDto,
 	UpdateChartOfAccountDto,
@@ -32,6 +39,7 @@ import {
 	GetCustomerStatusDto,
 	OrderTimelineEvent,
 } from './order.interface';
+import { RecordOrderPaymentDto, PaymentReceipt } from '../payment-receipt/payment-receipt.interface';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -45,23 +53,50 @@ export class OrderService {
 	// ==================== Order Management ====================
 
 	/**
-	 * Create a new order
-	 * Automatically generates orderNumber (ORD-YYYY-####)
-	 * Sets fulfillmentStatus to PLACED
-	 * Sets paymentStatus to PENDING (or PAID for ZPSS)
-	 * Sets placedAt timestamp
-	 * Sends SMS notification:
-	 * - If orderType: 'COUNTER' → COUNTER_PAYMENT_RECEIPT (7-minute delay)
-	 * - If orderType: 'ONLINE' → ORDER_PLACED (immediate)
-	 * For ZPSS: Auto-verifies and sets payment to PAID
+	 * Single entry point for online order: create order + initiate payment.
+	 * POST /orders/online/checkout
+	 * Returns order + paymentInitiation on success; order + paymentFailed + paymentError when order created but payment init failed.
+	 * Do not call place-order + initiate-payment separately for the initial flow.
 	 */
-	createOrder(orderData: CreateOrderDto): Observable<Order> {
-		return this.http.post<Order>(this.apiUrl, orderData);
+	createOnlineCheckout(orderData: CreateOrderDto): Observable<OrderCheckoutResponseDto> {
+		return this.http.post<OrderCheckoutResponseDto>(`${this.apiUrl}/online/checkout`, orderData);
+	}
+
+	/**
+	 * Create a new order (legacy – use createOnlineCheckout for online flow)
+	 * POST /orders/online/place-order
+	 */
+	createOnlineOrder(orderData: CreateOrderDto): Observable<Order> {
+		return this.http.post<Order>(`${this.apiUrl}/online/place-order`, orderData);
 	}
 
 
+	/**
+	 * POST /orders/instore/place-order
+	 * Counter: pay-now. Frontend sends fulfillmentStatus: CONFIRMED. bankAccountId required when paymentMethod is not CASH (MBOB, BDB_EPAY, TPAY, BNB_MPAY, ZPSS); omit for CASH.
+	 */
 	instorePlaceOrder(orderData: CreateOrderDto): Observable<Order> {
 		return this.http.post<Order>(`${this.apiUrl}/instore/place-order`, orderData);
+	}
+
+	
+
+	/**
+	 * POST /orders/:id/mark-collected
+	 * Mark PICKUP/INSTORE as collected. Preconditions: fulfillmentStatus CONFIRMED or PROCESSING.
+	 * Effect: fulfillmentStatus → DELIVERED, deliveredAt = now.
+	 */
+	markOrderAsCollected(id: number): Observable<Order> {
+		return this.http.post<Order>(`${this.apiUrl}/${id}/mark-collected`, {});
+	}
+
+	/**
+	 * POST /orders/:id/mark-confirmed
+	 * PLACED → CONFIRMED, sets confirmedAt. Payment unchanged. Body optional (internalNotes).
+	 * Backend returns 400 if fulfillmentStatus !== PLACED.
+	 */
+	markOrderAsConfirmed(id: number, dto?: MarkConfirmedDto): Observable<Order> {
+		return this.http.post<Order>(`${this.apiUrl}/${id}/mark-confirmed`, dto ?? {});
 	}
 
 	getOrders(query?: OrderQueryDto): Observable<Order[]> {
@@ -106,11 +141,90 @@ export class OrderService {
 			if (query.page !== undefined) params = params.set('page', query.page.toString());
 			if (query.limit !== undefined) params = params.set('limit', query.limit.toString());
 			if (query.fulfillmentStatus) params = params.set('fulfillmentStatus', query.fulfillmentStatus);
+			if (query.paymentStatus) params = params.set('paymentStatus', query.paymentStatus);
+			if (query.orderSource) params = params.set('orderSource', query.orderSource);
+			if (query.fulfillmentType) params = params.set('fulfillmentType', query.fulfillmentType);
+			if (query.placedAtFrom) params = params.set('placedAtFrom', query.placedAtFrom);
+			if (query.placedAtTo) params = params.set('placedAtTo', query.placedAtTo);
+			if (query.deliveredAtFrom) params = params.set('deliveredAtFrom', query.deliveredAtFrom);
+			if (query.deliveredAtTo) params = params.set('deliveredAtTo', query.deliveredAtTo);
+			if (query.updatedAtFrom) params = params.set('updatedAtFrom', query.updatedAtFrom);
+			if (query.updatedAtTo) params = params.set('updatedAtTo', query.updatedAtTo);
 		}
 		return this.http.get<PaginatedResponseDto<Order>>(`${this.apiUrl}/paginated`, { params });
 	}
 
-	
+	// ==================== Unpaginated by status ====================
+
+	/**
+	 * Get orders to confirm (PLACED + PENDING). Unpaginated. Includes customer, orderItems (with product), orderDiscounts. Sorted by placedAt desc.
+	 */
+	getOrdersToConfirm(): Observable<Order[]> {
+		return this.http.get<Order[]>(`${this.apiUrl}/to-confirm`);
+	}
+
+	/**
+	 * Get orders to deliver (SHIPPING). Unpaginated. Includes customer, orderItems (with product), orderDiscounts. Sorted by shippingAt asc, then placedAt desc.
+	 */
+	getOrdersToDeliver(): Observable<Order[]> {
+		return this.http.get<Order[]>(`${this.apiUrl}/to-deliver`);
+	}
+
+
+	// GET Orders for pickup
+
+	getOrdersReadyForPickup(): Observable<Order[]> {
+		return this.http.get<Order[]>(`${this.apiUrl}/for-pickup`);
+	}
+
+	/**
+	 * GET /orders/admin/unpaid-delivery
+	 * DELIVERED + (PENDING | PARTIAL). Unpaginated. Sort: deliveredAt DESC, placedAt DESC.
+	 */
+	getUnpaidDeliveredOrders(): Observable<Order[]> {
+		return this.http.get<Order[]>(`${this.apiUrl}/unpaid-delivery`);
+	}
+
+
+	/**
+	 * Get orders to track (SHIPPING, in transit). Unpaginated. Includes customer, orderItems (with product), orderDiscounts. Sorted by shippingAt asc, then placedAt desc.
+	 */
+	getOrdersToTrack(): Observable<Order[]> {
+		return this.http.get<Order[]>(`${this.apiUrl}/to-track`);
+	}
+
+	// ==================== Admin Workflow & History (GET /orders/admin/...) ====================
+
+
+	/**
+	 * GET /orders/admin/completed
+	 * DELIVERED + PAID. Paginated. deliveredAtFrom/To optional; omitted = current month. Sort: deliveredAt DESC.
+	 */
+	getOrdersAdminCompleted(query?: GetOrdersCompletedQueryDto): Observable<PaginatedResponseDto<Order>> {
+		let params = new HttpParams();
+		if (query) {
+			if (query.page !== undefined) params = params.set('page', query.page.toString());
+			if (query.limit !== undefined) params = params.set('limit', query.limit.toString());
+			if (query.deliveredAtFrom) params = params.set('deliveredAtFrom', query.deliveredAtFrom);
+			if (query.deliveredAtTo) params = params.set('deliveredAtTo', query.deliveredAtTo);
+		}
+		return this.http.get<PaginatedResponseDto<Order>>(`${this.apiUrl}/admin/completed`, { params });
+	}
+
+	/**
+	 * GET /orders/admin/cancelled
+	 * CANCELED. Paginated. updatedAtFrom/To optional; omitted = current month. Sort: updatedAt DESC.
+	 */
+	getOrdersAdminCancelled(query?: GetOrdersCancelledQueryDto): Observable<PaginatedResponseDto<Order>> {
+		let params = new HttpParams();
+		if (query) {
+			if (query.page !== undefined) params = params.set('page', query.page.toString());
+			if (query.limit !== undefined) params = params.set('limit', query.limit.toString());
+			if (query.updatedAtFrom) params = params.set('updatedAtFrom', query.updatedAtFrom);
+			if (query.updatedAtTo) params = params.set('updatedAtTo', query.updatedAtTo);
+		}
+		return this.http.get<PaginatedResponseDto<Order>>(`${this.apiUrl}/admin/cancelled`, { params });
+	}
 
 	/**
 	 * Get order by ID
@@ -257,6 +371,14 @@ export class OrderService {
 	}
 
 	/**
+	 * PATCH /orders/:id/delivery-details
+	 * Update driver, vehicle, expected date, delivery notes for DELIVERY orders (CONFIRMED, PROCESSING, or SHIPPING).
+	 */
+	updateOrderDeliveryDetails(id: number, dto: ShipOrderDto): Observable<Order> {
+		return this.http.patch<Order>(`${this.apiUrl}/${id}/delivery-details`, dto);
+	}
+
+	/**
 	 * Legacy alias for backward compatibility
 	 */
 	deliverOrder(id: number, deliverData?: DeliverOrderDto): Observable<Order> {
@@ -299,6 +421,20 @@ export class OrderService {
 		return this.http.get<GetCustomerStatusDto>(`${this.apiUrl}/${id}/customer-status`);
 	}
 
+	/**
+	 * Get payment receipts for an order. Includes bankAccount.
+	 */
+	getOrderPaymentReceipts(id: number): Observable<PaymentReceipt[]> {
+		return this.http.get<PaymentReceipt[]>(`${this.apiUrl}/${id}/payment-receipts`);
+	}
+
+	/**
+	 * Record payment (full or partial). Creates PaymentReceipt. Body: RecordOrderPaymentDto.
+	 */
+	recordOrderPayment(id: number, dto: RecordOrderPaymentDto): Observable<PaymentReceipt> {
+		return this.http.post<PaymentReceipt>(`${this.apiUrl}/${id}/payments`, dto);
+	}
+
 	// ==================== Reporting ====================
 
 	/**
@@ -325,6 +461,24 @@ export class OrderService {
 			.set('year', year.toString())
 			.set('month', month.toString());
 		return this.http.get<OrderStatisticsByMonthResponseDto>(`${this.apiUrl}/statistics/by-month`, { params });
+	}
+
+	/**
+	 * GET /orders/monthly-report – totalOrders (≠ PLACED), revenue, totalToCollect
+	 */
+	getOrderMonthlyReport(year: number, month: number): Observable<OrderMonthlyReportResponseDto> {
+		const params = new HttpParams()
+			.set('year', year.toString())
+			.set('month', month.toString());
+		return this.http.get<OrderMonthlyReportResponseDto>(`${this.apiUrl}/monthly-report`, { params });
+	}
+
+	/**
+	 * GET /orders/daily-stats – daily summary (date YYYY-MM-DD required)
+	 */
+	getOrderDailyStats(date: string): Observable<OrderDailyStatsResponseDto> {
+		const params = new HttpParams().set('date', date);
+		return this.http.get<OrderDailyStatsResponseDto>(`${this.apiUrl}/daily-stats`, { params });
 	}
 
 	/**

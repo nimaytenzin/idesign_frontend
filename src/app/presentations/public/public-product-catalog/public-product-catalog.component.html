@@ -18,129 +18,8 @@
 	<!-- Main Content -->
 	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 		<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-			<!-- Sidebar Filters -->
-			<div class="lg:col-span-1">
-				<div
-					class="bg-white rounded-lg border border-slate-200 p-6 sticky top-8 filter-sidebar"
-				>
-					<div class="flex justify-between items-center mb-6">
-						<div class="flex items-center gap-2">
-							<h2 class="text-lg font-semibold text-slate-900">
-								Filters
-							</h2>
-							<span
-								*ngIf="hasActiveFilters()"
-								class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-teal-500 rounded-full"
-							>
-								{{ getActiveFilterCount() }}
-							</span>
-						</div>
-						<button
-							class="text-sm text-teal-600 hover:text-teal-600 font-medium transition-colors duration-200"
-							[disabled]="!hasActiveFilters()"
-							[class.opacity-50]="!hasActiveFilters()"
-							[class.cursor-not-allowed]="!hasActiveFilters()"
-							(click)="clearFilters()"
-						>
-							Clear all
-						</button>
-					</div>
-
-					<!-- Filter Sections -->
-					<div class="space-y-6">
-						<!-- Search -->
-						<div>
-							<label class="block text-sm font-medium text-slate-700 mb-2">
-								Search
-							</label>
-							<div class="relative">
-								<input
-									type="text"
-									[(ngModel)]="searchTerm"
-									(keyup.enter)="onSearch()"
-									placeholder="Search by name..."
-									class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition-all duration-200 bg-white"
-								/>
-								<i class="pi pi-search absolute left-3 top-2.5 text-slate-400"></i>
-							</div>
-							<button
-								type="button"
-								class="w-full mt-3 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium transition-colors duration-200"
-								(click)="onSearch()"
-							>
-								Search
-							</button>
-						</div>
-
-						<!-- Category Filter -->
-						<div>
-							<label class="block text-sm font-medium text-slate-700 mb-2">
-								Category
-							</label>
-							<p-dropdown
-								[options]="categoryOptions"
-								[(ngModel)]="selectedCategoryId"
-								(onChange)="onCategoryChange($event.value)"
-								optionLabel="label"
-								optionValue="value"
-								placeholder="Select Category"
-								styleClass="w-full"
-							></p-dropdown>
-						</div>
-
-						<!-- Sub-Category Filter -->
-						<div *ngIf="selectedCategoryId">
-							<label class="block text-sm font-medium text-slate-700 mb-2">
-								Sub-Category
-							</label>
-							<p-dropdown
-								[options]="subCategoryOptions"
-								[(ngModel)]="selectedSubCategoryId"
-								(onChange)="onSubCategoryChange()"
-								optionLabel="label"
-								optionValue="value"
-								placeholder="Select Sub-Category"
-								styleClass="w-full"
-							></p-dropdown>
-						</div>
-
-						<!-- Material Filter -->
-						<div>
-							<label class="block text-sm font-medium text-slate-700 mb-2">
-								Material
-							</label>
-							<p-dropdown
-								[options]="materialOptions"
-								[(ngModel)]="selectedMaterial"
-								(onChange)="onMaterialChange()"
-								optionLabel="label"
-								optionValue="value"
-								placeholder="Select Material"
-								styleClass="w-full"
-							></p-dropdown>
-						</div>
-
-						<!-- Price Range Filter -->
-						<div>
-							<label class="block text-sm font-medium text-slate-700 mb-2">
-								Price Range
-							</label>
-							<p-dropdown
-								[options]="priceRangeOptions"
-								[(ngModel)]="priceRangeFilter"
-								(onChange)="onPriceRangeChange()"
-								optionLabel="label"
-								optionValue="value"
-								placeholder="Select Price Range"
-								styleClass="w-full"
-							></p-dropdown>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Product Grid/List -->
-			<div class="lg:col-span-3">
+			<!-- Product Grid/List - First on mobile -->
+			<div class="lg:col-span-3 order-1 lg:order-2">
 				<!-- Toolbar -->
 				<div
 					class="bg-white rounded-lg border border-slate-200 p-4 mb-6"
@@ -154,7 +33,18 @@
 						</p>
 
 						<!-- Toolbar Actions -->
-						<div class="flex items-center gap-4">
+						<div class="flex items-center gap-4 flex-wrap">
+							<!-- Filters (mobile: open p-sidebar) -->
+							<button
+								type="button"
+								class="lg:hidden flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors"
+								(click)="openFiltersSidebar()"
+								aria-label="Open filters"
+							>
+								<i class="pi pi-filter"></i>
+								Filters
+								<span *ngIf="hasActiveFilters()" class="text-teal-600 font-semibold">({{ getActiveFilterCount() }})</span>
+							</button>
 							<!-- Sort Dropdown -->
 							<div class="flex items-center gap-3">
 								<label class="text-sm text-slate-600 font-medium">Sort:</label>
@@ -262,27 +152,7 @@
 								</span>
 							</div>
 
-							<!-- Stock Badge -->
-							<div class="absolute top-3 right-3">
-								<span
-									*ngIf="getStockStatus(product).severity === 'success'"
-									class="px-2 py-1 bg-white rounded-full text-xs font-medium text-green-700 shadow-sm"
-								>
-									In Stock
-								</span>
-								<span
-									*ngIf="getStockStatus(product).severity === 'warning'"
-									class="px-2 py-1 bg-white rounded-full text-xs font-medium text-amber-700 shadow-sm"
-								>
-									Low Stock
-								</span>
-								<span
-									*ngIf="getStockStatus(product).severity === 'danger'"
-									class="px-2 py-1 bg-white rounded-full text-xs font-medium text-red-700 shadow-sm"
-								>
-									Out of Stock
-								</span>
-							</div>
+						
 						</div>
 
 						<!-- Product Info -->
@@ -308,8 +178,9 @@
 							</p>
 
 							<!-- Material & Details -->
-							<div class="flex items-center gap-2 mb-3 flex-wrap">
+							<div class="flex items-center gap-2 mb-3 flex-wrap" *ngIf="product.material || product.weight">
 								<span
+									*ngIf="product.material"
 									class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium"
 								>
 									{{ product.material }}
@@ -357,10 +228,7 @@
 								<i class="pi pi-info-circle mr-1"></i>
 								{{ getDiscountConstraintMessage(product) }}
 							</p>
-							<!-- Stock Message -->
-							<p class="text-red-600 text-xs mt-2" *ngIf="!product.stockQuantity || product.stockQuantity === 0">
-								This item is out of stock. It may take 1-2 weeks to complete the order.
-							</p>
+							
 						</div>
 					</div>
 				</div>
@@ -409,6 +277,7 @@
 								<!-- Details Row -->
 								<div class="flex items-center gap-3 mb-4 flex-wrap">
 									<span
+										*ngIf="product.material"
 										class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium"
 									>
 										{{ product.material }}
@@ -424,24 +293,6 @@
 										*ngIf="product.dimensions"
 									>
 										{{ product.dimensions }}
-									</span>
-									<span
-										*ngIf="getStockStatus(product).severity === 'success'"
-										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-									>
-										In Stock
-									</span>
-									<span
-										*ngIf="getStockStatus(product).severity === 'warning'"
-										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
-									>
-										Low Stock
-									</span>
-									<span
-										*ngIf="getStockStatus(product).severity === 'danger'"
-										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
-									>
-										Out of Stock
 									</span>
 								</div>
 
@@ -521,9 +372,205 @@
 					></p-paginator>
 				</div>
 			</div>
+
+			<!-- Sidebar Filters - Desktop only (mobile uses p-sidebar) -->
+			<div class="hidden lg:block lg:col-span-1 order-2 lg:order-1">
+				<div class="bg-white rounded-lg border border-slate-200 p-6 lg:sticky lg:top-8 filter-sidebar">
+					<div class="flex justify-between items-center mb-6">
+						<div class="flex items-center gap-2">
+							<h2 class="text-lg font-semibold text-slate-900">Filters</h2>
+							<span
+								*ngIf="hasActiveFilters()"
+								class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-teal-500 rounded-full"
+							>
+								{{ getActiveFilterCount() }}
+							</span>
+						</div>
+						<button
+							class="text-sm text-teal-600 hover:text-teal-700 font-medium transition-colors duration-200"
+							[disabled]="!hasActiveFilters()"
+							[class.opacity-50]="!hasActiveFilters()"
+							[class.cursor-not-allowed]="!hasActiveFilters()"
+							(click)="clearFilters()"
+						>
+							Clear all
+						</button>
+					</div>
+
+					<div class="space-y-6">
+						<!-- Search -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">Search</label>
+							<div class="relative">
+								<input
+									type="text"
+									[(ngModel)]="searchTerm"
+									(keyup.enter)="onSearch()"
+									placeholder="Search by name..."
+									class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition-all duration-200 bg-white"
+								/>
+								<i class="pi pi-search absolute left-3 top-2.5 text-slate-400"></i>
+							</div>
+							<button
+								type="button"
+								class="w-full mt-3 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium transition-colors duration-200"
+								(click)="onSearch()"
+							>
+								Search
+							</button>
+						</div>
+
+						<!-- Category Filter -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+							<p-dropdown
+								[options]="categoryOptions"
+								[(ngModel)]="selectedCategoryId"
+								(onChange)="onCategoryChange($event.value)"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Category"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
+
+						<!-- Sub-Category Filter -->
+						<div *ngIf="selectedCategoryId">
+							<label class="block text-sm font-medium text-slate-700 mb-2">Sub-Category</label>
+							<p-dropdown
+								[options]="subCategoryOptions"
+								[(ngModel)]="selectedSubCategoryId"
+								(onChange)="onSubCategoryChange()"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Sub-Category"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
+
+						<!-- Price Range Filter -->
+						<div>
+							<label class="block text-sm font-medium text-slate-700 mb-2">Price Range</label>
+							<p-dropdown
+								[options]="priceRangeOptions"
+								[(ngModel)]="priceRangeFilter"
+								(onChange)="onPriceRangeChange()"
+								optionLabel="label"
+								optionValue="value"
+								placeholder="Select Price Range"
+								styleClass="w-full"
+							></p-dropdown>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
+
+<!-- Mobile: PrimeNG sidebar for filters -->
+<p-sidebar
+	[(visible)]="filtersSidebarVisible"
+	position="left"
+	[modal]="true"
+	[dismissible]="true"
+	[showCloseIcon]="true"
+	styleClass="catalog-filters-sidebar"
+	[blockScroll]="true"
+>
+	<div class="flex flex-col h-full">
+		<div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+			<div class="flex items-center gap-2">
+				<h2 class="text-lg font-semibold text-slate-900 m-0">Filters</h2>
+				<span
+					*ngIf="hasActiveFilters()"
+					class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-teal-500 rounded-full"
+				>
+					{{ getActiveFilterCount() }}
+				</span>
+			</div>
+			<button
+				type="button"
+				class="text-sm text-teal-600 hover:text-teal-700 font-medium"
+				[disabled]="!hasActiveFilters()"
+				[class.opacity-50]="!hasActiveFilters()"
+				[class.cursor-not-allowed]="!hasActiveFilters()"
+				(click)="clearFilters()"
+			>
+				Clear all
+			</button>
+		</div>
+
+		<div class="space-y-6 overflow-y-auto flex-1">
+			<!-- Search -->
+			<div>
+				<label class="block text-sm font-medium text-slate-700 mb-2">Search</label>
+				<div class="relative">
+					<input
+						type="text"
+						[(ngModel)]="searchTerm"
+						(keyup.enter)="onSearch()"
+						placeholder="Search by name..."
+						class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-white"
+					/>
+					<i class="pi pi-search absolute left-3 top-2.5 text-slate-400"></i>
+				</div>
+				<button
+					type="button"
+					class="w-full mt-3 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium"
+					(click)="onSearch()"
+				>
+					Search
+				</button>
+			</div>
+
+			<!-- Category Filter -->
+			<div>
+				<label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+				<p-dropdown
+					[options]="categoryOptions"
+					[(ngModel)]="selectedCategoryId"
+					(onChange)="onCategoryChange($event.value)"
+					optionLabel="label"
+					optionValue="value"
+					placeholder="Select Category"
+					styleClass="w-full"
+					appendTo=".catalog-filters-sidebar"
+				></p-dropdown>
+			</div>
+
+			<!-- Sub-Category Filter -->
+			<div *ngIf="selectedCategoryId">
+				<label class="block text-sm font-medium text-slate-700 mb-2">Sub-Category</label>
+				<p-dropdown
+					[options]="subCategoryOptions"
+					[(ngModel)]="selectedSubCategoryId"
+					(onChange)="onSubCategoryChange()"
+					optionLabel="label"
+					optionValue="value"
+					placeholder="Select Sub-Category"
+					styleClass="w-full"
+					appendTo=".catalog-filters-sidebar"
+				></p-dropdown>
+			</div>
+
+			<!-- Price Range Filter -->
+			<div>
+				<label class="block text-sm font-medium text-slate-700 mb-2">Price Range</label>
+				<p-dropdown
+					[options]="priceRangeOptions"
+					[(ngModel)]="priceRangeFilter"
+					(onChange)="onPriceRangeChange()"
+					optionLabel="label"
+					optionValue="value"
+					placeholder="Select Price Range"
+					styleClass="w-full"
+					appendTo=".catalog-filters-sidebar"
+				></p-dropdown>
+			</div>
+		</div>
+	</div>
+</p-sidebar>
 
 <!-- Toast for notifications -->
 <p-toast></p-toast>

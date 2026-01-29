@@ -204,11 +204,6 @@
 						</th>
 						<th
 							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
-						>
-							Stock
-						</th>
-						<th
-							class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400"
 							pSortableColumn="createdAt"
 						>
 							<div class="flex items-center gap-3">
@@ -299,13 +294,6 @@
 							</ng-template>
 						</td>
 						<td class="px-5 py-4 whitespace-nowrap">
-							<span [class]="getStockStatusClasses(product.stockQuantity)">
-								{{
-									product.stockQuantity > 0 ? "In Stock" : "Out of Stock"
-								}}
-							</span>
-						</td>
-						<td class="px-5 py-4 whitespace-nowrap">
 							<p class="text-sm text-gray-700 dark:text-gray-400">
 								{{ formatDate(product.createdAt) }}
 							</p>
@@ -345,7 +333,7 @@
 				</ng-template>
 				<ng-template pTemplate="emptymessage">
 					<tr>
-						<td colspan="9" class="px-5 py-12 text-center">
+						<td colspan="8" class="px-5 py-12 text-center">
 							<div class="flex flex-col items-center gap-3">
 								<i class="pi pi-inbox text-4xl text-gray-300"></i>
 								<p class="text-gray-500">No products found</p>

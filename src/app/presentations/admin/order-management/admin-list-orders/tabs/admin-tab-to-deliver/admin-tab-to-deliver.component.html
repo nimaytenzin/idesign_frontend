@@ -1,0 +1,67 @@
+<div class="px-4 py-3 border-b border-gray-200">
+	<div class="flex items-center justify-between flex-wrap gap-2">
+		<h3 class="text-sm font-semibold text-gray-900">To Deliver</h3>
+		<span class="text-xs text-gray-500">{{ orders.length }} order(s)</span>
+	</div>
+</div>
+<div class="overflow-x-auto">
+	<p-table [value]="orders" [loading]="loading" [rows]="25" [first]="0" [totalRecords]="orders.length" [paginator]="false" styleClass="p-table-sm">
+		<ng-template pTemplate="header">
+			<tr>
+				<th class="text-left">Order</th>
+				<th class="text-left">Customer</th>
+				<th class="text-right">Amount</th>
+				<th class="text-center">Fulfillment Type</th>
+				<th class="text-center">Source</th>
+				<th class="text-center">Fulfillment Status</th>
+				<th class="text-center">Delivery Details</th>
+				<th class="text-center">Payment Details</th>
+			</tr>
+		</ng-template>
+		<ng-template pTemplate="body" let-order>
+			<tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer" (click)="rowSelect.emit(order)">
+				<td class="py-3 px-4">
+					<p class="font-semibold text-gray-900">{{ order.orderNumber }}</p>
+					<p class="text-xs text-gray-500">{{ order.placedAt | date : 'mediumDate' }}</p>
+				</td>
+				<td class="py-3 px-4">
+					<p class="text-sm text-gray-900">{{ order.customer?.name || 'N/A' }}</p>
+					<p class="text-xs text-gray-500">{{ order.customer?.phoneNumber || 'N/A' }}</p>
+				</td>
+				<td class="py-3 px-4 text-right"><p class="font-semibold text-gray-900">{{ formatCurrency(order.totalPayable) }}</p></td>
+				<td class="py-3 px-4 text-center">
+					<p-tag *ngIf="order.fulfillmentType === FulfillmentType.INSTORE" value="Walk-in" severity="info" styleClass="text-xs"></p-tag>
+					<p-tag *ngIf="order.fulfillmentType === FulfillmentType.PICKUP" value="Pickup" severity="secondary" styleClass="text-xs"></p-tag>
+					<p-tag *ngIf="order.fulfillmentType === FulfillmentType.DELIVERY" value="Delivery" severity="success" styleClass="text-xs"></p-tag>
+				</td>
+				<td class="py-3 px-4 text-center">
+					<p-tag [value]="order.orderSource" [severity]="order.orderSource === OrderSource.COUNTER ? 'info' : 'success'" styleClass="text-xs"></p-tag>
+				</td>
+				<td class="py-3 px-4 text-center">
+					<p-tag [value]="order.fulfillmentStatus" [severity]="getStatusSeverity(order.fulfillmentStatus)" styleClass="text-xs"></p-tag>
+				</td>
+				<td class="py-3 px-4">
+					<div *ngIf="order.fulfillmentType === FulfillmentType.DELIVERY" class="text-xs text-gray-600 space-y-1">
+						<p *ngIf="order.shippingAddress" class="truncate max-w-[200px]" [title]="order.shippingAddress"><span class="font-medium">Address:</span> {{ order.shippingAddress }}</p>
+						<p *ngIf="order.deliveryNotes" class="truncate max-w-[200px]" [title]="order.deliveryNotes"><span class="font-medium">Notes:</span> {{ order.deliveryNotes }}</p>
+						<p *ngIf="order.deliveryLocation"><span class="font-medium">Location:</span> {{ order.deliveryLocation }}</p>
+						<p *ngIf="order.deliveryMode"><span class="font-medium">Mode:</span> {{ order.deliveryMode }}</p>
+						<p *ngIf="order.deliveryCost && order.deliveryCost > 0"><span class="font-medium">Cost:</span> {{ formatCurrency(order.deliveryCost) }}</p>
+					</div>
+					<span *ngIf="order.fulfillmentType === FulfillmentType.INSTORE" class="text-xs text-gray-400">N/A</span>
+					<span *ngIf="order.fulfillmentType === FulfillmentType.PICKUP" class="text-xs text-gray-600">Store pickup</span>
+				</td>
+				<td class="py-3 px-4">
+					<div class="text-center space-y-1">
+						<p-tag [value]="order.paymentStatus" [severity]="getPaymentSeverity(order.paymentStatus)" styleClass="text-xs"></p-tag>
+						<p *ngIf="order.paymentMethod" class="text-xs text-gray-600 mt-1">{{ order.paymentMethod }}</p>
+						<p *ngIf="order.paidAt" class="text-xs text-gray-500 mt-1">{{ formatDate(order.paidAt) }}</p>
+					</div>
+				</td>
+			</tr>
+		</ng-template>
+		<ng-template pTemplate="emptymessage">
+			<tr><td colspan="8" class="text-center py-8"><div class="flex flex-col items-center"><i class="pi pi-inbox text-4xl text-gray-300"></i><p class="text-gray-500">No orders found</p></div></td></tr>
+		</ng-template>
+	</p-table>
+</div>

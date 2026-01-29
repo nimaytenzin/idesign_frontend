@@ -35,9 +35,9 @@
 				[numScroll]="1"
 				[circular]="true"
 				[autoplayInterval]="5000"
-				[showIndicators]="true"
-				[showNavigators]="true"
-				styleClass="custom-carousel"
+				[showIndicators]="featuredProducts.length > 1"
+				[showNavigators]="featuredProducts.length > 1"
+				[styleClass]="'custom-carousel' + (featuredProducts.length === 1 ? ' single-product' : '')"
 				[responsiveOptions]="responsiveOptions"
 			>
 				<!-- Product Card Template -->
@@ -125,6 +125,7 @@
 										{{ product.dimensions }}
 									</span>
 									<span
+										*ngIf="product.material"
 										class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600"
 									>
 										<i class="pi pi-palette mr-1 text-xs"></i>

@@ -264,7 +264,7 @@ export class AdminHeroSlideFormComponent implements OnInit {
 
 	getImageUrl(imageUri: string): string {
 		if (!imageUri) {
-			return '/assets/images/no-image.png';
+			return '/product-placeholder.png';
 		}
 		if (imageUri.startsWith('http')) {
 			return imageUri;

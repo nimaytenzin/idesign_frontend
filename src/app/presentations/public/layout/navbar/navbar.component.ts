@@ -103,7 +103,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 			return this.companyService.getLogoUrl();
 		}
 		// Fallback to default logo
-		return 'logo.png';
+		return '/assets/logo.png';
 	}
 
 	ngOnDestroy() {

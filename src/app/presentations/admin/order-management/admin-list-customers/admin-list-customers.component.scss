@@ -1,101 +1,61 @@
-.customer-management-container {
-	padding: 24px;
-	background: #FAFAFA;
-	min-height: calc(100vh - 64px);
-}
+// Admin List Customers – layout uses Tailwind; only PrimeNG overrides and scoped tweaks here
 
-.page-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 24px;
-	flex-wrap: wrap;
-	gap: 16px;
-}
+.admin-list-customers {
+	// PrimeNG InputGroup: align with card and table
+	::ng-deep .p-inputgroup {
+		border-radius: 0.375rem;
+		overflow: hidden;
 
-.page-title {
-	font-size: 28px;
-	font-weight: 700;
-	color: #1A1A1A;
-	margin: 0 0 8px 0;
-	font-family: 'Poppins', sans-serif;
-}
+		.p-inputgroup-addon {
+			background: var(--p-surface-100, #f3f4f6);
+			color: var(--p-text-color-secondary, #6b7280);
+			border-color: var(--p-surface-300, #d1d5db);
+			padding: 0.5rem 0.75rem;
 
-.page-subtitle {
-	font-size: 14px;
-	color: #616161;
-	margin: 0;
-	font-family: 'Roboto', sans-serif;
-}
+			&:first-child {
+				border-top-left-radius: 0.375rem;
+				border-bottom-left-radius: 0.375rem;
+			}
+			&:last-child {
+				border-top-right-radius: 0.375rem;
+				border-bottom-right-radius: 0.375rem;
+			}
+		}
 
-.content-card {
-	background: #FFFFFF;
-	border-radius: 12px;
-	padding: 24px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+		input {
+			border-radius: 0;
+			&:focus {
+				box-shadow: none;
+			}
+		}
+	}
 
-.toolbar {
-	margin-bottom: 16px;
-}
+	// Table: subtle borders and alignment
+	::ng-deep .admin-list-customers-table {
+		.p-datatable-thead > tr > th {
+			background: var(--p-surface-50, #f9fafb);
+			border-color: var(--p-surface-200, #e5e7eb);
+		}
+		.p-datatable-tbody > tr > td {
+			border-color: var(--p-surface-200, #e5e7eb);
+		}
+		.p-paginator {
+			background: var(--p-surface-50, #f9fafb);
+			border-color: var(--p-surface-200, #e5e7eb);
+			padding: 0.75rem 1rem;
+		}
+	}
 
-.search-input {
-	position: relative;
-	max-width: 400px;
+	// Dialog: consistent spacing
+	::ng-deep .admin-list-customers-dialog {
+		.p-dialog-header {
+			padding: 1rem 1.25rem;
+		}
+		.p-dialog-content {
+			padding: 0 1.25rem 1rem;
+		}
+		.p-dialog-footer {
+			padding: 0.75rem 1.25rem;
+		}
+	}
 }
-
-.customer-name {
-	font-weight: 600;
-	color: #1A1A1A;
-	font-size: 14px;
-}
-
-.action-buttons {
-	display: flex;
-	gap: 8px;
-}
-
-.form-dialog {
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
-}
-
-.field-group {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.field-group label {
-	font-size: 13px;
-	font-weight: 600;
-	color: #616161;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	font-family: 'Roboto', sans-serif;
-}
-
-.required {
-	color: #E53935;
-}
-
-.confirmation-content {
-	display: flex;
-	align-items: center;
-}
-
-.empty-state {
-	text-align: center;
-	padding: 60px 20px;
-}
-
-.empty-state i {
-	display: block;
-	margin-bottom: 16px;
-}
-
-.empty-state p {
-	margin: 0;
-}
-

@@ -9,7 +9,6 @@ import { Product as ServiceProduct } from '../../../core/dataservice/product/pro
 import { ImageUtilityService } from '../../../core/utility/image-utility.service';
 import { CartService } from '../../../core/services/cart.service';
 import { Discount, DiscountValueType, DiscountType, DiscountProduct } from '../../../core/dataservice/discount/discount.interface';
-import { ProductCategoryService } from '../../../core/dataservice/product-category/product-category.service';
 import { ProductSubCategoryService } from '../../../core/dataservice/product-sub-category/product-sub-category.service';
 import { ProductSubCategory } from '../../../core/dataservice/product-category/product-category.interface';
 import { discountCalculationService, Product as ServiceProductForDiscount, DiscountCalculationOptions, ProductDiscountResult, Discount as ServiceDiscount } from '../../../core/services/discount-calculation-frontend.service';
@@ -37,7 +36,6 @@ export interface Product {
 	isNewArrival?: boolean;
 	isBestSelling?: boolean;
 	createdAt: Date;
-	stockQuantity: number;
 	discount?: any;
 	discountPercentage?: number;
 }
@@ -163,7 +161,6 @@ export class ProductCarouselComponent implements OnInit {
 		const primaryImageUrl = this.imageUtilityService.getPrimaryImageUrl(
 			product.images
 		);
-		console.log('primaryImageUrl', primaryImageUrl);
 
 		// Determine status based on availability
 		let status: 'in-stock' | 'made-to-order' | 'out-of-stock' = 'in-stock';
@@ -189,7 +186,7 @@ export class ProductCarouselComponent implements OnInit {
 			id: product.id.toString(),
 			title: product.title,
 			shortDescription: product.shortDescription,
-			detailedDescription: product.detailedDescription,
+			detailedDescription: product.detailedDescription ?? undefined,
 			image: primaryImageUrl,
 			images: product.images?.map((img) =>
 				this.imageUtilityService.getImageUrl(img.imagePath)
@@ -200,7 +197,7 @@ export class ProductCarouselComponent implements OnInit {
 			originalPrice: hasDiscount ? product.price : undefined,
 			category: product.productSubCategory?.productCategory?.name || 'uncategorized',
 			subcategory: product.productSubCategory?.name || '',
-			material: product.material,
+			material: product.material ?? '',
 			status: status,
 			rating: product.rating || 0,
 			reviewCount: 0, // Review count not available in Product interface
@@ -208,7 +205,6 @@ export class ProductCarouselComponent implements OnInit {
 			isNewArrival: isNewArrival,
 			isBestSelling: isBestSelling,
 			createdAt: createdAt,
-			stockQuantity: product.stockQuantity || 0,
 			discount: discountInfo.bestDiscount,
 			discountPercentage: discountInfo.discountPercentage,
 		};
@@ -265,7 +261,7 @@ export class ProductCarouselComponent implements OnInit {
 			id: parseInt(product.id),
 			title: product.title,
 			shortDescription: product.shortDescription,
-			detailedDescription: product.detailedDescription || '',
+			detailedDescription: product.detailedDescription ?? '',
 			dimensions: product.dimensions,
 			weight: product.weight,
 			price: product.originalPrice || product.price, // Use original price if available
@@ -275,7 +271,6 @@ export class ProductCarouselComponent implements OnInit {
 			rating: product.rating || 0,
 			salesCount: 0,
 			isFeatured: product.isFeatured,
-			stockQuantity: product.stockQuantity || 0,
 			images: product.images?.map((img, index) => ({
 				id: index,
 				productId: parseInt(product.id),

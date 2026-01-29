@@ -3,6 +3,7 @@ import {
 	OnInit,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
+	HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +19,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { SidebarModule } from 'primeng/sidebar';
 
 // Data Services
 import { ProductService } from '../../../core/dataservice/product/product.service';
@@ -51,6 +53,7 @@ import { MessageService } from 'primeng/api';
 		TooltipModule,
 		ToastModule,
 		SelectButtonModule,
+		SidebarModule,
 	],
 	providers: [MessageService],
 	templateUrl: './public-product-catalog.component.html',
@@ -73,9 +76,14 @@ export class PublicProductCatalogComponent implements OnInit {
 	searchTerm = '';
 	selectedCategoryId: number | null = null;
 	selectedSubCategoryId: number | null = null;
-	selectedMaterial = '';
 	priceRangeFilter = '';
 	sortOption = 'newest';
+
+	// Mobile: filters in p-sidebar; isMobile for auto-close on filter change (optional)
+	isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+	// Mobile: PrimeNG sidebar for filters (opened via Filters button)
+	filtersSidebarVisible = false;
 
 	// Pagination
 	currentPage = 0;
@@ -90,17 +98,6 @@ export class PublicProductCatalogComponent implements OnInit {
 	];
 
 	// Filter Options
-	materialOptions = [
-		{ label: 'All Materials', value: '' },
-		{ label: 'PLA', value: 'PLA' },
-		{ label: 'ABS', value: 'ABS' },
-		{ label: 'PETG', value: 'PETG' },
-		{ label: 'TPU', value: 'TPU' },
-		{ label: 'Wood Filament', value: 'Wood' },
-		{ label: 'Metal Filament', value: 'Metal' },
-		{ label: 'Resin', value: 'Resin' },
-	];
-
 	priceRangeOptions = [
 		{ label: 'All Prices', value: '' },
 		{ label: 'Under Nu 5,000', value: '0-5000' },
@@ -128,7 +125,17 @@ export class PublicProductCatalogComponent implements OnInit {
 		private cdr: ChangeDetectorRef
 	) {}
 
+	@HostListener('window:resize')
+	onResize() {
+		const m = typeof window !== 'undefined' && window.innerWidth < 1024;
+		if (m !== this.isMobile) {
+			this.isMobile = m;
+			this.cdr.markForCheck();
+		}
+	}
+
 	ngOnInit() {
+		this.isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 		this.loadCategories();
 		this.loadSubCategories();
 		// Products will be loaded after subcategories are loaded
@@ -180,7 +187,6 @@ export class PublicProductCatalogComponent implements OnInit {
 		const query: ProductQueryDto = {
 			search: this.searchTerm || undefined,
 			sortBy: this.mapSortOptionToQuery(this.sortOption),
-			material: this.selectedMaterial || undefined,
 		};
 
 		this.productService.getProducts(query).subscribe({
@@ -273,47 +279,47 @@ export class PublicProductCatalogComponent implements OnInit {
 	// Filter Methods
 	onCategoryChange(categoryId: number | null) {
 		this.selectedCategoryId = categoryId;
-		// Reset subcategory when category changes
 		this.selectedSubCategoryId = null;
-
 		if (categoryId) {
-			// Filter subcategories to only show those in the selected category
 			this.filteredSubCategories = this.subCategories.filter(
 				(sub) => sub.productCategoryId === categoryId
 			);
 		} else {
-			// Show all subcategories if no category is selected
 			this.filteredSubCategories = this.subCategories;
 		}
-
+		if (this.isMobile) {
+			this.filtersSidebarVisible = false;
+			this.cdr.markForCheck();
+		}
 		this.resetPagination();
 		this.loadProducts();
 	}
 
 	onSubCategoryChange() {
-		// If a subcategory is selected, ensure the parent category is also set
 		if (this.selectedSubCategoryId) {
 			const subCategory = this.subCategories.find(
 				sub => sub.id === this.selectedSubCategoryId
 			);
 			if (subCategory && this.selectedCategoryId !== subCategory.productCategoryId) {
 				this.selectedCategoryId = subCategory.productCategoryId;
-				// Update filtered subcategories
 				this.filteredSubCategories = this.subCategories.filter(
 					(sub) => sub.productCategoryId === this.selectedCategoryId
 				);
 			}
 		}
-		this.resetPagination();
-		this.loadProducts();
-	}
-
-	onMaterialChange() {
+		if (this.isMobile) {
+			this.filtersSidebarVisible = false;
+			this.cdr.markForCheck();
+		}
 		this.resetPagination();
 		this.loadProducts();
 	}
 
 	onPriceRangeChange() {
+		if (this.isMobile) {
+			this.filtersSidebarVisible = false;
+			this.cdr.markForCheck();
+		}
 		this.resetPagination();
 		this.loadProducts();
 	}
@@ -324,18 +330,30 @@ export class PublicProductCatalogComponent implements OnInit {
 	}
 
 	onSearch() {
+		if (this.isMobile) {
+			this.filtersSidebarVisible = false;
+			this.cdr.markForCheck();
+		}
 		this.resetPagination();
 		this.loadProducts();
+	}
+
+	openFiltersSidebar() {
+		this.filtersSidebarVisible = true;
+		this.cdr.markForCheck();
 	}
 
 	clearFilters() {
 		this.searchTerm = '';
 		this.selectedCategoryId = null;
 		this.selectedSubCategoryId = null;
-		this.selectedMaterial = '';
 		this.priceRangeFilter = '';
 		this.sortOption = 'newest';
 		this.filteredSubCategories = this.subCategories;
+		if (this.isMobile) {
+			this.filtersSidebarVisible = false;
+			this.cdr.markForCheck();
+		}
 		this.resetPagination();
 		this.loadProducts();
 	}
@@ -348,7 +366,6 @@ export class PublicProductCatalogComponent implements OnInit {
 			this.searchTerm ||
 			this.selectedCategoryId ||
 			this.selectedSubCategoryId ||
-			this.selectedMaterial ||
 			this.priceRangeFilter
 		);
 	}
@@ -361,7 +378,6 @@ export class PublicProductCatalogComponent implements OnInit {
 		if (this.searchTerm) count++;
 		if (this.selectedCategoryId) count++;
 		if (this.selectedSubCategoryId) count++;
-		if (this.selectedMaterial) count++;
 		if (this.priceRangeFilter) count++;
 		return count;
 	}
@@ -422,17 +438,7 @@ export class PublicProductCatalogComponent implements OnInit {
 		return this.imageUtilityService.getPrimaryImageUrl(product.images);
 	}
 
-	getStockStatus(product: Product): { label: string; severity: 'success' | 'warning' | 'danger' } {
-		if (product.stockQuantity > 0) {
-			return { label: 'In Stock', severity: 'success' };
-		} else {
-			return { label: 'Out of Stock (Made to Order)', severity: 'warning' };
-		}
-	}
 
-	isInStock(product: Product): boolean {
-		return product.stockQuantity > 0;
-	}
 
 	getCategoryName(subCategoryId: number): string {
 		const subCategory = this.subCategories.find(

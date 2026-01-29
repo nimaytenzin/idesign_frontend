@@ -1,0 +1,81 @@
+<div class="p-4">
+	<p-toast></p-toast>
+	<form (ngSubmit)="save()" #f="ngForm">
+		<div class="space-y-4">
+			<div class="field">
+				<label for="accountName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Account name <span class="text-red-500">*</span>
+				</label>
+				<input
+					id="accountName"
+					type="text"
+					pInputText
+					[(ngModel)]="model.accountName"
+					name="accountName"
+					required
+					class="w-full"
+					[class.ng-invalid]="submitted && !model.accountName.trim()"
+					placeholder="e.g. Main Operating Account"
+				/>
+				<small class="p-error" *ngIf="submitted && !model.accountName.trim()">Account name is required</small>
+			</div>
+
+			<div class="field">
+				<label for="bankName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Bank name <span class="text-red-500">*</span>
+				</label>
+				<input
+					id="bankName"
+					type="text"
+					pInputText
+					[(ngModel)]="model.bankName"
+					name="bankName"
+					required
+					class="w-full"
+					[class.ng-invalid]="submitted && !model.bankName.trim()"
+					placeholder="e.g. Bank of Bhutan"
+				/>
+				<small class="p-error" *ngIf="submitted && !model.bankName.trim()">Bank name is required</small>
+			</div>
+
+			<div class="field">
+				<label for="accountNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					Account number <span class="text-red-500">*</span>
+				</label>
+				<input
+					id="accountNumber"
+					type="text"
+					pInputText
+					[(ngModel)]="model.accountNumber"
+					name="accountNumber"
+					required
+					class="w-full"
+					[class.ng-invalid]="submitted && !model.accountNumber.trim()"
+					placeholder="e.g. 1200012345678"
+				/>
+				<small class="p-error" *ngIf="submitted && !model.accountNumber.trim()">Account number is required</small>
+			</div>
+
+			<div class="field flex items-center justify-between gap-4">
+				<div>
+					<label for="isActive" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Active</label>
+					<p class="text-xs text-gray-500 dark:text-gray-400">Inactive accounts are hidden from payment and RMA PG selection.</p>
+				</div>
+				<p-inputSwitch id="isActive" [(ngModel)]="model.isActive" name="isActive"></p-inputSwitch>
+			</div>
+
+			<div class="field flex items-center justify-between gap-4">
+				<div>
+					<label for="useForRmaPg" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Use for RMA PG</label>
+					<p class="text-xs text-gray-500 dark:text-gray-400">Only one account can be used for RMA PG / online purchases. Enabling this will clear it on other accounts.</p>
+				</div>
+				<p-inputSwitch id="useForRmaPg" [(ngModel)]="model.useForRmaPg" name="useForRmaPg"></p-inputSwitch>
+			</div>
+		</div>
+
+		<div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="cancel()" [disabled]="loading"></p-button>
+			<p-button [label]="isEditMode ? 'Update' : 'Create'" icon="pi pi-check" (onClick)="save()" [loading]="loading"></p-button>
+		</div>
+	</form>
+</div>

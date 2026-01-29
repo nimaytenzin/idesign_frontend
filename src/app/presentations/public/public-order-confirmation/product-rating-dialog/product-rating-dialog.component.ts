@@ -115,7 +115,7 @@ export class ProductRatingDialogComponent implements OnInit, OnChanges {
 
 	getProductImage(product: Product | null): string {
 		if (!product || !product.images || product.images.length === 0) {
-			return '/assets/images/no-image.png';
+			return this.imageUtilityService.placeholderAssetUrl;
 		}
 		return this.imageUtilityService.getPrimaryImageUrl(product.images);
 	}

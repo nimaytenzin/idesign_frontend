@@ -1,5 +1,15 @@
 /* Product Carousel - Minimal SCSS for PrimeNG overrides only */
 
+/* Single product: prevent full-width, center the card */
+:host ::ng-deep .custom-carousel.single-product {
+    .p-carousel-item-list {
+        justify-content: center;
+    }
+    .p-carousel-item {
+        flex: 0 0 min(320px, 100%) !important;
+    }
+}
+
 /* Carousel container - remove padding */
 :host ::ng-deep .custom-carousel {
     .p-carousel-content {

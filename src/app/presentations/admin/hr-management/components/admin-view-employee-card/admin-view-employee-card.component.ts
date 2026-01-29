@@ -81,7 +81,7 @@ export class AdminViewEmployeeCardComponent implements OnInit {
 	}
 
 	parseImageUrl(profileImageUrl: string | undefined): string {
-		if (!profileImageUrl) return '/assets/images/no-image.png';
+		if (!profileImageUrl) return '/product-placeholder.png';
 		return `${environment.BASEAPI_URL}${profileImageUrl}`;
 	}
 

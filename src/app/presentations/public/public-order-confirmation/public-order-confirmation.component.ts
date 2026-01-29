@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { OrderService } from '../../../core/dataservice/order/order.service';
 import { ProductRatingDialogComponent } from './product-rating-dialog/product-rating-dialog.component';
-import { PaymentStatus } from '../../../core/constants/enums';
+import { PaymentStatus, FulfillmentType } from '../../../core/constants/enums';
 import { Order } from '../../../core/dataservice';
 
 @Component({
@@ -17,6 +17,7 @@ import { Order } from '../../../core/dataservice';
 })
 export class PublicOrderConfirmationComponent implements OnInit {
 	PaymentStatus = PaymentStatus; // Expose enum to template
+	FulfillmentType = FulfillmentType;
 	orderId: number | null = null;
 	orderNumber: string | null = null;
 	order: Order | null = null;
@@ -70,6 +71,26 @@ export class PublicOrderConfirmationComponent implements OnInit {
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
 		}).format(price)}`;
+	}
+
+	/** Human-readable fulfillment/delivery mode. */
+	getFulfillmentLabel(): string {
+		if (!this.order) return '';
+		switch (this.order.fulfillmentType) {
+			case FulfillmentType.DELIVERY:
+				return 'Delivery to address';
+			case FulfillmentType.PICKUP:
+				return 'Pick up in store';
+			case FulfillmentType.INSTORE:
+				return 'In store';
+			default:
+				return this.order.fulfillmentType || '—';
+		}
+	}
+
+	/** Print or save order summary. */
+	printOrderSummary(): void {
+		window.print();
 	}
 
 	goToProducts() {
